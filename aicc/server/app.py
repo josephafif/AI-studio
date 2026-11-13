@@ -477,6 +477,7 @@ def create_server(port: int = 0) -> Server:
     """Skapar servern (port 0 = välj en ledig port). Förbereder även datamappen."""
     paths.data_root().mkdir(parents=True, exist_ok=True)
     datasets.seed_builtin()
+    models.seed_examples()
     server = Server(("127.0.0.1", port), Handler)
     threading.Thread(target=system.devices, daemon=True).start()
     return server

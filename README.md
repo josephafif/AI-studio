@@ -27,9 +27,10 @@ tvingar fram det). All data sparas i mappen `data\` bredvid programmet.
    15–20 minuter på en fyrkärnig CPU.
 4. Klicka **Testa i chatten** och fråga till exempel *Vad är nätfiske?*
 
-Vill du prova direkt utan att träna? Välj **Modeller → Importera modell** och öppna
-`exempel\Lennart-tranad.aicc-modell.zip` – en Lennart som tränats 4 000 steg i panelen
-(rätt svar på 154 av 160 undanhållna testfrågor).
+En färdigtränad **Lennart** (4 000 steg, rätt svar på 154 av 160 undanhållna testfrågor)
+läggs in automatiskt första gången programmet startas, så du kan chatta direkt under
+**Testa modeller**. Vill du skapa och träna en egen från mallen enligt stegen ovan: ge den
+ett annat namn, eller byt namn på eller ta bort den medföljande först.
 
 Lennart är en helt vanlig modell i panelen. Du kan träna vidare från senaste checkpoint,
 med samma data eller med ett nytt dataset, och skapa hur många andra modeller som helst.

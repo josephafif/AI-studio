@@ -347,3 +347,24 @@ def set_active(model_id: str | None) -> None:
     settings = paths.read_json(_settings_path(), {}) or {}
     settings["aktiv_modell"] = model_id
     paths.write_json(_settings_path(), settings)
+
+
+# ------------------------------------------------------ medföljande modeller
+def seed_examples() -> None:
+    """Lägger in medföljande färdigtränade modeller (mappen exempel/) första gången programmet startas."""
+    marker = paths.data_root() / ".medfoljande_modeller.json"
+    done = paths.read_json(marker, []) or []
+    changed = False
+    for src in sorted((paths.APP_ROOT / "exempel").glob("*.aicc-modell.zip")):
+        if src.name in done:
+            continue
+        try:
+            model = import_model(src)
+            if not get_active():
+                set_active(model["id"])
+        except AppError:
+            pass
+        done.append(src.name)
+        changed = True
+    if changed:
+        paths.write_json(marker, done)
