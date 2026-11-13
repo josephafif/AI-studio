@@ -40,7 +40,8 @@ def devices(refresh: bool = False) -> dict:
         info = {"torch": None, "cuda": False, "gpus": [], "mps": False, "threads": None, "fel": None}
         try:
             kwargs = {"creationflags": subprocess.CREATE_NO_WINDOW} if os.name == "nt" else {}
-            res = subprocess.run([sys.executable, "-c", _PROBE], capture_output=True, text=True,
+            probe = f"import sys; sys.path.insert(0, {str(paths.APP_ROOT / '.paket')!r})\n" + _PROBE
+            res = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True,
                                  timeout=120, **kwargs)
             if res.returncode == 0:
                 import json

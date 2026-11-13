@@ -10,6 +10,9 @@ hanterar egna AI-språkmodeller. Allt körs på din egen dator – ingen data l�
 2. Dubbelklicka på **`installera.bat`**. Välj CPU- eller GPU-version (NVIDIA/CUDA) av PyTorch.
 3. Dubbelklicka på **`starta.bat`**. Kontrollpanelen öppnas i ett eget fönster.
 
+Om din Python saknar modulen `venv` (t.ex. den avskalade "embeddable"-varianten) lägger
+installationen paketen i mappen `.paket\` i stället – inget annat behöver göras.
+
 Saknas WebView2/pywebview öppnas panelen i webbläsaren i stället (`starta.bat --browser`
 tvingar fram det). All data sparas i mappen `data\` bredvid programmet.
 

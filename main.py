@@ -13,10 +13,18 @@ import threading
 import webbrowser
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+ROOT = Path(__file__).resolve().parent
+# Paket som installera.bat lagt i .paket (används när Python saknar venv, t.ex. "embeddable").
+for _p in (ROOT / ".paket", ROOT):
+    if _p.exists() and str(_p) not in sys.path:
+        sys.path.insert(0, str(_p))
 
 
 def main() -> int:
+    if len(sys.argv) == 3 and sys.argv[1] == "--worker":
+        # Träningsprocessen startas via den här filen så att sökvägarna ovan alltid gäller.
+        from aicc.engine.train_worker import main as worker_main
+        return worker_main(Path(sys.argv[2]))
     parser = argparse.ArgumentParser(description="AI Control Center")
     parser.add_argument("--port", type=int, default=0, help="port (standard: välj en ledig)")
     parser.add_argument("--browser", action="store_true", help="öppna i webbläsaren i stället för eget fönster")

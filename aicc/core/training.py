@@ -233,7 +233,7 @@ def start_run(model_id: str, dataset_id: str, params: dict | None = None,
         out = open(rdir / "process.log", "w", encoding="utf-8")
         try:
             proc = subprocess.Popen(
-                [python, "-m", "aicc.engine.train_worker", str(rdir)],
+                [python, str(paths.APP_ROOT / "main.py"), "--worker", str(rdir)],
                 cwd=str(paths.APP_ROOT), env=env, stdin=subprocess.DEVNULL,
                 stdout=out, stderr=subprocess.STDOUT, **kwargs)
         finally:
