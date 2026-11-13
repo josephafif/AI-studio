@@ -68,6 +68,7 @@ def _validate_params(params: dict) -> dict:
     if device not in ("auto", "cpu", "mps") and not device.startswith("cuda"):
         raise AppError("Okänd enhet")
     out["device"] = device
+    out["mixed_precision"] = bool(params.get("mixed_precision", True))
     return out
 
 

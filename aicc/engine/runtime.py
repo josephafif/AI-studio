@@ -59,9 +59,11 @@ def load_weights(model, ckpt_path: Path, device="cpu") -> dict:
     return ckpt
 
 
-def encode_records(tokenizer: Tokenizer, records) -> list[int]:
-    """Gör om poster till en enda tokenström. Varje post avslutas med <|end|>."""
-    ids: list[int] = []
+def encode_records(tokenizer: Tokenizer, records, progress=None):
+    """Gör om poster till en enda tokenström (kompakt ``array``). Varje post avslutas med <|end|>."""
+    from array import array
+    ids = array("i")
+    n = 0
     for rec in records:
         if "messages" in rec:
             ids.extend(tokenizer.encode_chat(rec["messages"]))
@@ -70,7 +72,17 @@ def encode_records(tokenizer: Tokenizer, records) -> list[int]:
         else:
             ids.extend(tokenizer.encode(rec.get("text", "")))
             ids.append(tokenizer.end_id)
+        n += 1
+        if progress and n % 20000 == 0:
+            progress(n)
     return ids
+
+
+def to_tensor(ids):
+    """array('i') → int32-tensor utan att gå via Python-objekt."""
+    if len(ids) == 0:
+        return torch.zeros(0, dtype=torch.int32)
+    return torch.frombuffer(ids, dtype=torch.int32).clone()
 
 
 @torch.no_grad()

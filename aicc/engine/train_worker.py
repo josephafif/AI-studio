@@ -38,6 +38,7 @@ DEFAULT_PARAMS = {
     "device": "auto",
     "seed": 1337,
     "threads": 0,
+    "mixed_precision": True,
 }
 
 
@@ -184,8 +185,14 @@ def train(run: Run) -> None:
     run.write_status(message="Kodar träningsdata till tokens …")
     order = list(range(len(train_recs)))
     random.Random(seed).shuffle(order)
-    train_ids = torch.tensor(runtime.encode_records(tokenizer, (train_recs[i] for i in order)), dtype=torch.int32)
-    val_ids = torch.tensor(runtime.encode_records(tokenizer, val_recs), dtype=torch.int32)
+    t0 = time.time()
+    train_ids = runtime.to_tensor(runtime.encode_records(
+        tokenizer, (train_recs[i] for i in order),
+        lambda n: run.write_status(message=f"Kodar träningsdata till tokens … {n:,} av {len(train_recs):,} poster"
+                                   .replace(",", " "))))
+    val_ids = runtime.to_tensor(runtime.encode_records(tokenizer, val_recs[:5000]))
+    if time.time() - t0 > 5:
+        run.log(f"Data kodad på {time.time() - t0:.0f} s")
     block = min(arch["context_length"], len(train_ids) - 1)
     if block < 8:
         raise RuntimeError("Träningsdatat är för litet (färre än 9 tokens)")
@@ -201,6 +208,10 @@ def train(run: Run) -> None:
     start_step = 0
     optimizer = torch.optim.AdamW(model.parameters(), lr=float(p["learning_rate"]),
                                   weight_decay=float(p["weight_decay"]), betas=(0.9, 0.99))
+    use_amp = device.type == "cuda" and bool(p.get("mixed_precision", True))
+    scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
+    if use_amp:
+        run.log("Blandad precision (float16) används på GPU")
     resume = run.cfg.get("resume_from")
     if resume:
         ckpt = runtime.load_weights(model, ckpt_dir / resume, device)
@@ -333,14 +344,17 @@ def train(run: Run) -> None:
         for group in optimizer.param_groups:
             group["lr"] = lr
         x, y = batch(train_ids, block)
-        _, loss = model(x, y)
+        with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=use_amp):
+            _, loss = model(x, y)
         if not torch.isfinite(loss):
             raise RuntimeError("Loss blev oändlig/NaN – prova en lägre inlärningshastighet")
         optimizer.zero_grad(set_to_none=True)
-        loss.backward()
+        scaler.scale(loss).backward()
         if float(p["grad_clip"]) > 0:
+            scaler.unscale_(optimizer)
             torch.nn.utils.clip_grad_norm_(model.parameters(), float(p["grad_clip"]))
-        optimizer.step()
+        scaler.step(optimizer)
+        scaler.update()
         step += 1
         window.append(loss.item())
         window_steps += 1

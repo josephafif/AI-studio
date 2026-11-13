@@ -77,6 +77,54 @@ Det medföljande datasetet *Svensk cybersäkerhet* (3 206 frågor och svar, 221 
 CC0) är skrivet för det här projektet och byggs av `tools/bygg_cybersak_dataset.py`.
 Lägg till egna begrepp och frågor där och kör skriptet för att bygga om filen.
 
+## Mer träningsdata och träning i molnet
+
+### Hämta data från öppna källor
+
+```
+.venv\Scripts\python.exe -m pip install pyarrow
+.venv\Scripts\python.exe tools\hamta_data.py
+```
+
+Verktyget laddar ner (ca 1 GB första gången) och lägger in följande som dataset i panelen, med
+källa och licens ifyllda:
+
+| Dataset | Innehåll | Licens |
+|---|---|---|
+| Wikipedia: frågor och svar om IT | ca 25 000 frågor ("Vad är X?") med artikelns inledning som svar | CC BY-SA 4.0 |
+| Wikipedia: artikeltext om IT och säkerhet | ca 4 400 artiklar om datorer, nätverk, kryptografi, säkerhet | CC BY-SA 4.0 |
+| Wikipedia: allmän svensk text | ca 8 700 slumpvis valda längre artiklar | CC BY-SA 4.0 |
+| Svenska lagar om cybersäkerhet och dataskydd | ca 7 000 paragrafer ur ett 60-tal författningar (Riksdagens öppna data) | fria |
+| SweFAQ | 512 frågor och svar från svenska myndigheter | CC BY-SA 4.0 |
+| **Utökad träningsdata** | allt ovan + det medföljande datasetet (upprepat 5 gånger) – ca 43 miljoner tecken | blandad |
+
+Källan `mqa` (svenska FAQ-sidor från webben) är valfri och hämtas bara med
+`tools\hamta_data.py mqa`: den består mest av reklam och maskinöversatt text.
+
+En modell med 1 miljon parametrar (som Lennart) har inte plats för den här datamängden – den
+glömmer då sina inlärda svar utan att bli klokare. Skapa i stället en större modell
+(förslagsvis 5–10 miljoner parametrar, ordförråd 8 192, context 256) och träna den på
+*Utökad träningsdata*. På CPU tar det många timmar; använd GPU eller molnet.
+
+### Träna på en gratis molndator
+
+1. Kör `packa_for_molnet.bat` – den skapar `ai-studio-moln.zip`.
+2. Öppna `moln\Trana_i_molnet.ipynb` i [Google Colab](https://colab.research.google.com/)
+   (Arkiv → Ladda upp anteckningsbok) eller [Kaggle](https://www.kaggle.com/code) och slå på GPU.
+3. Kör cellerna: ladda upp zip-filen, hämta data, träna, ladda ner den färdiga modellen.
+4. Importera filen under **Modeller → Importera modell**.
+
+| Tjänst | Gratis GPU | Att tänka på |
+|---|---|---|
+| **Kaggle Notebooks** | Veckokvot, enligt uppgift runt 30 GPU-timmar, sessioner upp till 12 h | Mest förutsägbar. Kräver telefonverifiering för GPU. |
+| **Google Colab** | T4 när det finns ledig kapacitet, sessioner upp till 12 h | Ingen garanterad kvot; kan kopplas ner. Spara på Drive (cell 3). |
+| **Lightning AI Studios** | Månatliga gratiskrediter | Uppgifterna om hur många timmar det motsvarar går isär. |
+| **SageMaker Studio Lab** | Gratis konto utan kreditkort | Aktuella gränser har jag inte kunnat bekräfta. |
+
+Kvoterna ändras ofta – kontrollera tjänstens egen sida. Anteckningsboken är skriven för Colab
+och Kaggle; samma kommandon (`tools/hamta_data.py` och `moln/trana.py`) fungerar på vilken
+Linux-dator som helst med PyTorch.
+
 ## Arkitektur
 
 Gränssnitt, modellhantering och träning är åtskilda:

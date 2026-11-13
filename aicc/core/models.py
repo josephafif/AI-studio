@@ -33,6 +33,13 @@ def model_dir(model_id: str) -> Path:
     return path
 
 
+def models_dir_exists(model_id: str) -> bool:
+    try:
+        return (paths.models_dir() / paths.safe_id(model_id) / "config.json").exists()
+    except ValueError:
+        return False
+
+
 def load_config(model_id: str) -> dict:
     cfg = paths.read_json(model_dir(model_id) / "config.json")
     if not cfg:
