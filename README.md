@@ -29,7 +29,9 @@ tvingar fram det). All data sparas i mappen `data\` bredvid programmet.
 
 En färdigtränad **Lennart** (4 000 steg, rätt svar på 154 av 160 undanhållna testfrågor)
 läggs in automatiskt första gången programmet startas, så du kan chatta direkt under
-**Testa modeller**. Vill du skapa och träna en egen från mallen enligt stegen ovan: ge den
+**Testa modeller**. Där finns också **Lennart 2** (8 miljoner parametrar, tränad 15 000 steg
+på *Utökad träningsdata* på en moln-GPU) – den kan fler ämnen men hittar på när frågan
+ligger utanför det den sett. Vill du skapa och träna en egen från mallen enligt stegen ovan: ge den
 ett annat namn, eller byt namn på eller ta bort den medföljande först.
 
 Lennart är en helt vanlig modell i panelen. Du kan träna vidare från senaste checkpoint,
