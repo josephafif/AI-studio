@@ -21,8 +21,12 @@ tvingar fram det). All data sparas i mappen `data\` bredvid programmet.
 2. Datasetet *Svensk cybersäkerhet* är förvalt. Kryssa i **Starta träningen direkt** och
    klicka **Skapa modell**.
 3. Följ loss-kurvan, loggen och checkpoints under **Träning**. 4 000 steg tar ungefär
-   15 minuter på en vanlig fyrkärnig CPU.
+   15–20 minuter på en fyrkärnig CPU.
 4. Klicka **Testa i chatten** och fråga till exempel *Vad är nätfiske?*
+
+Vill du prova direkt utan att träna? Välj **Modeller → Importera modell** och öppna
+`exempel\Lennart-tranad.aicc-modell.zip` – en Lennart som tränats 4 000 steg i panelen
+(rätt svar på 154 av 160 undanhållna testfrågor).
 
 Lennart är en helt vanlig modell i panelen. Du kan träna vidare från senaste checkpoint,
 med samma data eller med ett nytt dataset, och skapa hur många andra modeller som helst.

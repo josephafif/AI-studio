@@ -649,7 +649,7 @@ function drawChart(canvas, metrics) {
   const train = metrics.filter((m) => m.loss != null), val = metrics.filter((m) => m.val_loss != null);
   g.font = "11px 'Segoe UI', system-ui, sans-serif";
   if (!train.length) { g.fillStyle = "#5d6a7c"; g.textAlign = "center"; g.fillText("Väntar på första mätvärdet …", W / 2, H / 2); return; }
-  const pad = { l: 44, r: 14, t: 12, b: 26 };
+  const pad = { l: 44, r: 26, t: 12, b: 26 };
   const xs = [...train.map((m) => m.step), ...val.map((m) => m.step)];
   const ys = [...train.map((m) => m.loss), ...val.map((m) => m.val_loss)];
   let x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
