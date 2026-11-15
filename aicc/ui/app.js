@@ -112,6 +112,24 @@ const VIEWS = {
   dataset: { title: "Dataset", icon: ICON.data },
 };
 const modelById = (id) => S.models.find((m) => m.id === id);
+
+// Laddningsindikator: en glänsande sfär med en roterande ring och en text som tickar.
+const LOADER_ORB = '<span class="loader"><span class="orb"></span><span class="loader-text">tänker<i>.</i><i>.</i><i>.</i></span></span>';
+
+// Varje modell får en egen färg och rörelse utifrån namnet; "busy" när den tränas.
+function modelAvatar(m) {
+  let h = 0;
+  for (const ch of m.namn || m.id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const hues = [150, 185, 265, 35, 330];
+  const c = `hsl(${hues[h % hues.length]} 85% 62%)`;
+  const state = m.tranar ? "busy" : "idle";
+  return `<div class="avatar ${state}" aria-hidden="true"><svg viewBox="0 0 44 44">
+    <circle class="r1" cx="22" cy="22" r="20" fill="none" stroke="${c}" stroke-width="1.2" stroke-dasharray="4 5" opacity=".7"/>
+    <polygon class="r2" points="22,6 35.6,14 35.6,30 22,38 8.4,30 8.4,14" fill="none" stroke="${c}" stroke-width="1.4" opacity=".9"/>
+    <circle cx="22" cy="22" r="5" fill="${c}"/>
+    <circle class="dot" cx="22" cy="22" r="5" fill="none" stroke="${c}" stroke-width="1.5"/>
+  </svg></div>`;
+}
 const modelOptions = (sel, onlyTrained = false) => S.models.filter((m) => !onlyTrained || m.tranad)
   .map((m) => `<option value="${esc(m.id)}" ${m.id === sel ? "selected" : ""}>${esc(m.namn)}${m.tranad ? "" : " (otränad)"}</option>`).join("");
 
@@ -169,7 +187,7 @@ function viewOverview() {
         <div class="panel"><header><h2>Träning</h2><button class="btn small" data-view="traning">Öppna träning</button></header>
           ${active.length ? `<div class="body grid">${active.map((r) => `
             <div data-open-run="${esc(r.run_id)}" style="cursor:pointer">
-              <div class="run-head"><b>${esc(r.model_namn)}</b>${statePill(r.state)}</div>
+              <div class="run-head"><span class="run-who">${r.aktiv ? '<span class="orb sm"></span>' : ""}<b>${esc(r.model_namn)}</b></span>${statePill(r.state)}</div>
               <div class="muted" style="font-size:12.5px;margin:2px 0 8px">${esc(r.dataset_namn)} · steg ${num(r.step)} / ${num(r.max_steps)} · loss ${dec(r.loss)} · kvar ${dur(r.eta)}</div>
               <div class="bar"><i style="width:${(100 * (r.step || 0)) / (r.max_steps || 1)}%"></i></div>
             </div>`).join("")}</div>`
@@ -211,7 +229,7 @@ function viewModels() {
       ${S.models.length ? `<div class="model-grid">${S.models.map((m) => {
         const a = m.arkitektur;
         return `<div class="panel model-card ${m.id === S.active ? "active" : ""}">
-          <div class="head"><div><h2>${esc(m.namn)}</h2><div class="tags" style="margin-top:6px">${m.anvandningsomrade ? `<span class="tag">${esc(m.anvandningsomrade)}</span>` : ""}${m.sprak ? `<span class="tag">${esc(m.sprak)}</span>` : ""}${m.ursprung === "importerad" ? '<span class="tag">Importerad</span>' : ""}</div></div>${modelPill(m)}</div>
+          <div class="head"><div class="who">${modelAvatar(m)}<div><h2>${esc(m.namn)}</h2><div class="tags" style="margin-top:6px">${m.anvandningsomrade ? `<span class="tag">${esc(m.anvandningsomrade)}</span>` : ""}${m.sprak ? `<span class="tag">${esc(m.sprak)}</span>` : ""}${m.ursprung === "importerad" ? '<span class="tag">Importerad</span>' : ""}</div></div></div>${modelPill(m)}</div>
           <div class="desc">${esc(m.beskrivning || "Ingen beskrivning.")}</div>
           <div class="facts">
             <div><span>Parametrar</span><b class="num">${compact(a.n_params)}</b></div>
@@ -720,7 +738,7 @@ function viewChat(arg = {}) {
       return `<option value="senaste">Senaste</option><option value="basta">Bästa</option>${[...cks].reverse().map((c) => `<option value="${esc(c.fil)}">Steg ${num(c.step)}</option>`).join("")}`;
     } catch { return `<option value="senaste">Senaste</option>`; }
   };
-  const msgHtml = (m) => `<div class="msg ${m.role} ${m.error ? "error" : ""}">${esc(m.content)}${m.pending ? '<span class="cursor"></span>' : ""}${m.info ? `<span class="info">${esc(m.info)}</span>` : ""}</div>`;
+  const msgHtml = (m) => `<div class="msg ${m.role} ${m.error ? "error" : ""}">${esc(m.content)}${m.pending ? (m.content ? '<span class="cursor"></span>' : LOADER_ORB) : ""}${m.info ? `<span class="info">${esc(m.info)}</span>` : ""}</div>`;
   const drawCols = async () => {
     $("#cols").innerHTML = C.panels.map((p, i) => `<div class="panel chat-col" data-i="${i}"><header><select class="mdl" title="Modell">${modelOptions(p.model_id, true)}</select><select class="ckpt" title="Checkpoint"></select>${C.panels.length > 1 ? '<button class="btn small ghost" data-remove title="Ta bort panelen">✕</button>' : ""}</header>
       <div class="msgs">${p.messages.length ? p.messages.map(msgHtml).join("") : `<div class="empty"><strong>${esc(modelById(p.model_id)?.namn || "")}</strong>Skriv en fråga nedan för att börja.</div>`}</div></div>`).join("");
@@ -761,7 +779,7 @@ function viewChat(arg = {}) {
     $(".empty", col)?.remove();
     const node = document.createElement("div");
     col.append(node);
-    const paint = () => { node.className = `msg assistant ${msg.error ? "error" : ""}`; node.innerHTML = esc(msg.content) + (msg.pending ? '<span class="cursor"></span>' : "") + (msg.info ? `<span class="info">${esc(msg.info)}</span>` : ""); col.scrollTop = col.scrollHeight; };
+    const paint = () => { node.className = `msg assistant ${msg.error ? "error" : ""}`; node.innerHTML = esc(msg.content) + (msg.pending ? (msg.content ? '<span class="cursor"></span>' : LOADER_ORB) : "") + (msg.info ? `<span class="info">${esc(msg.info)}</span>` : ""); col.scrollTop = col.scrollHeight; };
     paint();
     const ctrl = new AbortController();
     C.aborts.push(ctrl);
