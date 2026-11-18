@@ -127,6 +127,30 @@ Kvoterna ändras ofta – kontrollera tjänstens egen sida. Anteckningsboken är
 och Kaggle; samma kommandon (`tools/hamta_data.py` och `moln/trana.py`) fungerar på vilken
 Linux-dator som helst med PyTorch.
 
+### Lennart 3: större grundmodell på Kaggle (2× T4)
+
+`moln/lennart3/` tränar en GPT med ca 300 miljoner parametrar (21 lager, bredd 1024, kontext 512,
+ordförråd 32 768) i två bakgrundskörningar på Kaggle, så att webbläsaren kan stängas:
+
+| Körning | Vad den gör | Maskin |
+|---|---|---|
+| `lennart-3-data` (`kaggle_l3_data.py`) | Tränar tokenizern och kodar svenska Wikipedia + FineWeb-2 (upp till 2 miljarder tokens löptext) samt samtalsdata | CPU, drar ingen GPU-kvot |
+| `trana-lennart-3` (`kaggle_l3_trana.py`) | Tränar med en process per GPU (DistributedDataParallel) i upp till 11 timmar | GPU T4 ×2 |
+
+Samtalsdatan lär modellen att svara, inte bara fortsätta text: svenska OpenHermes-samtal (filtrerade),
+Aya, SweFAQ, frågor och svar byggda från Wikipedia, det egna cybersäkerhetsdatasetet och en liten
+uppsättning samtal om vem Lennart är (`lennart3_samtal.jsonl`).
+
+Inlärningstakten följer ett schema med uppvärmning, konstant takt och en sänkning under körningens
+sista 12 %. Under sänkningen ökar andelen samtalsdata från 6 till 45 %. Varje körning sparar under Output:
+
+- `lennart3/lennart3.pt` – färdig modell (fp16) med `config.json` och `tokenizer.json`
+- `lennart3/resume_checkpoint.pt` – läget före sänkningen; koppla Output som indata till nästa körning
+  så fortsätter träningen därifrån
+- provsvar på tio frågor sist i loggen
+
+Modellen använder ett annat format än kontrollpanelens egna modeller och kan ännu inte importeras där.
+
 ## Arkitektur
 
 Gränssnitt, modellhantering och träning är åtskilda:
