@@ -10,7 +10,12 @@ import subprocess
 import sys
 import time
 
+# Körtid i timmar. Kaggle stoppar GPU-körningar efter 12 h, och om veckokvoten tar slut mitt i
+# körningen sparas ingen slutmodell – välj därför högst den kvot som finns kvar.
+TIMMAR = 11.0
+
 os.environ.setdefault("L3_START", str(time.time()))
+os.environ.setdefault("L3_HOURS", str(TIMMAR))
 import torch  # noqa: E402
 
 n = torch.cuda.device_count()
