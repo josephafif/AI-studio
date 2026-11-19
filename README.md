@@ -14,7 +14,9 @@ Om din Python saknar modulen `venv` (t.ex. den avskalade "embeddable"-varianten)
 installationen paketen i mappen `.paket\` i stället – inget annat behöver göras.
 
 Saknas WebView2/pywebview öppnas panelen i webbläsaren i stället (`starta.bat --browser`
-tvingar fram det). All data sparas i mappen `data\` bredvid programmet.
+tvingar fram det). Fönstret ritas utan grafikkort, eftersom svarta WebView2-fönster ofta beror på
+grafikdrivrutinen; sätt `AICC_WEBVIEW_GPU=1` för att använda grafikkortet. Servern körs i en egen
+process, så att stora modeller som läses in inte kan påverka fönstret. All data sparas i mappen `data\` bredvid programmet.
 
 ## Skapa Lennart
 
