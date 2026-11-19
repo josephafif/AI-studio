@@ -12,6 +12,7 @@ Varje modell är en egen mapp under ``data/modeller/<id>/``:
 from __future__ import annotations
 
 import io
+import re
 import shutil
 import zipfile
 from pathlib import Path
@@ -394,7 +395,13 @@ def import_lennart3(files: dict[str, Path], name: str | None = None) -> dict:
         status = paths.read_json(Path(files["status.json"]), {}) or {}
     step = int(status.get("step") or 0)
 
-    base_name = (name or info.get("namn") or "Lennart 3").strip()
+    base_name = (name or "").strip()
+    if not base_name:
+        # Varje fortsättningskörning på Kaggle ger en ny version: 1 körning = Lennart 3, 2 = Lennart 3.1 …
+        base_name = (info.get("namn") or "Lennart 3").strip()
+        sessions = int(status.get("sessions") or 1)
+        if sessions > 1 and not re.search(r"\.\d+$", base_name):
+            base_name = f"{base_name}.{sessions - 1}"
     existing = {m["namn"].lower() for m in list_models()}
     final, n = base_name, 2
     while final.lower() in existing:

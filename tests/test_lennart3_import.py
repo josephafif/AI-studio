@@ -97,6 +97,15 @@ def test_import_chatt_och_lasning(app, kaggle_files):
     assert again["arkitektur"]["architecture"] == "gpt-l3" and again["tranad"]
 
 
+def test_fortsattning_far_versionsnummer(app, kaggle_files, tmp_path):
+    folder, _ = kaggle_files
+    status = tmp_path / "status.json"
+    status.write_text(json.dumps({"step": 15000, "sessions": 2}))
+    m = app.models.import_lennart3({"lennart3.pt": folder / "lennart3.pt",
+                                    "tokenizer.json": folder / "tokenizer.json", "status.json": status})
+    assert m["namn"] == "Lennart 3.1" and m["steg"] == 15000
+
+
 def test_zip_fran_kaggle_och_felaktiga_filer(app, kaggle_files, tmp_path):
     folder, _ = kaggle_files
     z = tmp_path / "lennart3.zip"
