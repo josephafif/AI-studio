@@ -109,6 +109,18 @@ def _import_model(req):
         return models.import_model(tmp, req.query("namn"))
 
 
+@route("GET", "/api/models/import-folder")
+def _scan_import_folder(req):
+    found = models.scan_import_dir()
+    return {"mapp": found["mapp"], "filer": found["filer"],
+            "redo": bool((found["vikter"] and found["tokenizer"]) or found["zip"])}
+
+
+@route("POST", "/api/models/import-folder")
+def _import_folder(req):
+    return models.import_from_dir(req.query("namn"))
+
+
 @route("POST", "/api/models/import-lennart3")
 def _import_lennart3(req):
     """Flera filer i samma uppladdning: ?delar=namn:storlek,namn:storlek och filerna efter varandra."""

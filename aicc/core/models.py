@@ -450,6 +450,86 @@ def import_lennart3(files: dict[str, Path], name: str | None = None) -> dict:
     return get_model(model_id)
 
 
+# -------------------------------------------------- import från mappen importera/
+def import_dir() -> Path:
+    path = paths.APP_ROOT / "importera"
+    path.mkdir(exist_ok=True)
+    return path
+
+
+def _zip_kind(path: Path) -> str | None:
+    """'torch' = själva modellfilen (lennart3.pt är ett zip-arkiv), 'lennart3' = zip med lennart3.pt i,
+    'aicc' = modell exporterad från panelen."""
+    try:
+        with zipfile.ZipFile(path) as zf:
+            names = zf.namelist()
+    except (zipfile.BadZipFile, OSError):
+        return None
+    if any(n.endswith("data.pkl") for n in names) and any(n == "version" or n.endswith("/version") for n in names):
+        return "torch"
+    if any(Path(n).name == "lennart3.pt" for n in names):
+        return "lennart3"
+    if any(Path(n).name == "config.json" for n in names):
+        return "aicc"
+    return None
+
+
+def scan_import_dir() -> dict:
+    """Vad som ligger i importmappen och vad det tolkas som."""
+    folder = import_dir()
+    found = {"mapp": str(folder), "vikter": None, "tokenizer": None, "status": None, "zip": None, "filer": []}
+    for f in sorted(folder.iterdir()):
+        if not f.is_file():
+            continue
+        name = f.name.lower()
+        found["filer"].append({"namn": f.name, "storlek": f.stat().st_size})
+        if name.endswith(".json"):
+            if "tokenizer" in name:
+                found["tokenizer"] = f
+            elif "status" in name:
+                found["status"] = f
+        elif name.endswith((".pt", ".bin")):
+            found["vikter"] = f
+        elif name.endswith(".zip"):
+            kind = _zip_kind(f)
+            if kind == "torch":
+                found["vikter"] = f
+            elif kind in ("lennart3", "aicc"):
+                found["zip"] = f
+    return found
+
+
+def import_from_dir(name: str | None = None) -> dict:
+    """Importerar det som ligger i mappen importera/ – filerna läses direkt från disken, utan att gå
+    genom programfönstret. Importerade filer flyttas till importera/importerat/."""
+    found = scan_import_dir()
+    used: list[Path] = []
+    if found["vikter"] and found["tokenizer"]:
+        files = {"lennart3.pt": found["vikter"], "tokenizer.json": found["tokenizer"]}
+        if found["status"]:
+            files["status.json"] = found["status"]
+        model = import_lennart3(files, name)
+        used = list(files.values())
+    elif found["zip"]:
+        model = import_model(found["zip"], name)
+        used = [found["zip"]]
+    elif found["vikter"]:
+        raise AppError("Modellfilen finns i mappen men tokenizer.json saknas – lägg den bredvid och försök igen.")
+    elif not found["filer"]:
+        raise AppError(f"Mappen är tom. Lägg lennart3.pt, tokenizer.json och status.json i {found['mapp']}")
+    else:
+        raise AppError("Hittar ingen modell i mappen. Lägg lennart3.pt (den kan heta .zip), tokenizer.json och "
+                       "status.json där – packa inte upp lennart3.pt.")
+    done = import_dir() / "importerat"
+    done.mkdir(exist_ok=True)
+    for f in used:
+        try:
+            f.replace(done / f.name)
+        except OSError:
+            pass
+    return model
+
+
 # -------------------------------------------------------------- aktiv modell
 def _settings_path() -> Path:
     return paths.data_root() / "installningar.json"

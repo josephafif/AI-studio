@@ -151,8 +151,11 @@ sista 12 %. Under sänkningen ökar andelen samtalsdata från 6 till 45 %. Varje
 - provsvar på tio frågor sist i loggen
 
 **Chatta med Lennart 3 i panelen:** hämta `lennart3.pt`, `tokenizer.json` och gärna `status.json` från
-körningens Output (mappen `lennart3/`). Välj **Modeller → Importera modell** och markera alla filerna
-samtidigt (håll Ctrl nedtryckt), eller välj en zip med dem. Modellen fungerar sedan som de andra i
+körningens Output (mappen `lennart3/`) och lägg dem i mappen **`importera\`** bredvid programmet. Välj
+**Modeller → Importera modell → Importera från mappen**. Filerna läses då direkt från disken, vilket
+fungerar även för filer på flera GB. Packa inte upp `lennart3.pt` – den är ett zip-arkiv inuti och får
+heta `.zip` om webbläsaren döpt om den. En zip från Kaggle med hela mappen går också bra. Mindre filer
+(under 1,5 GB) kan även väljas direkt i dialogen. Modellen fungerar sedan som de andra i
 **Testa modeller**, med jämförelse, sessioner och export. Svaren genereras med cache för tidigare tokens –
 ca 20 tokens per sekund på en fyrkärnig CPU, och på GPU om en finns. Lennart 3 kan inte tränas vidare
 i panelen; det görs på Kaggle från `resume_checkpoint.pt`. Kräver paketet `tokenizers`, som

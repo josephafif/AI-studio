@@ -452,11 +452,37 @@ const ACTIONS = {
     try { await api("DELETE", `/api/models/${id}`); toast(`${m.namn} har tagits bort`); await refresh(); go(S.view); } catch (e) { fail(e); }
   },
   "import-model": () => {
-    const dlg = modal({ title: "Importera modell", size: "narrow", body: `<p class="hint" style="margin:0">Välj en modell som exporterats från AI Control Center (.zip), <b>eller</b> Lennart 3 från Kaggle: markera <code>lennart3.pt</code> och <code>tokenizer.json</code> (gärna även <code>status.json</code>) samtidigt. Packa inte upp lennart3.pt – den är ett zip-arkiv inuti, och det får den vara. Kod i filerna körs aldrig – modellkoden genereras av panelen.</p><label class="field"><span>Filer</span><input type="file" name="fil" accept=".zip,.pt,.json" multiple></label><label class="field"><span>Namn <em>(valfritt)</em></span><input type="text" name="namn" placeholder="Behåll namnet i filen"></label><div class="hint" id="imp-status"></div>`,
-      footer: `<button class="btn" data-close>Avbryt</button><button class="btn primary" id="ok">Importera</button>` });
+    const dlg = modal({ title: "Importera modell", size: "narrow", body: `<p class="hint" style="margin:0">Välj en modell som exporterats från AI Control Center (.zip), <b>eller</b> Lennart 3 från Kaggle: markera <code>lennart3.pt</code> och <code>tokenizer.json</code> (gärna även <code>status.json</code>) samtidigt. Packa inte upp lennart3.pt – den är ett zip-arkiv inuti, och det får den vara. Kod i filerna körs aldrig – modellkoden genereras av panelen.</p><label class="field"><span>Namn <em>(valfritt)</em></span><input type="text" name="namn" placeholder="Behåll namnet i filen"></label>
+      <div class="section-title">Stora modeller – rekommenderas för Lennart 3</div>
+      <div class="hint" id="imp-folder">Läser mappen …</div>
+      <div class="btn-row"><button class="btn" id="imp-scan">Sök igen</button><button class="btn primary" id="imp-folder-ok" disabled>Importera från mappen</button></div>
+      <div class="section-title">Eller välj filer</div>
+      <label class="field"><span>Filer</span><input type="file" name="fil" accept=".zip,.pt,.json" multiple></label><div class="hint" id="imp-status"></div>`,
+      footer: `<button class="btn" data-close>Avbryt</button><button class="btn" id="ok">Importera valda filer</button>` });
+    const scan = async () => {
+      try {
+        const r = await api("GET", "/api/models/import-folder");
+        $("#imp-folder", dlg.el).innerHTML = `Lägg filerna i <code>${esc(r.mapp)}</code> – de läses direkt från disken, vilket fungerar även för filer på flera GB. ` +
+          (r.filer.length ? `<br>I mappen: ${r.filer.map((f) => `<b>${esc(f.namn)}</b> (${bytes(f.storlek)})`).join(", ")}` : "<br>Mappen är tom just nu.");
+        $("#imp-folder-ok", dlg.el).disabled = !r.redo;
+      } catch (e) { $("#imp-folder", dlg.el).textContent = e.message; }
+    };
+    scan();
+    $("#imp-scan", dlg.el).onclick = scan;
+    $("#imp-folder-ok", dlg.el).onclick = async () => {
+      const btn = $("#imp-folder-ok", dlg.el);
+      btn.disabled = true;
+      $("#imp-status", dlg.el).innerHTML = '<span class="loader"><span class="orb sm"></span>Importerar från mappen …</span>';
+      try {
+        const m = await api("POST", `/api/models/import-folder?${qs({ namn: $("[name=namn]", dlg.el).value })}`, new Blob([]));
+        dlg.close(); toast(`${m.namn} har importerats`); await refresh(); go("modeller");
+      } catch (e) { btn.disabled = false; $("#imp-status", dlg.el).textContent = ""; fail(e); }
+    };
     $("#ok", dlg.el).onclick = async () => {
       const files = [...$("[name=fil]", dlg.el).files];
       if (!files.length) return toast("Välj en fil först", true);
+      const total = files.reduce((n, f) => n + f.size, 0);
+      if (total > 1.5 * 1024 ** 3) return toast(`Filerna är ${bytes(total)} – för stort att skicka genom fönstret. Använd mappen ovan i stället.`, true);
       const namn = $("[name=namn]", dlg.el).value;
       const btn = $("#ok", dlg.el);
       btn.disabled = true;

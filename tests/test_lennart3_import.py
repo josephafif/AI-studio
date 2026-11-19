@@ -122,3 +122,23 @@ def test_zip_fran_kaggle_och_felaktiga_filer(app, kaggle_files, tmp_path):
     torch.save({"vikter": torch.zeros(2)}, bad)
     with pytest.raises(AppError, match="Lennart 3"):
         app.models.import_lennart3({"lennart3.pt": bad, "tokenizer.json": folder / "tokenizer.json"})
+
+
+def test_import_fran_mappen(app, kaggle_files, tmp_path, monkeypatch):
+    """Filerna läses direkt från mappen importera/ – även en omdöpt modellfil (.zip) och 'tokenizer (1).json'."""
+    import shutil
+    from aicc import paths
+    folder, _ = kaggle_files
+    monkeypatch.setattr(paths, "APP_ROOT", tmp_path)
+    imp = app.models.import_dir()
+    shutil.copy(folder / "lennart3.pt", imp / "lennart3.zip")
+    shutil.copy(folder / "tokenizer.json", imp / "tokenizer (1).json")
+    found = app.models.scan_import_dir()
+    assert found["vikter"].name == "lennart3.zip" and found["tokenizer"].name == "tokenizer (1).json"
+    m = app.models.import_from_dir("Från mappen")
+    assert m["namn"] == "Från mappen" and m["arkitektur"]["architecture"] == "gpt-l3"
+    assert not any(p.is_file() for p in imp.iterdir())
+    assert (imp / "importerat" / "lennart3.zip").exists()
+    from aicc.core import AppError
+    with pytest.raises(AppError, match="tom"):
+        app.models.import_from_dir()
