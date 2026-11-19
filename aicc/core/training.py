@@ -18,7 +18,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .. import paths
-from . import AppError, NotFound, datasets, models
+from . import AppError, NotFound, codegen, datasets, models
 
 try:
     import psutil
@@ -175,6 +175,9 @@ def start_run(model_id: str, dataset_id: str, params: dict | None = None,
               resume_from: str | None = None, restart: bool = False) -> dict:
     with _lock:
         cfg = models.load_config(model_id)
+        if codegen.is_external(cfg.get("arkitektur")):
+            raise AppError(f"'{cfg['namn']}' är en färdigtränad modell i Lennart 3-format. Den tränas vidare "
+                           "på Kaggle (moln/lennart3) och kan inte tränas i panelen.")
         ds = datasets.get_dataset(dataset_id)
         if active_run_for_model(model_id):
             raise AppError(f"'{cfg['namn']}' tränas redan. Vänta eller avbryt den körningen först.")

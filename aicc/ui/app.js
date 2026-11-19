@@ -112,6 +112,8 @@ const VIEWS = {
   dataset: { title: "Dataset", icon: ICON.data },
 };
 const modelById = (id) => S.models.find((m) => m.id === id);
+const isExtern = (m) => m?.arkitektur?.architecture === "gpt-l3";
+const archLabel = (arch) => S.presets?.arkitekturer?.[arch]?.label || S.presets?.externa_arkitekturer?.[arch]?.label || (arch === "gpt-l3" ? "Transformer (GPT, Lennart 3-format)" : arch);
 
 // Laddningsindikator: en glänsande sfär med en roterande ring och en text som tickar.
 const LOADER_ORB = '<span class="loader"><span class="orb"></span><span class="loader-text">tänker<i>.</i><i>.</i><i>.</i></span></span>';
@@ -241,7 +243,7 @@ function viewModels() {
           </div>
           <div class="btn-row">
             ${m.id === S.active ? '<button class="btn small" disabled>Aktiv</button>' : `<button class="btn small" data-action="activate" data-id="${esc(m.id)}">Välj</button>`}
-            <button class="btn small" data-action="train-model" data-id="${esc(m.id)}">${m.tranar ? "Visa träning" : "Träna"}</button>
+            ${isExtern(m) ? '<button class="btn small" disabled title="Lennart 3 tränas vidare på Kaggle (moln/lennart3)">Träna</button>' : `<button class="btn small" data-action="train-model" data-id="${esc(m.id)}">${m.tranar ? "Visa träning" : "Träna"}</button>`}
             <button class="btn small" data-action="chat-model" data-id="${esc(m.id)}" ${m.tranad ? "" : "disabled title='Träna modellen först'"}>Chatta</button>
             <button class="btn small" data-model-detail="${esc(m.id)}">Detaljer</button>
           </div>
@@ -284,7 +286,7 @@ async function modelForm(existing) {
       <div class="section-title">Arkitektur ${locked ? '<span class="muted" style="text-transform:none;letter-spacing:0">– låst eftersom modellen har tränats</span>' : ""}</div>
       <fieldset ${locked ? "disabled" : ""} style="border:0;padding:0;margin:0;display:grid;gap:12px;min-width:0">
         <div class="form-grid three">
-          <label class="field wide"><span>Modellarkitektur</span><select name="architecture">${Object.entries(P.arkitekturer).map(([id, x]) => `<option value="${id}" ${a.architecture === id ? "selected" : ""}>${esc(x.label)}</option>`).join("")}</select><span class="hint" id="arch-hint"></span></label>
+          <label class="field wide"><span>Modellarkitektur</span><select name="architecture">${isExtern(existing) ? `<option value="gpt-l3" selected>${esc(archLabel("gpt-l3"))}</option>` : ""}${Object.entries(P.arkitekturer).map(([id, x]) => `<option value="${id}" ${a.architecture === id ? "selected" : ""}>${esc(x.label)}</option>`).join("")}</select><span class="hint" id="arch-hint"></span></label>
           <label class="field"><span>Antal parametrar <em>(mål)</em></span><input type="number" name="target_params" value="${a.target_params || a.n_params || 1000000}" min="10000" step="10000"></label>
           <label class="field"><span>Antal lager</span><input type="number" name="n_layers" value="${a.n_layers}" min="1" max="48"></label>
           <label class="field"><span>Attention heads</span><input type="number" name="n_heads" value="${a.n_heads}" min="1" max="64"></label>
@@ -318,6 +320,12 @@ async function modelForm(existing) {
   };
   let estTimer;
   const estimate = () => {
+    if (isExtern(existing)) {
+      $("#est-params", el).textContent = num(a.n_params);
+      $("#est-detail", el).innerHTML = `d_model ${a.d_model} · ${a.n_layers} lager · ${a.n_heads} heads<br>importerad från Kaggle – arkitekturen är fast`;
+      $("#arch-hint", el).textContent = S.presets?.externa_arkitekturer?.["gpt-l3"]?.description || "";
+      return;
+    }
     const { f, out } = spec();
     $("#dmodel-field", el).hidden = !f._manual;
     $("[name=target_params]", el).disabled = f._manual;
@@ -386,7 +394,7 @@ async function modelDetail(id) {
   const a = m.arkitektur;
   const tabs = { info: "Information", filer: "Filer och kod", ckpt: `Checkpoints (${m.checkpoints.length})`, hist: `Träningshistorik (${m.historik.length})` };
   const dlg = modal({ title: m.namn, size: "wide", body: `<div class="tabs">${Object.entries(tabs).map(([k, t], i) => `<button data-tab="${k}" class="${i ? "" : "on"}">${t}</button>`).join("")}</div><div id="tab"></div>`,
-    footer: `<button class="btn" data-action="export-model" data-id="${esc(m.id)}">Exportera</button><button class="btn" data-close data-action="config-model" data-id="${esc(m.id)}">Konfigurera</button><button class="btn primary" data-close data-action="train-model" data-id="${esc(m.id)}">Träna</button>` });
+    footer: `<button class="btn" data-action="export-model" data-id="${esc(m.id)}">Exportera</button><button class="btn" data-close data-action="config-model" data-id="${esc(m.id)}">Konfigurera</button>${isExtern(m) ? `<button class="btn primary" data-close data-action="chat-model" data-id="${esc(m.id)}">Chatta</button>` : `<button class="btn primary" data-close data-action="train-model" data-id="${esc(m.id)}">Träna</button>`}` });
   const show = async (tab) => {
     $$("[data-tab]", dlg.el).forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
     const box = $("#tab", dlg.el);
@@ -396,8 +404,8 @@ async function modelDetail(id) {
           <dt>Ursprung</dt><dd>${m.ursprung === "importerad" ? "Importerad " + when(m.importerad) : "Skapad i kontrollpanelen"}</dd><dt>Skapad</dt><dd>${when(m.skapad)}</dd><dt>Senast ändrad</dt><dd>${when(m.andrad)}</dd>
           <dt>Tränade steg</dt><dd class="num">${num(m.steg)}</dd><dt>Senaste loss</dt><dd class="num">${dec(m.senaste_loss)}</dd><dt>Senaste val-loss</dt><dd class="num">${dec(m.senaste_val_loss)}</dd>
         </dl><dl class="kv">
-          <dt>Arkitektur</dt><dd>${esc(S.presets?.arkitekturer[a.architecture]?.label || a.architecture)}</dd><dt>Parametrar</dt><dd class="num">${num(a.n_params)}</dd><dt>Lager</dt><dd>${a.n_layers}</dd>
-          <dt>Attention heads</dt><dd>${a.architecture === "gpt" ? a.n_heads : "–"}</dd><dt>Modellbredd (d_model)</dt><dd>${a.d_model}</dd><dt>Context length</dt><dd>${num(a.context_length)} tokens</dd>
+          <dt>Arkitektur</dt><dd>${esc(archLabel(a.architecture))}</dd><dt>Parametrar</dt><dd class="num">${num(a.n_params)}</dd><dt>Lager</dt><dd>${a.n_layers}</dd>
+          <dt>Attention heads</dt><dd>${a.architecture.startsWith("gpt") ? a.n_heads : "–"}</dd><dt>Modellbredd (d_model)</dt><dd>${a.d_model}</dd><dt>Context length</dt><dd>${num(a.context_length)} tokens</dd>
           <dt>Ordförråd</dt><dd>${num(a.vocab_size)} tokens${m.har_tokenizer ? "" : " (tokenizer tränas vid första träningen)"}</dd><dt>Dropout</dt><dd>${a.dropout}</dd><dt>Storlek på disk</dt><dd>${bytes(m.storlek)}</dd>
         </dl></div><div><div class="hint">Beskrivning</div>${esc(m.beskrivning || "–")}</div><div><div class="hint">Mapp</div><span class="mono">${esc(m.mapp)}</span></div>`;
     } else if (tab === "filer") {
@@ -444,12 +452,27 @@ const ACTIONS = {
     try { await api("DELETE", `/api/models/${id}`); toast(`${m.namn} har tagits bort`); await refresh(); go(S.view); } catch (e) { fail(e); }
   },
   "import-model": () => {
-    const dlg = modal({ title: "Importera modell", size: "narrow", body: `<p class="hint" style="margin:0">Välj en modell som exporterats från AI Control Center (.zip). Modellkoden i arkivet körs aldrig – den genereras om från konfigurationen.</p><label class="field"><span>Zip-fil</span><input type="file" name="fil" accept=".zip"></label><label class="field"><span>Namn <em>(valfritt)</em></span><input type="text" name="namn" placeholder="Behåll namnet i filen"></label>`,
+    const dlg = modal({ title: "Importera modell", size: "narrow", body: `<p class="hint" style="margin:0">Välj en modell som exporterats från AI Control Center (.zip), <b>eller</b> Lennart 3 från Kaggle: markera <code>lennart3.pt</code> och <code>tokenizer.json</code> (gärna även <code>status.json</code>) samtidigt. Kod i filerna körs aldrig – modellkoden genereras av panelen.</p><label class="field"><span>Filer</span><input type="file" name="fil" accept=".zip,.pt,.json" multiple></label><label class="field"><span>Namn <em>(valfritt)</em></span><input type="text" name="namn" placeholder="Behåll namnet i filen"></label><div class="hint" id="imp-status"></div>`,
       footer: `<button class="btn" data-close>Avbryt</button><button class="btn primary" id="ok">Importera</button>` });
     $("#ok", dlg.el).onclick = async () => {
-      const file = $("[name=fil]", dlg.el).files[0];
-      if (!file) return toast("Välj en fil först", true);
-      try { const m = await api("POST", `/api/models/import?${qs({ namn: $("[name=namn]", dlg.el).value })}`, file); dlg.close(); toast(`${m.namn} har importerats`); await refresh(); go("modeller"); } catch (e) { fail(e); }
+      const files = [...$("[name=fil]", dlg.el).files];
+      if (!files.length) return toast("Välj en fil först", true);
+      const namn = $("[name=namn]", dlg.el).value;
+      const btn = $("#ok", dlg.el);
+      btn.disabled = true;
+      $("#imp-status", dlg.el).innerHTML = '<span class="loader"><span class="orb sm"></span>Importerar … stora modeller kan ta en minut</span>';
+      try {
+        let m;
+        if (files.length === 1 && files[0].name.toLowerCase().endsWith(".zip")) {
+          m = await api("POST", `/api/models/import?${qs({ namn })}`, files[0]);
+        } else {
+          const names = files.map((f) => f.name);
+          if (!names.includes("lennart3.pt") || !names.includes("tokenizer.json")) throw new Error("Markera både lennart3.pt och tokenizer.json (håll Ctrl nedtryckt när du väljer).");
+          const delar = files.map((f) => `${f.name}:${f.size}`).join(",");
+          m = await api("POST", `/api/models/import-lennart3?${qs({ namn, delar })}`, new Blob(files));
+        }
+        dlg.close(); toast(`${m.namn} har importerats`); await refresh(); go("modeller");
+      } catch (e) { btn.disabled = false; $("#imp-status", dlg.el).textContent = ""; fail(e); }
     };
   },
   "import-dataset": () => importDataset(),

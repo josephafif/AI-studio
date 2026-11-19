@@ -1,4 +1,5 @@
 # PyTorch installeras separat av installera.bat (CPU- eller CUDA-version).
 torch>=2.2
 psutil>=5.9
+tokenizers>=0.15
 pywebview>=5.0

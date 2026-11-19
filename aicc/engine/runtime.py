@@ -98,11 +98,24 @@ def generate(model, tokenizer: Tokenizer, prompt_ids: list[int], max_new_tokens:
         ctx = model.context_length
         ids = list(prompt_ids)[-ctx:] or [tokenizer.end_id]
         banned = [tokenizer.pad_id, tokenizer.user_id, tokenizer.assistant_id]
+        use_cache = getattr(model, "supports_cache", False)
+        cache, pos = None, 0
         for _ in range(int(max_new_tokens)):
             if stop is not None and stop():
                 return
-            x = torch.tensor([ids[-ctx:]], dtype=torch.long, device=device)
-            logits, _ = model(x)
+            if not use_cache:
+                x = torch.tensor([ids[-ctx:]], dtype=torch.long, device=device)
+                logits, _ = model(x)
+            elif cache is None or pos >= ctx:
+                # Räkna hela fönstret en gång (även när kontexten tagit slut – då med halva fönstret).
+                window = ids[-(ctx if cache is None else ctx // 2):]
+                cache = model.new_cache()
+                logits, _ = model(torch.tensor([window], dtype=torch.long, device=device), cache=cache)
+                pos = len(window)
+            else:
+                logits, _ = model(torch.tensor([[ids[-1]]], dtype=torch.long, device=device),
+                                  cache=cache, start_pos=pos)
+                pos += 1
             logits = logits[0, -1].float()
             logits[banned] = float("-inf")
             if temperature <= 1e-6:

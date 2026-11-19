@@ -149,7 +149,13 @@ sista 12 %. Under sänkningen ökar andelen samtalsdata från 6 till 45 %. Varje
   så fortsätter träningen därifrån
 - provsvar på tio frågor sist i loggen
 
-Modellen använder ett annat format än kontrollpanelens egna modeller och kan ännu inte importeras där.
+**Chatta med Lennart 3 i panelen:** hämta `lennart3.pt`, `tokenizer.json` och gärna `status.json` från
+körningens Output (mappen `lennart3/`). Välj **Modeller → Importera modell** och markera alla filerna
+samtidigt (håll Ctrl nedtryckt), eller välj en zip med dem. Modellen fungerar sedan som de andra i
+**Testa modeller**, med jämförelse, sessioner och export. Svaren genereras med cache för tidigare tokens –
+ca 20 tokens per sekund på en fyrkärnig CPU, och på GPU om en finns. Lennart 3 kan inte tränas vidare
+i panelen; det görs på Kaggle från `resume_checkpoint.pt`. Kräver paketet `tokenizers`, som
+`installera.bat` installerar (kör den igen om du installerade tidigare).
 
 ## Arkitektur
 

@@ -220,6 +220,8 @@ def update_model(model_id: str, patch: dict) -> dict:
         cfg["generering"] = gen
 
     arch_patch = {k: patch[k] for k in _ARCH_FIELDS if k in patch}
+    if arch_patch and codegen.is_external(cfg["arkitektur"]):
+        arch_patch = {}  # importerad färdig modell – arkitekturen är fast
     if arch_patch:
         old = cfg["arkitektur"]
         merged = {**{k: old.get(k) for k in _ARCH_FIELDS}, **arch_patch}
@@ -273,6 +275,9 @@ def import_model(zip_path: Path, name: str | None = None) -> dict:
         raise AppError("Filen är inte ett giltigt zip-arkiv")
     with zf:
         names = [n for n in zf.namelist() if not n.endswith("/")]
+        l3 = [n for n in names if Path(n).name == "lennart3.pt"]
+        if l3:
+            return _import_lennart3_zip(zf, names, name)
         cfg_names = [n for n in names if n == "config.json" or n.endswith("/config.json")]
         if not cfg_names:
             raise AppError("Arkivet innehåller ingen config.json – är det en exporterad modell?")
@@ -281,8 +286,11 @@ def import_model(zip_path: Path, name: str | None = None) -> dict:
         try:
             import json
             cfg = json.loads(zf.read(cfg_name).decode("utf-8"))
-            arch = codegen.resolve_architecture(
-                {k: cfg["arkitektur"].get(k) for k in _ARCH_FIELDS if k != "target_params"})
+            if codegen.is_external(cfg["arkitektur"]):
+                arch = codegen.resolve_external(cfg["arkitektur"])
+            else:
+                arch = codegen.resolve_architecture(
+                    {k: cfg["arkitektur"].get(k) for k in _ARCH_FIELDS if k != "target_params"})
         except AppError:
             raise
         except Exception:
@@ -314,7 +322,8 @@ def import_model(zip_path: Path, name: str | None = None) -> dict:
             shutil.rmtree(mdir, ignore_errors=True)
             raise AppError("Arkivet kunde inte packas upp")
 
-    arch["target_params"] = (cfg.get("arkitektur") or {}).get("target_params")
+    if not codegen.is_external(arch):
+        arch["target_params"] = (cfg.get("arkitektur") or {}).get("target_params")
     now = paths.now_iso()
     new_cfg = {
         "id": model_id,
@@ -332,6 +341,99 @@ def import_model(zip_path: Path, name: str | None = None) -> dict:
     paths.write_json(mdir / "config.json", new_cfg)
     if not (mdir / "traningshistorik.json").exists():
         paths.write_json(mdir / "traningshistorik.json", [])
+    _write_generated(mdir, new_cfg)
+    return get_model(model_id)
+
+
+# ------------------------------------------------------- Lennart 3 (Kaggle)
+LENNART3_FILES = ("lennart3.pt", "tokenizer.json", "config.json", "status.json")
+
+
+def _import_lennart3_zip(zf: zipfile.ZipFile, names: list[str], name: str | None) -> dict:
+    """Zip med lennart3.pt och tokenizer.json (t.ex. mappen lennart3/ från Kaggle)."""
+    import tempfile
+    pt_name = min((n for n in names if Path(n).name == "lennart3.pt"), key=len)
+    folder = pt_name[: -len("lennart3.pt")]
+    with tempfile.TemporaryDirectory(prefix="aicc-l3-") as tmp:
+        files = {}
+        for fname in LENNART3_FILES:
+            member = folder + fname
+            if member in names:
+                target = Path(tmp) / fname
+                with zf.open(member) as src, open(target, "wb") as dst:
+                    shutil.copyfileobj(src, dst)
+                files[fname] = target
+        return import_lennart3(files, name)
+
+
+def import_lennart3(files: dict[str, Path], name: str | None = None) -> dict:
+    """Importerar en färdigtränad Lennart 3 från Kaggle-träningen (moln/lennart3).
+
+    ``files`` innehåller sökvägar till lennart3.pt och tokenizer.json, och valfritt status.json.
+    Vikterna läses med ``weights_only=True`` och model.py genereras av panelen.
+    """
+    import json
+    if "lennart3.pt" not in files or "tokenizer.json" not in files:
+        raise AppError("Välj både lennart3.pt och tokenizer.json från Kaggle-körningens Output")
+    try:
+        tok = json.loads(Path(files["tokenizer.json"]).read_text(encoding="utf-8"))
+        added = {t.get("content") for t in tok.get("added_tokens", [])}
+    except (OSError, ValueError, AttributeError):
+        raise AppError("tokenizer.json kunde inte läsas")
+    if not {"<|user|>", "<|assistant|>", "<|end|>"} <= added:
+        raise AppError("tokenizer.json hör inte till en Lennart 3-modell (chattokens saknas)")
+
+    from ..engine import extern  # PyTorch behövs för att läsa vikterna
+    info = extern.read_lennart3(Path(files["lennart3.pt"]))
+    arch = codegen.resolve_external(info["arkitektur"])
+    vocab_in_tok = len(tok.get("model", {}).get("vocab", {})) or arch["vocab_size"]
+    if vocab_in_tok > arch["vocab_size"]:
+        raise AppError("tokenizer.json har större ordförråd än modellen – fel tokenizer?")
+    status = {}
+    if "status.json" in files:
+        status = paths.read_json(Path(files["status.json"]), {}) or {}
+    step = int(status.get("step") or 0)
+
+    base_name = (name or info.get("namn") or "Lennart 3").strip()
+    existing = {m["namn"].lower() for m in list_models()}
+    final, n = base_name, 2
+    while final.lower() in existing:
+        final = f"{base_name} ({n})"
+        n += 1
+    model_id = paths.unique_id(paths.models_dir(), final, "modell")
+    mdir = paths.models_dir() / model_id
+    (mdir / "checkpoints").mkdir(parents=True)
+    try:
+        shutil.copyfile(files["tokenizer.json"], mdir / "tokenizer.json")
+        ckpt = mdir / "checkpoints" / f"ckpt_{step:07d}.pt"
+        shutil.copyfile(files["lennart3.pt"], ckpt)
+        paths.write_json(ckpt.with_suffix(".json"), {
+            "step": step, "train_loss": None, "val_loss": status.get("val_chat"),
+            "val_loss_lopttext": status.get("val_web"), "tid": status.get("time") or paths.now_iso(),
+            "dataset": "Wikipedia, FineWeb-2 och svenska samtal (Kaggle)",
+            "tokens": status.get("tokens_seen")})
+    except Exception:
+        shutil.rmtree(mdir, ignore_errors=True)
+        raise AppError("Modellfilerna kunde inte kopieras – finns det plats på disken?")
+    now = paths.now_iso()
+    new_cfg = {
+        "id": model_id, "namn": final,
+        "beskrivning": "Svensk GPT tränad på Kaggle med 2× T4 på Wikipedia, FineWeb-2 och svenska samtal. "
+                       "Svarar på frågor och kan extra mycket om cybersäkerhet.",
+        "anvandningsomrade": "Allmän assistent och cybersäkerhet", "sprak": "Svenska",
+        "ursprung": "importerad", "format": "lennart3", "skapad": now, "importerad": now, "andrad": now,
+        "arkitektur": arch,
+        "generering": {**DEFAULT_GENERATION, "temperature": 0.6, "max_tokens": 200, "top_k": 40},
+    }
+    paths.write_json(mdir / "config.json", new_cfg)
+    history = []
+    if status:
+        history.append({"run_id": "kaggle", "dataset": "Kaggle: Wikipedia, FineWeb-2 och samtal",
+                        "start": status.get("time"), "slut": status.get("time"), "status": "completed",
+                        "steg_fran": 0, "steg_till": step, "loss": status.get("val_web"),
+                        "val_loss": status.get("val_chat"), "enhet": "Kaggle 2× T4",
+                        "sekunder": None, "tokens": status.get("tokens_seen")})
+    paths.write_json(mdir / "traningshistorik.json", history)
     _write_generated(mdir, new_cfg)
     return get_model(model_id)
 

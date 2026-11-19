@@ -14,7 +14,7 @@ _MAX_CACHED = 4
 
 def _load(model_id: str, checkpoint: str | None):
     from . import runtime
-    from .tokenizer import Tokenizer
+    from .hf_tokenizer import load_tokenizer
 
     mdir = models.model_dir(model_id)
     cfg = models.load_config(model_id)
@@ -38,14 +38,21 @@ def _load(model_id: str, checkpoint: str | None):
     tok_path = mdir / "tokenizer.json"
     if not tok_path.exists():
         raise AppError("Modellen saknar tokenizer.json")
-    tokenizer = Tokenizer.load(tok_path)
+    tokenizer = load_tokenizer(tok_path)
     import os
     import torch
-    # Få trådar: små modeller vinner inget på fler, och chatten ska inte strypa en pågående träning.
-    torch.set_num_threads(max(1, min(4, (os.cpu_count() or 2) // 2)))
+    big = (cfg["arkitektur"].get("n_params") or 0) > 20_000_000
+    cpus = os.cpu_count() or 2
+    # Små modeller vinner inget på fler trådar och ska inte strypa en pågående träning.
+    # Stora modeller (t.ex. Lennart 3) behöver dem för att svara i rimlig takt.
+    torch.set_num_threads(max(1, min(8, cpus - 1) if big else min(4, cpus // 2)))
+    device = "cuda" if big and torch.cuda.is_available() else "cpu"
     model = runtime.build_model(mdir, cfg["arkitektur"])
     runtime.load_weights(model, pt, "cpu")
+    if device == "cuda":
+        model = model.half().to(device)
     model.eval()
+    model.aicc_device = device
     with _cache_lock:
         _cache[key] = (model, tokenizer)
         while len(_cache) > _MAX_CACHED:
@@ -84,7 +91,8 @@ def chat_stream(model_id: str, messages: list[dict], temperature: float = 0.7,
            "checkpoint": chosen["fil"], "steg": chosen["step"], "prompt_tokens": len(prompt)}
     decode = tokenizer.stream_decoder()
     n, t0 = 0, time.time()
-    for token_id in runtime.generate(model, tokenizer, prompt, max_tokens, temperature, top_k, "cpu", stop):
+    device = getattr(model, "aicc_device", "cpu")
+    for token_id in runtime.generate(model, tokenizer, prompt, max_tokens, temperature, top_k, device, stop):
         n += 1
         piece = decode(token_id)
         if piece:

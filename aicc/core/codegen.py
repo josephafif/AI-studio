@@ -37,6 +37,47 @@ LIMITS = {
 }
 
 
+# Arkitekturer som importeras färdigtränade (t.ex. Lennart 3 från Kaggle). De går att chatta med men
+# skapas och tränas inte i panelen, och visas därför inte i formuläret för nya modeller.
+EXTERNAL_ARCHITECTURES = {
+    "gpt-l3": {
+        "label": "Transformer (GPT, Lennart 3-format)",
+        "description": "Pre-LN GPT utan bias, delade in-/utvikter, Hugging Face-tokenizer. Tränas på Kaggle.",
+        "uses_heads": True,
+    },
+}
+
+
+def arch_label(arch: str) -> str:
+    info = ARCHITECTURES.get(arch) or EXTERNAL_ARCHITECTURES.get(arch) or {}
+    return info.get("label", arch)
+
+
+def is_external(arch_cfg: dict) -> bool:
+    return (arch_cfg or {}).get("architecture") in EXTERNAL_ARCHITECTURES
+
+
+def resolve_external(spec: dict) -> dict:
+    """Validerar arkitekturen för en importerad extern modell (inga värden räknas om)."""
+    if spec.get("architecture") not in EXTERNAL_ARCHITECTURES:
+        raise AppError(f"Okänd arkitektur: {spec.get('architecture')}")
+    out = {"architecture": spec["architecture"], "dropout": 0.0, "target_params": None}
+    for key, lo, hi in (("n_layers", 1, 256), ("n_heads", 1, 256), ("d_model", 8, 16384),
+                        ("context_length", 16, 65536), ("vocab_size", 16, 1_000_000)):
+        try:
+            value = int(spec.get(key))
+        except (TypeError, ValueError):
+            raise AppError(f"Ogiltigt värde för {key} i modellens konfiguration")
+        if not lo <= value <= hi:
+            raise AppError(f"{key} ligger utanför tillåtet intervall")
+        out[key] = value
+    if out["d_model"] % out["n_heads"]:
+        raise AppError("Modellbredden måste vara delbar med antal attention heads")
+    d, L = out["d_model"], out["n_layers"]
+    out["n_params"] = out["vocab_size"] * d + out["context_length"] * d + L * (12 * d * d + 4 * d) + 2 * d
+    return out
+
+
 def count_params(arch: str, vocab: int, d: int, layers: int, context: int) -> int:
     """Exakt antal tränbara parametrar för de genererade arkitekturerna."""
     if arch == "gpt":
@@ -245,6 +286,69 @@ class Model(nn.Module):
         return logits, loss
 '''
 
+_GPT_L3 = '''
+class Block(nn.Module):
+    """Pre-LN-transformerblock utan bias (samma lagernamn som Lennart 3-träningen)."""
+
+    def __init__(self, cfg):
+        super().__init__()
+        d = cfg["d_model"]
+        self.n_heads = cfg["n_heads"]
+        self.ln1 = nn.LayerNorm(d)
+        self.qkv = nn.Linear(d, 3 * d, bias=False)
+        self.proj = nn.Linear(d, d, bias=False)
+        self.ln2 = nn.LayerNorm(d)
+        self.fc = nn.Linear(d, 4 * d, bias=False)
+        self.out = nn.Linear(4 * d, d, bias=False)
+
+    def forward(self, x, cache=None):
+        B, T, C = x.shape
+        q, k, v = self.qkv(self.ln1(x)).view(B, T, 3, self.n_heads, C // self.n_heads).permute(2, 0, 3, 1, 4)
+        if cache is not None:
+            # KV-cache: tidigare tokens behöver inte räknas om vid generering.
+            if "k" in cache:
+                k = torch.cat([cache["k"], k], dim=2)
+                v = torch.cat([cache["v"], v], dim=2)
+            cache["k"], cache["v"] = k, v
+        if q.shape[2] == k.shape[2]:
+            y = F.scaled_dot_product_attention(q, k, v, is_causal=True)
+        else:  # en ny token som får se alla tidigare
+            y = F.scaled_dot_product_attention(q, k, v)
+        x = x + self.proj(y.transpose(1, 2).reshape(B, T, C))
+        return x + self.out(F.gelu(self.fc(self.ln2(x)), approximate="tanh"))
+
+
+class Model(nn.Module):
+    """Decoder-only Transformer i Lennart 3-format med delade in- och utvikter."""
+
+    supports_cache = True
+
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.context_length = cfg["context_length"]
+        d = cfg["d_model"]
+        self.wte = nn.Embedding(cfg["vocab_size"], d)
+        self.wpe = nn.Embedding(cfg["context_length"], d)
+        self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg["n_layers"])])
+        self.ln_f = nn.LayerNorm(d)
+
+    def new_cache(self):
+        return [{} for _ in self.blocks]
+
+    def forward(self, idx, targets=None, cache=None, start_pos=0):
+        B, T = idx.shape
+        pos = torch.arange(start_pos, start_pos + T, device=idx.device)
+        x = self.wte(idx) + self.wpe(pos)
+        for i, block in enumerate(self.blocks):
+            x = block(x, None if cache is None else cache[i])
+        logits = F.linear(self.ln_f(x), self.wte.weight)
+        loss = None
+        if targets is not None:
+            loss = F.cross_entropy(logits.float().view(-1, logits.size(-1)), targets.view(-1))
+        return logits, loss
+'''
+
 _FOOTER = '''
 
 def build_model(cfg):
@@ -259,8 +363,10 @@ def count_parameters(model):
 
 def generate_model_code(name: str, arch_cfg: dict) -> str:
     arch = arch_cfg["architecture"]
-    header = _HEADER.format(name=name, arch_label=ARCHITECTURES[arch]["label"], **arch_cfg)
-    if arch == "gpt":
+    header = _HEADER.format(name=name, arch_label=arch_label(arch), **arch_cfg)
+    if arch == "gpt-l3":
+        body = _GPT_L3
+    elif arch == "gpt":
         body = _GPT
     else:
         body = _RNN.replace("{rnn_cls}", "LSTM" if arch == "lstm" else "GRU")
@@ -277,10 +383,10 @@ def generate_readme(cfg: dict) -> str:
 |---|---|
 | Användningsområde | {cfg.get('anvandningsomrade') or '–'} |
 | Språk | {cfg.get('sprak') or '–'} |
-| Arkitektur | {ARCHITECTURES[a['architecture']]['label']} |
+| Arkitektur | {arch_label(a['architecture'])} |
 | Parametrar | {a['n_params']:,} |
 | Lager | {a['n_layers']} |
-| Attention heads | {a['n_heads'] if a['architecture'] == 'gpt' else '–'} |
+| Attention heads | {a['n_heads'] if a['architecture'] in ('gpt', 'gpt-l3') else '–'} |
 | Modellbredd (d_model) | {a['d_model']} |
 | Context length | {a['context_length']} tokens |
 | Ordförråd | {a['vocab_size']} (byte-nivå BPE) |

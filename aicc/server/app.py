@@ -81,6 +81,7 @@ def _models_with_state(runs=None):
 @route("GET", "/api/presets")
 def _presets(req):
     return {"mallar": codegen.PRESETS, "arkitekturer": codegen.ARCHITECTURES,
+            "externa_arkitekturer": codegen.EXTERNAL_ARCHITECTURES,
             "standard_traning": training.default_params()}
 
 
@@ -106,6 +107,32 @@ def _create_model(req):
 def _import_model(req):
     with req.upload() as tmp:
         return models.import_model(tmp, req.query("namn"))
+
+
+@route("POST", "/api/models/import-lennart3")
+def _import_lennart3(req):
+    """Flera filer i samma uppladdning: ?delar=namn:storlek,namn:storlek och filerna efter varandra."""
+    parts = []
+    for item in (req.query("delar") or "").split(","):
+        fname, _, size = item.rpartition(":")
+        if fname not in models.LENNART3_FILES or not size.isdigit():
+            raise AppError(f"Oväntad fil: {fname or item}")
+        parts.append((fname, int(size)))
+    with req.upload() as tmp, tempfile.TemporaryDirectory(prefix="aicc-l3-") as folder:
+        if tmp.stat().st_size != sum(size for _, size in parts):
+            raise AppError("Uppladdningen blev ofullständig – försök igen")
+        files = {}
+        with open(tmp, "rb") as src:
+            for fname, size in parts:
+                target = Path(folder) / fname
+                with open(target, "wb") as dst:
+                    left = size
+                    while left:
+                        chunk = src.read(min(1 << 20, left))
+                        dst.write(chunk)
+                        left -= len(chunk)
+                files[fname] = target
+        return models.import_lennart3(files, req.query("namn"))
 
 
 @route("POST", "/api/active-model")

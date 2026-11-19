@@ -51,7 +51,7 @@ set "INDEX=https://download.pytorch.org/whl/cpu"
 if "%VAL%"=="2" set "INDEX=https://download.pytorch.org/whl/cu126"
 %PIP% install %MAL% torch --index-url %INDEX%
 if errorlevel 1 goto :fel
-%PIP% install %MAL% psutil
+%PIP% install %MAL% psutil tokenizers
 if errorlevel 1 goto :fel
 %PIP% install %MAL% pywebview
 if errorlevel 1 (
