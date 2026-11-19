@@ -12,6 +12,7 @@ Varje modell är en egen mapp under ``data/modeller/<id>/``:
 from __future__ import annotations
 
 import io
+import os
 import re
 import shutil
 import zipfile
@@ -474,42 +475,73 @@ def _zip_kind(path: Path) -> str | None:
     return None
 
 
+def _torch_folder(folder: Path) -> bool:
+    """En uppackad PyTorch-fil: mappen har data.pkl, version och en data-mapp."""
+    return (folder / "data.pkl").is_file() and (folder / "version").is_file() and (folder / "data").is_dir()
+
+
 def scan_import_dir() -> dict:
-    """Vad som ligger i importmappen och vad det tolkas som."""
+    """Vad som ligger i importmappen (även i undermappar) och vad det tolkas som."""
     folder = import_dir()
     found = {"mapp": str(folder), "vikter": None, "tokenizer": None, "status": None, "zip": None, "filer": []}
-    for f in sorted(folder.iterdir()):
-        if not f.is_file():
+    for entry in sorted(folder.iterdir()):
+        if entry.name == "importerat":
             continue
-        name = f.name.lower()
-        found["filer"].append({"namn": f.name, "storlek": f.stat().st_size})
-        if name.endswith(".json"):
-            if "tokenizer" in name:
-                found["tokenizer"] = f
-            elif "status" in name:
-                found["status"] = f
-        elif name.endswith((".pt", ".bin")):
-            found["vikter"] = f
-        elif name.endswith(".zip"):
-            kind = _zip_kind(f)
-            if kind == "torch":
-                found["vikter"] = f
-            elif kind in ("lennart3", "aicc"):
-                found["zip"] = f
+        size = entry.stat().st_size if entry.is_file() else paths.dir_size(entry)
+        found["filer"].append({"namn": entry.name + ("\\" if entry.is_dir() else ""), "storlek": size})
+    for root, dirs, files in os.walk(folder):
+        here = Path(root)
+        if here == folder:
+            dirs[:] = [d for d in dirs if d != "importerat"]
+        if _torch_folder(here):
+            # Windows (eller webbläsaren) har packat upp lennart3.pt – den packas ihop igen vid importen.
+            found["vikter"] = found["vikter"] or here
+            dirs[:] = []
+            continue
+        for fname in sorted(files):
+            f = here / fname
+            name = fname.lower()
+            if name.endswith(".json"):
+                if "tokenizer" in name:
+                    found["tokenizer"] = found["tokenizer"] or f
+                elif "status" in name:
+                    found["status"] = found["status"] or f
+            elif name.endswith((".pt", ".bin")):
+                found["vikter"] = found["vikter"] or f
+            elif name.endswith(".zip"):
+                kind = _zip_kind(f)
+                if kind == "torch":
+                    found["vikter"] = found["vikter"] or f
+                elif kind in ("lennart3", "aicc"):
+                    found["zip"] = found["zip"] or f
     return found
+
+
+def _repack_torch_folder(folder: Path, target: Path) -> Path:
+    with zipfile.ZipFile(target, "w", zipfile.ZIP_STORED) as zf:
+        for root, _, files in os.walk(folder):
+            for fname in sorted(files):
+                full = Path(root) / fname
+                zf.write(full, "archive/" + full.relative_to(folder).as_posix())
+    return target
 
 
 def import_from_dir(name: str | None = None) -> dict:
     """Importerar det som ligger i mappen importera/ – filerna läses direkt från disken, utan att gå
     genom programfönstret. Importerade filer flyttas till importera/importerat/."""
+    import tempfile
     found = scan_import_dir()
     used: list[Path] = []
     if found["vikter"] and found["tokenizer"]:
-        files = {"lennart3.pt": found["vikter"], "tokenizer.json": found["tokenizer"]}
-        if found["status"]:
-            files["status.json"] = found["status"]
-        model = import_lennart3(files, name)
-        used = list(files.values())
+        with tempfile.TemporaryDirectory(prefix="aicc-l3-", dir=str(paths.data_root())) as tmp:
+            weights = found["vikter"]
+            if weights.is_dir():
+                weights = _repack_torch_folder(weights, Path(tmp) / "lennart3.pt")
+            files = {"lennart3.pt": weights, "tokenizer.json": found["tokenizer"]}
+            if found["status"]:
+                files["status.json"] = found["status"]
+            model = import_lennart3(files, name)
+        used = [found["vikter"], found["tokenizer"]] + ([found["status"]] if found["status"] else [])
     elif found["zip"]:
         model = import_model(found["zip"], name)
         used = [found["zip"]]
@@ -518,15 +550,19 @@ def import_from_dir(name: str | None = None) -> dict:
     elif not found["filer"]:
         raise AppError(f"Mappen är tom. Lägg lennart3.pt, tokenizer.json och status.json i {found['mapp']}")
     else:
-        raise AppError("Hittar ingen modell i mappen. Lägg lennart3.pt (den kan heta .zip), tokenizer.json och "
-                       "status.json där – packa inte upp lennart3.pt.")
+        raise AppError("Hittar ingen modell i mappen. Lägg lennart3.pt (eller mappen den blev när den packades "
+                       "upp), tokenizer.json och status.json där.")
     done = import_dir() / "importerat"
     done.mkdir(exist_ok=True)
+    root = import_dir()
     for f in used:
-        try:
-            f.replace(done / f.name)
-        except OSError:
-            pass
+        # Flytta det översta som hör till filen (t.ex. hela den uppackade mappen).
+        top = root / f.relative_to(root).parts[0]
+        if top.exists():
+            try:
+                top.replace(done / top.name)
+            except OSError:
+                pass
     return model
 
 

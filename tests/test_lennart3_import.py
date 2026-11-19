@@ -142,3 +142,21 @@ def test_import_fran_mappen(app, kaggle_files, tmp_path, monkeypatch):
     from aicc.core import AppError
     with pytest.raises(AppError, match="tom"):
         app.models.import_from_dir()
+
+
+def test_uppackad_modellfil_packas_ihop_igen(app, kaggle_files, tmp_path, monkeypatch):
+    """Windows packar ibland upp lennart3.pt till en mapp – importen packar ihop den igen."""
+    import shutil
+    from aicc import paths
+    folder, _ = kaggle_files
+    monkeypatch.setattr(paths, "APP_ROOT", tmp_path)
+    imp = app.models.import_dir()
+    with zipfile.ZipFile(folder / "lennart3.pt") as zf:
+        zf.extractall(imp / "lennart3.pt")
+    shutil.copy(folder / "tokenizer.json", imp / "tokenizer.json")
+    found = app.models.scan_import_dir()
+    assert found["vikter"].is_dir()
+    m = app.models.import_from_dir("Uppackad")
+    events = list(app.inference.chat_stream(m["id"], [{"role": "user", "content": "Hej"}], 0.0, 10))
+    assert events[-1]["typ"] == "klar"
+    assert (imp / "importerat" / "lennart3.pt").is_dir()
