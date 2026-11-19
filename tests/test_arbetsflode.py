@@ -125,7 +125,9 @@ def test_hela_arbetsflodet(app, tmp_path):
     info = app.models.get_model(m["id"])
     assert info["steg"] == 120 + stopped["step"] and len(info["historik"]) == 2
 
-    # Chatta
+    # Chatta (fast slumpfrö: annars kan modellen ibland välja sluttoken direkt och svara tomt)
+    import torch
+    torch.manual_seed(0)
     events = list(app.inference.chat_stream(m["id"], [{"role": "user", "content": "Vad är nätfiske?"}],
                                             temperature=0.5, max_tokens=20))
     assert events[0]["typ"] == "start" and events[-1]["typ"] == "klar"
