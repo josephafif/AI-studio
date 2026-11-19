@@ -32,6 +32,7 @@ import math
 import os
 import time
 from contextlib import nullcontext
+from datetime import timedelta
 from pathlib import Path
 
 import numpy as np
@@ -193,8 +194,11 @@ def main():
     ddp = "RANK" in os.environ
     if ddp:
         backend = "nccl" if torch.cuda.is_available() else "gloo"
-        dist.init_process_group(backend)
-        rank, world, local = dist.get_rank(), dist.get_world_size(), int(os.environ["LOCAL_RANK"])
+        local = int(os.environ["LOCAL_RANK"])
+        kw = {"device_id": torch.device(f"cuda:{local}")} if torch.cuda.is_available() else {}
+        # Längre väntetid än standard (10 min): att spara en checkpoint på ca 3,6 GB kan ta en stund.
+        dist.init_process_group(backend, timeout=timedelta(minutes=45), **kw)
+        rank, world = dist.get_rank(), dist.get_world_size()
     else:
         rank, world, local = 0, 1, 0
     device = torch.device(f"cuda:{local}" if torch.cuda.is_available() else "cpu")
@@ -304,11 +308,15 @@ def main():
             f = min(1.0, (now - decay_start) / max(1.0, end_time - decay_start))
             lr = MAX_LR * (1 - (1 - MIN_LR_FRAC) * f)
             p_chat = CHAT_P + (CHAT_P_END - CHAT_P) * f
-        ctrl = torch.tensor([lr, p_chat, float(now >= end_time), float(now >= decay_start)], device=device,
-                            dtype=torch.float64)
+        # Även beslutet om checkpoint fattas av rank 0 – annars kan processerna hamna i otakt
+        # (en väntar vid sparningen medan den andra tränar vidare) och hänga sig.
+        want_ckpt = now >= decay_start or now - last_ckpt > CKPT_MINUTES * 60
+        ctrl = torch.tensor([lr, p_chat, float(now >= end_time), float(now >= decay_start), float(want_ckpt)],
+                            device=device, dtype=torch.float64)
         if ddp:
             dist.broadcast(ctrl, 0)
         lr, p_chat, stop, in_decay = float(ctrl[0]), float(ctrl[1]), bool(ctrl[2]), bool(ctrl[3])
+        want_ckpt = bool(ctrl[4])
         if stop:
             break
         if in_decay and not saved_stable:
@@ -319,7 +327,7 @@ def main():
             saved_stable = True
             if ddp:
                 dist.barrier()
-        elif not in_decay and time.time() - last_ckpt > CKPT_MINUTES * 60:
+        elif not in_decay and want_ckpt:
             if master:
                 save_atomic(make_resume(), out / "resume_checkpoint.pt")
                 log(f"Checkpoint sparad vid steg {step:,}")
