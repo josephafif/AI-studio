@@ -146,7 +146,8 @@ sista 12 %. Under sänkningen ökar andelen samtalsdata från 6 till 45 %. Varje
 
 - `lennart3/lennart3.pt` – färdig modell (fp16) med `config.json` och `tokenizer.json`
 - `lennart3/resume_checkpoint.pt` – läget före sänkningen; koppla Output som indata till nästa körning
-  så fortsätter träningen därifrån
+  så fortsätter träningen därifrån (`kaggle_l3_fortsatt.py`, körningen `trana-lennart-3-forts`, avbryter
+  direkt om checkpointen saknas)
 - provsvar på tio frågor sist i loggen
 
 **Chatta med Lennart 3 i panelen:** hämta `lennart3.pt`, `tokenizer.json` och gärna `status.json` från
