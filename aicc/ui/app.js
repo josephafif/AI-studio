@@ -452,7 +452,7 @@ const ACTIONS = {
     try { await api("DELETE", `/api/models/${id}`); toast(`${m.namn} har tagits bort`); await refresh(); go(S.view); } catch (e) { fail(e); }
   },
   "import-model": () => {
-    const dlg = modal({ title: "Importera modell", size: "narrow", body: `<p class="hint" style="margin:0">Välj en modell som exporterats från AI Control Center (.zip), <b>eller</b> Lennart 3 från Kaggle: markera <code>lennart3.pt</code> och <code>tokenizer.json</code> (gärna även <code>status.json</code>) samtidigt. Kod i filerna körs aldrig – modellkoden genereras av panelen.</p><label class="field"><span>Filer</span><input type="file" name="fil" accept=".zip,.pt,.json" multiple></label><label class="field"><span>Namn <em>(valfritt)</em></span><input type="text" name="namn" placeholder="Behåll namnet i filen"></label><div class="hint" id="imp-status"></div>`,
+    const dlg = modal({ title: "Importera modell", size: "narrow", body: `<p class="hint" style="margin:0">Välj en modell som exporterats från AI Control Center (.zip), <b>eller</b> Lennart 3 från Kaggle: markera <code>lennart3.pt</code> och <code>tokenizer.json</code> (gärna även <code>status.json</code>) samtidigt. Packa inte upp lennart3.pt – den är ett zip-arkiv inuti, och det får den vara. Kod i filerna körs aldrig – modellkoden genereras av panelen.</p><label class="field"><span>Filer</span><input type="file" name="fil" accept=".zip,.pt,.json" multiple></label><label class="field"><span>Namn <em>(valfritt)</em></span><input type="text" name="namn" placeholder="Behåll namnet i filen"></label><div class="hint" id="imp-status"></div>`,
       footer: `<button class="btn" data-close>Avbryt</button><button class="btn primary" id="ok">Importera</button>` });
     $("#ok", dlg.el).onclick = async () => {
       const files = [...$("[name=fil]", dlg.el).files];
@@ -466,9 +466,18 @@ const ACTIONS = {
         if (files.length === 1 && files[0].name.toLowerCase().endsWith(".zip")) {
           m = await api("POST", `/api/models/import?${qs({ namn })}`, files[0]);
         } else {
-          const names = files.map((f) => f.name);
-          if (!names.includes("lennart3.pt") || !names.includes("tokenizer.json")) throw new Error("Markera både lennart3.pt och tokenizer.json (håll Ctrl nedtryckt när du väljer).");
-          const delar = files.map((f) => `${f.name}:${f.size}`).join(",");
+          // Roll efter filnamn – tål "tokenizer (1).json" och att webbläsaren döpt om lennart3.pt till .zip.
+          const role = (f) => {
+            const n = f.name.toLowerCase();
+            if (n.endsWith(".json")) return n.includes("tokenizer") ? "tokenizer.json" : n.includes("status") ? "status.json" : n.includes("config") ? "config.json" : null;
+            return n.endsWith(".pt") || n.endsWith(".zip") || n.endsWith(".bin") ? "lennart3.pt" : null;
+          };
+          const roles = files.map(role);
+          if (roles.includes(null)) throw new Error(`Okänd fil: ${files[roles.indexOf(null)].name}. Välj lennart3.pt, tokenizer.json och status.json.`);
+          if (roles.filter((r) => r === "lennart3.pt").length !== 1) throw new Error("Välj exakt en modellfil (lennart3.pt – den kan heta .zip om webbläsaren döpt om den).");
+          if (!roles.includes("tokenizer.json")) throw new Error("Markera även tokenizer.json (håll Ctrl nedtryckt när du väljer).");
+          if (new Set(roles).size !== roles.length) throw new Error("Samma sorts fil är vald två gånger.");
+          const delar = files.map((f, i) => `${roles[i]}:${f.size}`).join(",");
           m = await api("POST", `/api/models/import-lennart3?${qs({ namn, delar })}`, new Blob(files));
         }
         dlg.close(); toast(`${m.namn} har importerats`); await refresh(); go("modeller");

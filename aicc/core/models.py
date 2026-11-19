@@ -276,6 +276,11 @@ def import_model(zip_path: Path, name: str | None = None) -> dict:
         raise AppError("Filen är inte ett giltigt zip-arkiv")
     with zf:
         names = [n for n in zf.namelist() if not n.endswith("/")]
+        if any(n == "data.pkl" or n.endswith("/data.pkl") for n in names) and \
+                any(n == "version" or n.endswith("/version") for n in names):
+            raise AppError("Det här är själva modellfilen (lennart3.pt) – PyTorch sparar den som ett zip-arkiv. "
+                           "Packa inte upp den. Markera den tillsammans med tokenizer.json och status.json "
+                           "i importdialogen.")
         l3 = [n for n in names if Path(n).name == "lennart3.pt"]
         if l3:
             return _import_lennart3_zip(zf, names, name)

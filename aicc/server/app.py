@@ -118,6 +118,8 @@ def _import_lennart3(req):
         if fname not in models.LENNART3_FILES or not size.isdigit():
             raise AppError(f"Oväntad fil: {fname or item}")
         parts.append((fname, int(size)))
+    if len({f for f, _ in parts}) != len(parts):
+        raise AppError("Samma sorts fil är vald två gånger")
     with req.upload() as tmp, tempfile.TemporaryDirectory(prefix="aicc-l3-") as folder:
         if tmp.stat().st_size != sum(size for _, size in parts):
             raise AppError("Uppladdningen blev ofullständig – försök igen")
