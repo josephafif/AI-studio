@@ -217,18 +217,38 @@ def export_l3(src: Path, out: Path, quant: bool | None, name: str | None) -> dic
             "temperature": 0.6, "max_tokens": 200, "top_k": 40}
 
 
+HUES = {"lennart": 152, "lennart-2": 192, "lennart-3": 262, "lennart-3-1": 322}
+
+
+def write_package(out: Path, entry: dict) -> Path:
+    """Ett paket som kan importeras i appen: LENPKG01, längd, JSON (post + tokenizer), sedan .lmod-filen."""
+    head = json.dumps({"entry": entry, "tokenizer": json.loads((out / f"{entry['id']}.tok.json").read_text())},
+                      ensure_ascii=False).encode("utf-8")
+    path = out / f"{entry['id']}.lennart"
+    with open(path, "wb") as fh, open(out / f"{entry['id']}.lmod", "rb") as src:
+        fh.write(b"LENPKG01" + struct.pack("<I", len(head)) + head)
+        fh.write(b"\0" * ((-fh.tell()) % 4096))
+        while chunk := src.read(1 << 22):
+            fh.write(chunk)
+    return path
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--ut", required=True, type=Path)
     p.add_argument("--panel", action="append", default=[], type=Path)
     p.add_argument("--l3", action="append", default=[], type=Path)
     p.add_argument("--kvantisera", choices=["auto", "ja", "nej"], default="auto")
+    p.add_argument("--paket", action="store_true", help="skapa även <id>.lennart att importera i appen")
     args = p.parse_args()
     quant = {"auto": None, "ja": True, "nej": False}[args.kvantisera]
     args.ut.mkdir(parents=True, exist_ok=True)
     entries = [export_panel(s, args.ut, quant) for s in args.panel]
     entries += [export_l3(s, args.ut, quant, None) for s in args.l3]
-    for e in entries:
+    for i, e in enumerate(entries):
+        e["hue"] = HUES.get(e["id"], (38 + 47 * i) % 360)
+        if args.paket:
+            write_package(args.ut, e)
         size = (args.ut / f"{e['id']}.lmod").stat().st_size
         print(f"  ✓ {e['name']}: {e['params']:,} parametrar, {e['quant']}, {size / 1e6:.0f} MB".replace(",", " "))
     (args.ut / "manifest.json").write_text(json.dumps({"models": entries}, ensure_ascii=False, indent=2),

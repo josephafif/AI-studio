@@ -28,16 +28,32 @@ Widget _sheet(BuildContext context, {required String title, required List<Widget
 }
 
 /// Välj vilken Lennart du pratar med.
-Future<ModelInfo?> pickModel(BuildContext context, List<ModelInfo> models, String currentId) {
-  return showModalBottomSheet<ModelInfo>(
+/// Returnerar vald modell, eller strängen 'importera' om användaren vill lägga till en modell från fil.
+Future<Object?> pickModel(BuildContext context, List<ModelInfo> models, String currentId) {
+  return showModalBottomSheet<Object>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => _sheet(ctx, title: 'Välj modell', children: [
       ConstrainedBox(
         constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.7),
         child: ListView(shrinkWrap: true, children: [
-          for (final m in models.reversed) _ModelCard(model: m, selected: m.id == currentId),
+          for (final m in models.reversed) _ModelCard(model: m, selected: m.id == currentId, latest: m == models.last),
         ]),
+      ),
+      const SizedBox(height: 4),
+      SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Palette.text,
+            side: const BorderSide(color: Palette.stroke),
+            padding: const EdgeInsets.all(14),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          ),
+          onPressed: () => Navigator.pop(ctx, 'importera'),
+          icon: const Icon(Icons.add_circle_outline_rounded, color: Palette.green),
+          label: const Text('Lägg till modell från fil (.lennart)'),
+        ),
       ),
     ]),
   );
@@ -45,13 +61,12 @@ Future<ModelInfo?> pickModel(BuildContext context, List<ModelInfo> models, Strin
 
 class _ModelCard extends StatelessWidget {
   final ModelInfo model;
-  final bool selected;
-  const _ModelCard({required this.model, required this.selected});
+  final bool selected, latest;
+  const _ModelCard({required this.model, required this.selected, required this.latest});
 
   @override
   Widget build(BuildContext context) {
-    final color = Palette.model(model.index);
-    final latest = model.index == 3;
+    final color = model.color;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(

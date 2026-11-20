@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,7 +27,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
   final _focus = FocusNode();
-  late ModelInfo _model = widget.catalog.models.last; // nyaste först
+  late ModelInfo _model = widget.catalog.latest;
   late GenSettings _settings = _defaults(_model);
   late Conversation _chat = Conversation.empty(_model.id);
   bool _loading = false, _busy = false;
@@ -42,7 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
   ];
 
   GenSettings _defaults(ModelInfo m) => GenSettings(temperature: m.temperature, maxTokens: m.maxTokens, topK: m.topK);
-  Color get _color => Palette.model(_model.index);
+  Color get _color => _model.color;
 
   @override
   void initState() {
@@ -116,6 +117,46 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  Future<void> _importModel() async {
+    String? path;
+    try {
+      path = await Catalog.pickFile();
+    } on MissingPluginException {
+      _toast('Filväljaren finns bara på telefonen');
+      return;
+    }
+    if (path == null || !mounted) return;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(
+        child: Glass(
+          padding: EdgeInsets.all(26),
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            Orb(size: 90, color: Palette.violet, thinking: true),
+            SizedBox(height: 10),
+            Text('Installerar modellen …', style: TextStyle(color: Palette.text, decoration: TextDecoration.none, fontSize: 15)),
+          ]),
+        ),
+      ),
+    );
+    try {
+      final m = await widget.catalog.importPackage(path);
+      if (!mounted) return;
+      Navigator.pop(context);
+      _toast('${m.name} är installerad');
+      await _loadModel(m);
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context);
+      _toast('Kunde inte installera: $e');
+    } finally {
+      try {
+        await File(path).delete();
+      } catch (_) {}
+    }
+  }
+
   void _stop() {
     _engine.stop();
     HapticFeedback.selectionClick();
@@ -185,7 +226,11 @@ class _ChatScreenState extends State<ChatScreen> {
                   ? null
                   : () async {
                       final m = await pickModel(context, widget.catalog.models, _model.id);
-                      if (m != null && m.id != _model.id) _loadModel(m);
+                      if (m == 'importera') {
+                        await _importModel();
+                      } else if (m is ModelInfo && m.id != _model.id) {
+                        _loadModel(m);
+                      }
                     },
               child: Glass(
                 radius: 30,
@@ -266,7 +311,7 @@ class _ChatScreenState extends State<ChatScreen> {
         final last = i == _chat.messages.length - 1;
         return _Bubble(
           message: m,
-          color: Palette.model((widget.catalog.models.where((x) => x.id == _chat.modelId).firstOrNull ?? _model).index),
+          color: (widget.catalog.models.where((x) => x.id == _chat.modelId).firstOrNull ?? _model).color,
           thinking: last && _busy && m.text.isEmpty,
           streaming: last && _busy,
         );
@@ -541,7 +586,7 @@ class _HistoryDrawerState extends State<_HistoryDrawer> {
                           leading: Container(
                             width: 10,
                             height: 10,
-                            decoration: BoxDecoration(shape: BoxShape.circle, color: Palette.model(m?.index ?? 0)),
+                            decoration: BoxDecoration(shape: BoxShape.circle, color: m?.color ?? Palette.green),
                           ),
                           title: Text(c.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Palette.text)),
                           subtitle: Text(m?.name ?? c.modelId, style: Theme.of(context).textTheme.bodySmall),

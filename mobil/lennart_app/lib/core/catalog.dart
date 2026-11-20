@@ -2,16 +2,21 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/material.dart' show Color, HSLColor;
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+
+import 'package.dart';
 
 class ModelInfo {
   final String id, name, description, quant;
   final int params, steps, context, vocab, maxTokens, topK;
   final double temperature;
-  final int index;
+  final double hue;
+  final bool builtin;
+  final Map<String, dynamic> json;
 
-  ModelInfo.fromJson(Map<String, dynamic> j, this.index)
+  ModelInfo.fromJson(Map<String, dynamic> j, {this.builtin = true})
       : id = j['id'] as String,
         name = j['name'] as String,
         description = (j['description'] as String?) ?? '',
@@ -22,7 +27,11 @@ class ModelInfo {
         vocab = j['vocab'] as int,
         maxTokens = j['max_tokens'] as int,
         topK = j['top_k'] as int,
-        temperature = (j['temperature'] as num).toDouble();
+        temperature = (j['temperature'] as num).toDouble(),
+        hue = ((j['hue'] as num?) ?? 152).toDouble(),
+        json = j;
+
+  Color get color => HSLColor.fromAHSL(1, hue % 360, 0.85, 0.62).toColor();
 
   String get paramsLabel => params >= 1e6 ? '${(params / 1e6).round()} M' : '${(params / 1e3).round()} k';
 }
@@ -30,31 +39,67 @@ class ModelInfo {
 class Catalog {
   static const _channel = MethodChannel('lennart/assets');
   final List<ModelInfo> models;
+  final List<ModelInfo> _builtin;
   final Directory dir;
-  Catalog._(this.models, this.dir);
+  Catalog._(this._builtin, this.models, this.dir);
+
+  File get _userManifest => File('${dir.path}/egna-modeller.json');
 
   static Future<Catalog> open() async {
     final manifest = jsonDecode(await rootBundle.loadString('assets/models/manifest.json')) as Map<String, dynamic>;
-    final list = manifest['models'] as List;
-    final models = [for (var i = 0; i < list.length; i++) ModelInfo.fromJson(list[i] as Map<String, dynamic>, i)];
+    final builtin = [for (final m in manifest['models'] as List) ModelInfo.fromJson(m as Map<String, dynamic>)];
     final dir = Directory('${(await getApplicationSupportDirectory()).path}/models');
     await dir.create(recursive: true);
-    return Catalog._(models, dir);
+    final cat = Catalog._(builtin, [], dir);
+    await cat._refresh();
+    return cat;
   }
+
+  /// Medföljande modeller plus de som importerats från .lennart-filer, minst till störst.
+  Future<void> _refresh() async {
+    final user = <ModelInfo>[];
+    if (await _userManifest.exists()) {
+      for (final m in jsonDecode(await _userManifest.readAsString()) as List) {
+        final info = ModelInfo.fromJson(m as Map<String, dynamic>, builtin: false);
+        if (await File(modelPath(info)).exists()) user.add(info);
+      }
+    }
+    final ids = user.map((m) => m.id).toSet();
+    models
+      ..clear()
+      ..addAll([..._builtin.where((m) => !ids.contains(m.id)), ...user])
+      ..sort((a, b) => a.params != b.params ? a.params.compareTo(b.params) : a.steps.compareTo(b.steps));
+  }
+
+  ModelInfo get latest => models.last;
+
+  /// Installerar ett modellpaket (.lennart) och returnerar modellen.
+  Future<ModelInfo> importPackage(String path) async {
+    final res = await installPackage(path, dir.path);
+    final list = await _userManifest.exists() ? jsonDecode(await _userManifest.readAsString()) as List : [];
+    list.removeWhere((m) => (m as Map)['id'] == res.entry['id']);
+    list.add(res.entry);
+    await _userManifest.writeAsString(jsonEncode(list));
+    await _refresh();
+    return models.firstWhere((m) => m.id == res.entry['id']);
+  }
+
+  /// Väljer en fil med telefonens filväljare (kopieras till appens cache). null om användaren avbryter.
+  static Future<String?> pickFile() => _channel.invokeMethod<String>('pickFile');
 
   String modelPath(ModelInfo m) => '${dir.path}/${m.id}.lmod';
   String tokenizerPath(ModelInfo m) => '${dir.path}/${m.id}.tok.json';
 
   /// Filer som ska finnas på disken, med storleken i appens tillgångar.
   List<(String asset, String dest)> _files() => [
-        for (final m in models) ...[
+        for (final m in _builtin) ...[
           ('assets/models/${m.id}.lmod', modelPath(m)),
           ('assets/models/${m.id}.tok.json', tokenizerPath(m)),
         ]
       ];
 
   Future<bool> needsSetup() async {
-    final marker = File('${dir.path}/.klar-${models.map((m) => '${m.id}-${m.steps}').join('_')}');
+    final marker = File('${dir.path}/.klar-${_builtin.map((m) => '${m.id}-${m.steps}').join('_')}');
     return !await marker.exists();
   }
 
@@ -63,7 +108,7 @@ class Catalog {
     final files = _files();
     for (var i = 0; i < files.length; i++) {
       final (asset, dest) = files[i];
-      final model = models[i ~/ 2];
+      final model = _builtin[i ~/ 2];
       progress(model.name, i / files.length);
       try {
         await _channel.invokeMethod('extract', {'asset': asset, 'dest': dest});
@@ -74,6 +119,6 @@ class Catalog {
       }
     }
     progress('Klart', 1);
-    await File('${dir.path}/.klar-${models.map((m) => '${m.id}-${m.steps}').join('_')}').writeAsString('ok');
+    await File('${dir.path}/.klar-${_builtin.map((m) => '${m.id}-${m.steps}').join('_')}').writeAsString('ok');
   }
 }

@@ -1,5 +1,7 @@
 package se.aicontrolcenter.lennart_app
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import io.flutter.FlutterInjector
@@ -16,6 +18,10 @@ import java.util.concurrent.Executors
  */
 class MainActivity : FlutterActivity() {
     private val worker = Executors.newSingleThreadExecutor()
+    private var pickResult: MethodChannel.Result? = null
+    private val pickRequest = 4711
+
+    private fun post(block: () -> Unit) = Handler(Looper.getMainLooper()).post(block)
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -39,7 +45,40 @@ class MainActivity : FlutterActivity() {
                         }
                     }
                 }
+                "pickFile" -> {
+                    // Telefonens filväljare; den valda filen kopieras till appens cache.
+                    pickResult = result
+                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                        addCategory(Intent.CATEGORY_OPENABLE)
+                        type = "*/*"
+                    }
+                    startActivityForResult(intent, pickRequest)
+                }
                 else -> result.notImplemented()
+            }
+        }
+    }
+
+    @Deprecated("Används för filväljaren")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != pickRequest) return
+        val result = pickResult ?: return
+        pickResult = null
+        val uri = data?.data
+        if (resultCode != Activity.RESULT_OK || uri == null) {
+            result.success(null)
+            return
+        }
+        worker.execute {
+            try {
+                val dest = File(cacheDir, "import.lennart")
+                contentResolver.openInputStream(uri)!!.use { input ->
+                    dest.outputStream().use { output -> input.copyTo(output, 1 shl 20) }
+                }
+                post { result.success(dest.path) }
+            } catch (e: Exception) {
+                post { result.error("pickFile", e.message, null) }
             }
         }
     }

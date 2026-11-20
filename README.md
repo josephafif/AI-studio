@@ -185,6 +185,10 @@ cd mobil/lennart_app && flutter build apk --release --target-platform android-ar
 
 Vid första start packas modellerna upp till appens lagring (en gång, några sekunder).
 
+Fler modeller kan läggas till utan att bygga om appen: `--paket` skapar `<id>.lennart`, som
+importeras i appen via modellväljaren → **Lägg till modell från fil**. Så levereras t.ex. Lennart 3
+separat, eftersom en APK med alla fyra modellerna blir över 600 MB.
+
 ## Arkitektur
 
 Gränssnitt, modellhantering och träning är åtskilda:
