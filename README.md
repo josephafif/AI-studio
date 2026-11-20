@@ -163,6 +163,28 @@ ca 20 tokens per sekund på en fyrkärnig CPU, och på GPU om en finns. Lennart 
 i panelen; det görs på Kaggle från `resume_checkpoint.pt`. Kräver paketet `tokenizers`, som
 `installera.bat` installerar (kör den igen om du installerade tidigare).
 
+## Lennart på mobilen (Android)
+
+`mobil/lennart_app` är en Flutter-app som kör Lennart-modellerna helt offline på telefonen,
+med ett mörkt gränssnitt med animerade sfärer per modell, strömmande svar, modellväljare,
+inställningar (temperatur, längd, top-k) och sparade samtal.
+
+- `mobil/engine/lmengine.c` – liten inferensmotor i C (KV-cache, OpenMP, int8- eller float32-vikter)
+  som anropas från Dart via FFI. Samma fil kompileras för datorn, där den verifieras mot PyTorch.
+- `tools/exportera_mobil.py` – gör om modeller från panelen (`--panel`) och Lennart 3-formatet från
+  Kaggle (`--l3`) till `.lmod` + tokenizer. Lennart 3 och nyare kvantiseras till int8 (≈ 300 MB).
+
+Bygga om appen (kräver Flutter och Android SDK med NDK):
+
+```
+python tools/exportera_mobil.py --ut mobil/lennart_app/assets/models \
+    --panel exempel/Lennart-tranad.aicc-modell.zip --panel exempel/Lennart-2-tranad.aicc-modell.zip \
+    --l3 <mapp med Lennart 3> --l3 <mapp med Lennart 3.1>
+cd mobil/lennart_app && flutter build apk --release --target-platform android-arm64
+```
+
+Vid första start packas modellerna upp till appens lagring (en gång, några sekunder).
+
 ## Arkitektur
 
 Gränssnitt, modellhantering och träning är åtskilda:

@@ -1,0 +1,100 @@
+// FFI-bindningar till inferensmotorn (mobil/engine/lmengine.c, byggd som liblmengine.so).
+import 'dart:ffi';
+import 'dart:io';
+
+import 'package:ffi/ffi.dart';
+
+typedef _LoadC = Pointer<Void> Function(Pointer<Utf8>, Int32, Pointer<Utf8>, Int32);
+typedef _LoadD = Pointer<Void> Function(Pointer<Utf8>, int, Pointer<Utf8>, int);
+typedef _InfoC = Void Function(Pointer<Void>, Pointer<Int32>);
+typedef _InfoD = void Function(Pointer<Void>, Pointer<Int32>);
+typedef _VoidC = Void Function(Pointer<Void>);
+typedef _VoidD = void Function(Pointer<Void>);
+typedef _IntC = Int32 Function(Pointer<Void>);
+typedef _IntD = int Function(Pointer<Void>);
+typedef _EvalC = Int32 Function(Pointer<Void>, Pointer<Int32>, Int32);
+typedef _EvalD = int Function(Pointer<Void>, Pointer<Int32>, int);
+typedef _SampleC = Int32 Function(Pointer<Void>, Float, Int32, Pointer<Int32>, Int32, Pointer<Uint64>);
+typedef _SampleD = int Function(Pointer<Void>, double, int, Pointer<Int32>, int, Pointer<Uint64>);
+
+class EngineInfo {
+  final int vocab, dModel, layers, heads, context;
+  final bool int8;
+  const EngineInfo(this.vocab, this.dModel, this.layers, this.heads, this.context, this.int8);
+}
+
+/// En inläst modell. Används bara i modellisolaten.
+class NativeModel {
+  static DynamicLibrary? _lib;
+  static DynamicLibrary get lib =>
+      _lib ??= Platform.isAndroid ? DynamicLibrary.open('liblmengine.so') : DynamicLibrary.open('liblmengine.so');
+
+  static final _load = lib.lookupFunction<_LoadC, _LoadD>('lm_load');
+  static final _info = lib.lookupFunction<_InfoC, _InfoD>('lm_info');
+  static final _reset = lib.lookupFunction<_VoidC, _VoidD>('lm_reset');
+  static final _free = lib.lookupFunction<_VoidC, _VoidD>('lm_free');
+  static final _pos = lib.lookupFunction<_IntC, _IntD>('lm_pos');
+  static final _eval = lib.lookupFunction<_EvalC, _EvalD>('lm_eval');
+  static final _sample = lib.lookupFunction<_SampleC, _SampleD>('lm_sample');
+
+  final Pointer<Void> _h;
+  late final EngineInfo info;
+  final Pointer<Uint64> _rng = calloc<Uint64>();
+  Pointer<Int32> _buf = calloc<Int32>(1);
+  int _bufLen = 1;
+
+  NativeModel._(this._h) {
+    final out = calloc<Int32>(8);
+    _info(_h, out);
+    info = EngineInfo(out[0], out[1], out[2], out[3], out[4], out[5] == 1);
+    calloc.free(out);
+    _rng.value = DateTime.now().microsecondsSinceEpoch | 1;
+  }
+
+  static NativeModel load(String path, int threads) {
+    final p = path.toNativeUtf8();
+    final err = calloc<Uint8>(256).cast<Utf8>();
+    try {
+      final h = _load(p, threads, err, 256);
+      if (h == nullptr) throw StateError('Modellen kunde inte läsas: ${err.toDartString()}');
+      return NativeModel._(h);
+    } finally {
+      calloc.free(p);
+      calloc.free(err);
+    }
+  }
+
+  int get pos => _pos(_h);
+  void reset() => _reset(_h);
+
+  /// Matar in tokens efter det som redan finns i cachen.
+  void eval(List<int> tokens) {
+    if (tokens.isEmpty) return;
+    if (tokens.length > _bufLen) {
+      calloc.free(_buf);
+      _buf = calloc<Int32>(tokens.length);
+      _bufLen = tokens.length;
+    }
+    for (var i = 0; i < tokens.length; i++) {
+      _buf[i] = tokens[i];
+    }
+    final rc = _eval(_h, _buf, tokens.length);
+    if (rc != 0) throw StateError('Motorn kunde inte räkna (kod $rc)');
+  }
+
+  int sample(double temperature, int topK, List<int> banned) {
+    final b = calloc<Int32>(banned.length);
+    for (var i = 0; i < banned.length; i++) {
+      b[i] = banned[i];
+    }
+    final t = _sample(_h, temperature, topK, b, banned.length, _rng);
+    calloc.free(b);
+    return t;
+  }
+
+  void dispose() {
+    _free(_h);
+    calloc.free(_rng);
+    calloc.free(_buf);
+  }
+}
