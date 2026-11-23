@@ -1,48 +1,97 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+
+/// Färger som inte beror på ljust/mörkt läge.
 class Palette {
-  static const bg = Color(0xFF06080C);
-  static const surface = Color(0xFF0E131B);
-  static const glass = Color(0x14FFFFFF);
-  static const stroke = Color(0x1FFFFFFF);
-  static const text = Color(0xFFE9EEF5);
-  static const muted = Color(0xFF8B97A8);
   static const green = Color(0xFF3DDC97);
   static const cyan = Color(0xFF47C7FF);
   static const violet = Color(0xFFA78BFA);
   static const danger = Color(0xFFFF6B6B);
-
-  /// En egen färg per Lennart-version: grön, cyan, violett, rosa …
-  static Color model(int index) {
-    const hues = [152.0, 192.0, 262.0, 322.0, 38.0];
-    return HSLColor.fromAHSL(1, hues[index % hues.length], 0.85, 0.62).toColor();
-  }
+  static const ink = Color(0xFF03140C); // text på färgade ytor
 }
 
-ThemeData buildTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: Palette.green,
-    brightness: Brightness.dark,
-    surface: Palette.surface,
-  );
+/// Färger som skiljer sig mellan ljust och mörkt läge. Hämtas med `context.c`.
+@immutable
+class AppColors extends ThemeExtension<AppColors> {
+  final Color bg, surface, glass, stroke, text, muted, accent, rain;
+  final bool dark;
+  const AppColors({
+    required this.bg, required this.surface, required this.glass, required this.stroke,
+    required this.text, required this.muted, required this.accent, required this.rain, required this.dark,
+  });
+
+  static const darkColors = AppColors(
+    bg: Color(0xFF05070A), surface: Color(0xFF0D1219), glass: Color(0x14FFFFFF), stroke: Color(0x1FFFFFFF),
+    text: Color(0xFFE9EEF5), muted: Color(0xFF8B97A8), accent: Palette.green, rain: Palette.green, dark: true);
+  static const lightColors = AppColors(
+    bg: Color(0xFFF3F6F9), surface: Color(0xFFFFFFFF), glass: Color(0xB3FFFFFF), stroke: Color(0x1A0B1A2A),
+    text: Color(0xFF0D141C), muted: Color(0xFF5B6675), accent: Color(0xFF0E9F62), rain: Color(0xFF0E7A55), dark: false);
+
+  @override
+  AppColors copyWith() => this;
+  @override
+  AppColors lerp(ThemeExtension<AppColors>? other, double t) => t < 0.5 ? this : (other as AppColors? ?? this);
+}
+
+extension AppColorsX on BuildContext {
+  AppColors get c => Theme.of(this).extension<AppColors>()!;
+}
+
+const mono = TextStyle(
+  fontFamily: 'monospace',
+  fontFamilyFallback: ['RobotoMono', 'DejaVu Sans Mono', 'Droid Sans Mono', 'Courier New'],
+);
+
+ThemeData buildTheme(Brightness b) {
+  final ac = b == Brightness.dark ? AppColors.darkColors : AppColors.lightColors;
+  final scheme = ColorScheme.fromSeed(seedColor: Palette.green, brightness: b, surface: ac.surface);
   return ThemeData(
     useMaterial3: true,
+    brightness: b,
     colorScheme: scheme,
-    scaffoldBackgroundColor: Palette.bg,
-    fontFamily: 'Roboto',
-    textTheme: const TextTheme(
-      bodyMedium: TextStyle(color: Palette.text, fontSize: 15.5, height: 1.45),
-      bodySmall: TextStyle(color: Palette.muted, fontSize: 12),
-      titleMedium: TextStyle(color: Palette.text, fontWeight: FontWeight.w600, letterSpacing: -0.2),
+    scaffoldBackgroundColor: ac.bg,
+    extensions: [ac],
+    textTheme: TextTheme(
+      bodyMedium: TextStyle(color: ac.text, fontSize: 15.5, height: 1.45),
+      bodySmall: TextStyle(color: ac.muted, fontSize: 12),
+      titleMedium: TextStyle(color: ac.text, fontWeight: FontWeight.w600, letterSpacing: -0.2),
     ),
+    iconTheme: IconThemeData(color: ac.text),
     sliderTheme: SliderThemeData(
-      activeTrackColor: Palette.green,
-      inactiveTrackColor: Palette.stroke,
-      thumbColor: Palette.green,
-      overlayColor: Palette.green.withValues(alpha: 0.15),
+      activeTrackColor: ac.accent,
+      inactiveTrackColor: ac.stroke,
+      thumbColor: ac.accent,
+      overlayColor: ac.accent.withValues(alpha: 0.15),
       trackHeight: 3,
     ),
     bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent, elevation: 0),
-    snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating, backgroundColor: Palette.surface),
+    snackBarTheme: SnackBarThemeData(
+      behavior: SnackBarBehavior.floating,
+      backgroundColor: ac.dark ? ac.surface : const Color(0xFF0D141C),
+      contentTextStyle: const TextStyle(color: Colors.white),
+    ),
+    drawerTheme: DrawerThemeData(backgroundColor: ac.surface),
   );
 }
+
+/// Ljust, mörkt eller som telefonen – sparas mellan starterna.
+class Appearance extends ValueNotifier<ThemeMode> {
+  Appearance() : super(ThemeMode.system);
+  File? _file;
+
+  Future<void> load() async {
+    _file = File('${(await getApplicationSupportDirectory()).path}/utseende.txt');
+    if (await _file!.exists()) {
+      value = ThemeMode.values.firstWhere((m) => m.name == (_file!.readAsStringSync()).trim(), orElse: () => ThemeMode.system);
+    }
+  }
+
+  void set(ThemeMode mode) {
+    value = mode;
+    _file?.writeAsString(mode.name);
+  }
+}
+
+final appearance = Appearance();

@@ -1,20 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import 'core/catalog.dart';
 import 'core/chats.dart';
-import 'ui/aurora.dart';
+import 'ui/ascii.dart';
 import 'ui/chat_screen.dart';
-import 'ui/orb.dart';
 import 'ui/theme.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Palette.bg,
-    statusBarIconBrightness: Brightness.light,
-  ));
+  await appearance.load();
   runApp(const LennartApp());
 }
 
@@ -23,11 +17,16 @@ class LennartApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Lennart',
-      debugShowCheckedModeBanner: false,
-      theme: buildTheme(),
-      home: const _Startup(),
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: appearance,
+      builder: (_, mode, __) => MaterialApp(
+        title: 'Lennart',
+        debugShowCheckedModeBanner: false,
+        theme: buildTheme(Brightness.light),
+        darkTheme: buildTheme(Brightness.dark),
+        themeMode: mode,
+        home: const _Startup(),
+      ),
     );
   }
 }
@@ -77,30 +76,29 @@ class _StartupState extends State<_Startup> {
   @override
   Widget build(BuildContext context) {
     if (_catalog != null) return ChatScreen(catalog: _catalog!, store: _store!);
+    final c = context.c;
     return Scaffold(
       body: Stack(children: [
-        const Positioned.fill(child: Aurora(accent: Palette.green)),
+        const Positioned.fill(child: AsciiRain(color: Palette.green)),
         Center(
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const Orb(size: 190, color: Palette.green, thinking: true),
-              const SizedBox(height: 12),
-              const Text('Lennart', style: TextStyle(fontSize: 34, fontWeight: FontWeight.w800, letterSpacing: -1)),
+              const AsciiSphere(size: 240, color: Palette.green, thinking: true),
+              ScrambleText('lennart_', style: mono.copyWith(fontSize: 34, fontWeight: FontWeight.w800, color: c.text)),
               const SizedBox(height: 18),
               if (_error != null)
                 Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: Palette.danger))
               else if (_setup) ...[
-                Text('Förbereder $_label', style: const TextStyle(color: Palette.muted)),
+                BrailleSpinner(color: c.accent, text: 'förbereder $_label'),
                 const SizedBox(height: 12),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                      value: _progress, minHeight: 6, backgroundColor: Palette.stroke, color: Palette.green),
+                  child: LinearProgressIndicator(value: _progress, minHeight: 6, backgroundColor: c.stroke, color: c.accent),
                 ),
                 const SizedBox(height: 10),
-                const Text('Bara första gången – modellerna packas upp till telefonen.',
-                    textAlign: TextAlign.center, style: TextStyle(color: Palette.muted, fontSize: 12)),
+                Text('// bara första gången – modellerna packas upp till telefonen',
+                    textAlign: TextAlign.center, style: mono.copyWith(color: c.muted, fontSize: 11)),
               ],
             ]),
           ),
