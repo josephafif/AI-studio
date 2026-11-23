@@ -172,7 +172,7 @@ WIKI_BASE = "https://huggingface.co/datasets/wikimedia/wikipedia/resolve/main/20
 _SKIP_TITLE = re.compile(r"^(Lista över|Förteckning|Mall:|Kategori:)|\(olika betydelser\)", re.I)
 _PERSON = re.compile(r"\b(född|död)\b|\(\s*\d{1,2} \w+ \d{4}", re.I)
 Q_WHAT = ["Vad är {t}?", "Berätta om {t}.", "Vad vet du om {t}?", "Kan du förklara vad {t} är?", "Vad menas med {t}?"]
-WIKI_QA, WIKI_QA_MAX = {"n": 0}, 60_000
+WIKI_QA, WIKI_QA_MAX = {"n": 0}, int(os.environ.get("L3_WIKI_QA", 220_000))
 Q_WHO = ["Vem är {t}?", "Berätta om {t}.", "Vad vet du om {t}?"]
 
 
@@ -200,12 +200,26 @@ def lead(text: str, max_chars: int = 600) -> str:
     return cut[:end + 1] if end > 120 else cut
 
 
+Q_MORE = ["Berätta mer.", "Kan du berätta mer?", "Vad mer vet du?", "Fortsätt gärna.", "Intressant, berätta mer!"]
+Q_SUMMARY = ["Sammanfatta {t} kort.", "Ge mig en kort sammanfattning av {t}.", "Förklara {t} enkelt."]
+
+
 def wiki_qa(title: str, text: str):
+    """Frågor och svar från artikeln: inledningen, ibland en följdfråga med nästa stycke."""
     t = re.sub(r"\s*\(.*?\)\s*$", "", title)
     a = lead(text)
-    if WIKI_QA["n"] < WIKI_QA_MAX and 60 <= len(a) and len(t) <= 60 and rng.random() < 0.08:
-        WIKI_QA["n"] += 1
-        q = rng.choice(Q_WHO if _PERSON.search(text[:300]) else Q_WHAT).format(t=t)
+    if WIKI_QA["n"] >= WIKI_QA_MAX or not (60 <= len(a) and len(t) <= 60) or rng.random() >= 0.80:
+        return
+    WIKI_QA["n"] += 1
+    r = rng.random()
+    q = rng.choice(Q_WHO if _PERSON.search(text[:300]) else Q_WHAT).format(t=t)
+    paras = [p.strip() for p in text.split("\n") if len(p.strip()) >= 120 and not p.strip().startswith("==")]
+    if r < 0.25 and len(paras) >= 2:
+        # Två turer: frågan, sedan en följdfråga som besvaras med nästa stycke.
+        add("wikipedia-qa", [("user", q), ("assistant", a), ("user", rng.choice(Q_MORE)), ("assistant", lead(paras[1]))])
+    elif r < 0.40:
+        add("wikipedia-qa", [("user", rng.choice(Q_SUMMARY).format(t=t)), ("assistant", a)])
+    else:
         add("wikipedia-qa", [("user", q), ("assistant", a)])
 
 
@@ -229,6 +243,10 @@ def chat_string(turns) -> str:
 def train_tokenizer():
     from tokenizers import Tokenizer, decoders, models, pre_tokenizers, trainers
     path = OUT / "tokenizer.json"
+    # Fortsatt träning kräver exakt samma tokenizer – lägg den i koddatasetet så återanvänds den.
+    given = HERE / "tokenizer.json"
+    if given.exists() and not path.exists():
+        path.write_bytes(given.read_bytes())
     if path.exists():
         log("Tokenizer finns redan – återanvänds.")
         return Tokenizer.from_file(str(path))
@@ -319,7 +337,7 @@ def main():
                   if p.exists()), HERE / "svensk_cybersakerhet.jsonl")
     log("Samlar samtalsdata …")
     if persona.exists():
-        load_jsonl_qa(persona, "lennart-persona", 6)
+        load_jsonl_qa(persona, "lennart-persona", 20)
     if cyber.exists():
         load_jsonl_qa(cyber, "cybersakerhet", 1)
     for fn in (source_aya, source_swefaq, source_openhermes):
