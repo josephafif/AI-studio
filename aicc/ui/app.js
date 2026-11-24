@@ -457,7 +457,7 @@ const ACTIONS = {
       <div class="hint" id="imp-folder">Läser mappen …</div>
       <div class="btn-row"><button class="btn" id="imp-scan">Sök igen</button><button class="btn primary" id="imp-folder-ok" disabled>Importera från mappen</button></div>
       <div class="section-title">Eller välj filer</div>
-      <label class="field"><span>Filer</span><input type="file" name="fil" accept=".zip,.pt,.json" multiple></label><div class="hint" id="imp-status"></div>`,
+      <label class="field"><span>Filer</span><input type="file" name="fil" accept=".zip,.pt,.json,.txt" multiple></label><div class="hint" id="imp-status"></div>`,
       footer: `<button class="btn" data-close>Avbryt</button><button class="btn" id="ok">Importera valda filer</button>` });
     const scan = async () => {
       try {
@@ -495,7 +495,7 @@ const ACTIONS = {
           // Roll efter filnamn – tål "tokenizer (1).json" och att webbläsaren döpt om lennart3.pt till .zip.
           const role = (f) => {
             const n = f.name.toLowerCase();
-            if (n.endsWith(".json")) return n.includes("tokenizer") ? "tokenizer.json" : n.includes("status") ? "status.json" : n.includes("config") ? "config.json" : null;
+            if (n.endsWith(".json") || n.endsWith(".txt")) return n.includes("tokenizer") ? "tokenizer.json" : n.includes("status") ? "status.json" : n.includes("config") ? "config.json" : null;
             return n.endsWith(".pt") || n.endsWith(".zip") || n.endsWith(".bin") ? "lennart3.pt" : null;
           };
           const roles = files.map(role);

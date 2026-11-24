@@ -501,7 +501,7 @@ def scan_import_dir() -> dict:
         for fname in sorted(files):
             f = here / fname
             name = fname.lower()
-            if name.endswith(".json"):
+            if name.endswith((".json", ".txt")):  # webbläsare döper ibland om .json till .txt
                 if "tokenizer" in name:
                     found["tokenizer"] = found["tokenizer"] or f
                 elif "status" in name:
