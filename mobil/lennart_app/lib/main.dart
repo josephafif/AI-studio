@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'core/catalog.dart';
 import 'core/chats.dart';
+import 'core/prefs.dart';
 import 'ui/ascii.dart';
 import 'ui/chat_screen.dart';
 import 'ui/theme.dart';
@@ -9,6 +10,7 @@ import 'ui/theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await appearance.load();
+  await Prefs.load();
   runApp(const LennartApp());
 }
 

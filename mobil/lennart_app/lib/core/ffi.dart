@@ -1,6 +1,7 @@
 // FFI-bindningar till inferensmotorn (mobil/engine/lmengine.c, byggd som liblmengine.so).
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
@@ -14,6 +15,11 @@ typedef _IntC = Int32 Function(Pointer<Void>);
 typedef _IntD = int Function(Pointer<Void>);
 typedef _EvalC = Int32 Function(Pointer<Void>, Pointer<Int32>, Int32);
 typedef _EvalD = int Function(Pointer<Void>, Pointer<Int32>, int);
+typedef _RewindC = Int32 Function(Pointer<Void>, Int32);
+typedef _RewindD = int Function(Pointer<Void>, int);
+typedef _LogprobC = Float Function(Pointer<Void>, Int32);
+typedef _LogprobD = double Function(Pointer<Void>, int);
+typedef _LogitsC = Pointer<Float> Function(Pointer<Void>);
 typedef _SampleC = Int32 Function(Pointer<Void>, Float, Int32, Pointer<Int32>, Int32, Pointer<Uint64>);
 typedef _SampleD = int Function(Pointer<Void>, double, int, Pointer<Int32>, int, Pointer<Uint64>);
 
@@ -36,6 +42,9 @@ class NativeModel {
   static final _pos = lib.lookupFunction<_IntC, _IntD>('lm_pos');
   static final _eval = lib.lookupFunction<_EvalC, _EvalD>('lm_eval');
   static final _sample = lib.lookupFunction<_SampleC, _SampleD>('lm_sample');
+  static final _rewind = lib.lookupFunction<_RewindC, _RewindD>('lm_rewind');
+  static final _logprob = lib.lookupFunction<_LogprobC, _LogprobD>('lm_logprob');
+  static final _logits = lib.lookupFunction<_LogitsC, _LogitsC>('lm_logits');
 
   final Pointer<Void> _h;
   late final EngineInfo info;
@@ -66,6 +75,17 @@ class NativeModel {
 
   int get pos => _pos(_h);
   void reset() => _reset(_h);
+
+  /// Spolar tillbaka cachen till [p] (för att skriva ett nytt utkast från samma prompt).
+  void rewind(int p) {
+    if (_rewind(_h, p) != 0) throw StateError('Kan inte spola tillbaka till $p');
+  }
+
+  /// Senaste logits, direkt i motorns minne (kan läsas och ändras).
+  Float32List get logits => _logits(_h).asTypedList(info.vocab);
+
+  /// log P(token) enligt nuvarande logits.
+  double logprob(int token) => _logprob(_h, token);
 
   /// Matar in tokens efter det som redan finns i cachen.
   void eval(List<int> tokens) {

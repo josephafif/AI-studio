@@ -6,129 +6,206 @@ import 'ascii.dart';
 import 'glass.dart';
 import 'theme.dart';
 
-Widget _sheet(BuildContext context, {required String title, required List<Widget> children}) {
+Widget _sheet(BuildContext context, {String? title, required List<Widget> children}) {
   final c = context.c;
   return Container(
-    margin: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-    padding: EdgeInsets.fromLTRB(18, 10, 18, 18 + MediaQuery.of(context).padding.bottom),
+    margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
+    padding: EdgeInsets.fromLTRB(8, 10, 8, 12 + MediaQuery.of(context).padding.bottom),
     decoration: BoxDecoration(
-      color: c.surface.withValues(alpha: 0.98),
+      color: c.surface,
       borderRadius: BorderRadius.circular(28),
       border: Border.all(color: c.stroke),
-      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: c.dark ? 0.4 : 0.12), blurRadius: 30)],
+      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: c.dark ? 0.45 : 0.14), blurRadius: 30)],
     ),
     child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Center(child: Container(width: 38, height: 4, decoration: BoxDecoration(color: c.stroke, borderRadius: BorderRadius.circular(4)))),
-      const SizedBox(height: 14),
-      Text('> $title', style: mono.copyWith(color: c.text, fontSize: 16, fontWeight: FontWeight.w700)),
-      const SizedBox(height: 12),
+      Center(child: Container(width: 36, height: 4, decoration: BoxDecoration(color: c.stroke, borderRadius: BorderRadius.circular(4)))),
+      if (title != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 16, 12, 6),
+          child: Text(title, style: TextStyle(color: c.text, fontSize: 17, fontWeight: FontWeight.w700)),
+        )
+      else
+        const SizedBox(height: 8),
       ...children,
     ]),
   );
 }
 
-/// Returnerar vald modell, eller strängen 'importera' om användaren vill lägga till en modell från fil.
-Future<Object?> pickModel(BuildContext context, List<ModelInfo> models, String currentId) {
-  return showModalBottomSheet<Object>(
+Widget _section(BuildContext context, String text) => Padding(
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 4),
+      child: Text(text.toUpperCase(),
+          style: TextStyle(color: context.c.muted, fontSize: 11.5, fontWeight: FontWeight.w700, letterSpacing: 0.8)),
+    );
+
+/// Resultat från modellväljaren.
+sealed class ModelPick {}
+
+class PickModel extends ModelPick {
+  final ModelInfo model;
+  PickModel(this.model);
+}
+
+class PickImport extends ModelPick {}
+
+/// Modellväljaren i inmatningsfältet (som i Claude-appen): modeller överst, tänkande under.
+/// Effortnivån ändras direkt via [onEffort]; att välja en modell stänger arket.
+Future<ModelPick?> pickModel(BuildContext context,
+    {required List<ModelInfo> models,
+    required String currentId,
+    required Effort effort,
+    required void Function(Effort) onEffort}) {
+  var current = effort;
+  return showModalBottomSheet<ModelPick>(
     context: context,
     isScrollControlled: true,
-    builder: (ctx) => _sheet(ctx, title: 'välj_modell', children: [
-      ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.66),
-        child: ListView(shrinkWrap: true, children: [
-          for (final m in models.reversed) _ModelCard(model: m, selected: m.id == currentId, latest: m == models.last),
-        ]),
-      ),
-      const SizedBox(height: 4),
-      SizedBox(
-        width: double.infinity,
-        child: OutlinedButton.icon(
-          style: OutlinedButton.styleFrom(
-            foregroundColor: ctx.c.text,
-            side: BorderSide(color: ctx.c.stroke),
-            padding: const EdgeInsets.all(14),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+    builder: (ctx) => StatefulBuilder(
+      builder: (ctx, setState) {
+        final c = ctx.c;
+        return _sheet(ctx, children: [
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.8),
+            child: SingleChildScrollView(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                _section(ctx, 'Modell'),
+                for (final m in models.reversed)
+                  _Row(
+                    leading: ModelIcon(size: 36, color: m.color, label: ModelIcon.labelFor(m.name)),
+                    title: m.name,
+                    badge: m == models.last ? 'nyast' : null,
+                    subtitle: '${m.paramsLabel} parametrar · ${m.description}',
+                    selected: m.id == currentId,
+                    onTap: () => Navigator.pop(ctx, PickModel(m)),
+                  ),
+                _section(ctx, 'Tänkande'),
+                for (final e in Effort.values)
+                  _Row(
+                    leading: _EffortBars(level: e.index, color: c.accent),
+                    title: e.label,
+                    subtitle: e.description,
+                    selected: e == current,
+                    onTap: () {
+                      setState(() => current = e);
+                      onEffort(e);
+                    },
+                  ),
+                Divider(color: c.stroke, height: 20, indent: 14, endIndent: 14),
+                _Row(
+                  leading: Icon(Icons.add_rounded, color: c.text),
+                  title: 'Lägg till modell från fil',
+                  subtitle: 'Ett .lennart-paket, t.ex. från Kaggle',
+                  onTap: () => Navigator.pop(ctx, PickImport()),
+                ),
+              ]),
+            ),
           ),
-          onPressed: () => Navigator.pop(ctx, 'importera'),
-          icon: Icon(Icons.add_circle_outline_rounded, color: ctx.c.accent),
-          label: const Text('Lägg till modell från fil (.lennart)'),
-        ),
-      ),
-    ]),
+        ]);
+      },
+    ),
   );
 }
 
-class _ModelCard extends StatelessWidget {
-  final ModelInfo model;
-  final bool selected, latest;
-  const _ModelCard({required this.model, required this.selected, required this.latest});
+/// Tre staplar som visar hur mycket modellen tänker.
+class _EffortBars extends StatelessWidget {
+  final int level;
+  final Color color;
+  const _EffortBars({required this.level, required this.color});
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        width: 36,
+        height: 36,
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
+          for (var i = 0; i < 3; i++)
+            Container(
+              width: 5,
+              height: 9.0 + i * 6,
+              margin: const EdgeInsets.symmetric(horizontal: 1.5, vertical: 7),
+              decoration: BoxDecoration(
+                color: i <= level ? color : context.c.stroke,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+        ]),
+      );
+}
+
+class _Row extends StatelessWidget {
+  final Widget leading;
+  final String title;
+  final String? subtitle, badge;
+  final bool selected;
+  final VoidCallback onTap;
+  const _Row({required this.leading, required this.title, this.subtitle, this.badge, this.selected = false, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    final color = model.color, c = context.c;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(22),
-        onTap: () => Navigator.pop(context, model),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            color: selected ? color.withValues(alpha: 0.10) : c.glass,
-            border: Border.all(color: selected ? color.withValues(alpha: 0.7) : c.stroke, width: selected ? 1.4 : 1),
-            boxShadow: selected ? [BoxShadow(color: color.withValues(alpha: 0.22), blurRadius: 24)] : null,
-          ),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            ModelIcon(size: 56, color: color, label: ModelIcon.labelFor(model.name), thinking: selected),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Row(children: [
-                  Text(model.name, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 17)),
-                  if (latest) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-                      decoration: BoxDecoration(
-                          gradient: const LinearGradient(colors: [Palette.green, Palette.cyan]), borderRadius: BorderRadius.circular(6)),
-                      child: Text('NYAST', style: mono.copyWith(fontSize: 10, fontWeight: FontWeight.w800, color: Palette.ink)),
-                    ),
-                  ],
-                  const Spacer(),
-                  if (selected) Icon(Icons.check_circle_rounded, color: color, size: 20),
-                ]),
-                const SizedBox(height: 4),
-                Text(model.description, maxLines: 3, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(height: 8),
-                Wrap(spacing: 6, runSpacing: 6, children: [
-                  _chip(context, '${model.paramsLabel} param', color),
-                  if (model.steps > 0) _chip(context, '${_thousands(model.steps)} steg', color),
-                  _chip(context, 'ctx ${model.context}', color),
-                  _chip(context, model.quant == 'int8' ? 'int8' : 'fp32', color),
-                ]),
+    final c = context.c;
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        child: Row(children: [
+          SizedBox(width: 40, child: Center(child: leading)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                Flexible(child: Text(title, style: TextStyle(color: c.text, fontSize: 15.5, fontWeight: FontWeight.w600))),
+                if (badge != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    decoration: BoxDecoration(color: c.accent.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(6)),
+                    child: Text(badge!, style: TextStyle(color: c.accent, fontSize: 11, fontWeight: FontWeight.w700)),
+                  ),
+                ],
               ]),
+              if (subtitle != null)
+                Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.muted, fontSize: 12.5)),
+            ]),
+          ),
+          SizedBox(
+            width: 28,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 180),
+              opacity: selected ? 1 : 0,
+              child: Icon(Icons.check_rounded, color: c.accent, size: 22),
             ),
-          ]),
-        ),
+          ),
+        ]),
       ),
     );
   }
 }
 
-String _thousands(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ' ');
+/// Vad plusknappen i inmatningsfältet kan göra.
+enum PlusAction { importModel, settings, newChat }
 
-Widget _chip(BuildContext context, String text, Color color) {
-  final hsl = HSLColor.fromColor(color);
-  final fg = context.c.dark ? color : hsl.withLightness(0.32).toColor();
-  return Container(
-    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-    decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(7), border: Border.all(color: color.withValues(alpha: 0.3))),
-    child: Text(text, style: mono.copyWith(fontSize: 10.5, color: fg, fontWeight: FontWeight.w600)),
-  );
-}
+Future<PlusAction?> plusMenu(BuildContext context) => showModalBottomSheet<PlusAction>(
+      context: context,
+      builder: (ctx) {
+        final c = ctx.c;
+        return _sheet(ctx, children: [
+          _Row(
+            leading: Icon(Icons.download_rounded, color: c.text),
+            title: 'Importera modell',
+            subtitle: 'Installera ett .lennart-paket',
+            onTap: () => Navigator.pop(ctx, PlusAction.importModel),
+          ),
+          _Row(
+            leading: Icon(Icons.tune_rounded, color: c.text),
+            title: 'Inställningar',
+            subtitle: 'Temperatur, svarslängd och utseende',
+            onTap: () => Navigator.pop(ctx, PlusAction.settings),
+          ),
+          _Row(
+            leading: Icon(Icons.edit_outlined, color: c.text),
+            title: 'Nytt samtal',
+            onTap: () => Navigator.pop(ctx, PlusAction.newChat),
+          ),
+        ]);
+      },
+    );
 
 /// Temperatur, längd, top-k – och utseende.
 Future<GenSettings?> editSettings(BuildContext context, GenSettings current, ModelInfo model) {
@@ -137,27 +214,33 @@ Future<GenSettings?> editSettings(BuildContext context, GenSettings current, Mod
     context: context,
     isScrollControlled: true,
     builder: (ctx) => StatefulBuilder(
-      builder: (ctx, setState) => _sheet(ctx, title: 'inställningar', children: [
-        _slider(ctx, 'Temperatur', s.temperature.toStringAsFixed(2), 'Lågt = säkra, upprepande svar. Högt = mer variation.',
-            Slider(value: s.temperature, min: 0, max: 1.5, divisions: 30, onChanged: (v) => setState(() => s = s.copyWith(temperature: v)))),
-        _slider(ctx, 'Max längd', '${s.maxTokens} tokens', 'Hur långt svaret högst får bli.',
-            Slider(value: s.maxTokens.toDouble(), min: 20, max: 500, divisions: 48, onChanged: (v) => setState(() => s = s.copyWith(maxTokens: v.round())))),
-        _slider(ctx, 'Top-k', s.topK == 0 ? 'av' : '${s.topK}', 'Väljer bara bland de k mest sannolika orden.',
-            Slider(value: s.topK.toDouble(), min: 0, max: 100, divisions: 20, onChanged: (v) => setState(() => s = s.copyWith(topK: v.round())))),
-        const SizedBox(height: 4),
-        const AppearancePicker(),
-        const SizedBox(height: 8),
-        Row(children: [
-          TextButton(
-              onPressed: () => setState(() => s = GenSettings(temperature: model.temperature, maxTokens: model.maxTokens, topK: model.topK)),
-              child: const Text('Återställ')),
-          const Spacer(),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: ctx.c.accent, foregroundColor: ctx.c.dark ? Palette.ink : Colors.white),
-            onPressed: () => Navigator.pop(ctx, s),
-            child: const Text('Klar'),
-          ),
-        ]),
+      builder: (ctx, setState) => _sheet(ctx, title: 'Inställningar', children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Column(children: [
+            _slider(ctx, 'Temperatur', s.temperature.toStringAsFixed(2), 'Lågt = säkra, upprepande svar. Högt = mer variation.',
+                Slider(value: s.temperature, min: 0, max: 1.5, divisions: 30, onChanged: (v) => setState(() => s = s.copyWith(temperature: v)))),
+            _slider(ctx, 'Max längd', '${s.maxTokens} tokens', 'Hur långt svaret högst får bli.',
+                Slider(value: s.maxTokens.toDouble(), min: 20, max: 500, divisions: 48, onChanged: (v) => setState(() => s = s.copyWith(maxTokens: v.round())))),
+            _slider(ctx, 'Top-k', s.topK == 0 ? 'av' : '${s.topK}', 'Väljer bara bland de k mest sannolika orden.',
+                Slider(value: s.topK.toDouble(), min: 0, max: 100, divisions: 20, onChanged: (v) => setState(() => s = s.copyWith(topK: v.round())))),
+            const SizedBox(height: 4),
+            const AppearancePicker(),
+            const SizedBox(height: 8),
+            Row(children: [
+              TextButton(
+                  onPressed: () => setState(() =>
+                      s = GenSettings(temperature: model.temperature, maxTokens: model.maxTokens, topK: model.topK, effort: s.effort)),
+                  child: const Text('Återställ')),
+              const Spacer(),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: ctx.c.text, foregroundColor: ctx.c.bg),
+                onPressed: () => Navigator.pop(ctx, s),
+                child: const Text('Klar'),
+              ),
+            ]),
+          ]),
+        ),
       ]),
     ),
   );

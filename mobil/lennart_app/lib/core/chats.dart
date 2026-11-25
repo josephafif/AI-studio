@@ -4,15 +4,43 @@ import 'dart:io';
 
 import 'package:path_provider/path_provider.dart';
 
+/// Ett utkast som Lennart skrev medan den tänkte.
+class Draft {
+  String text;
+  double? score;
+  bool pruned;
+  Draft(this.text, {this.score, this.pruned = false});
+  Map<String, dynamic> toJson() => {'t': text, if (score != null) 's': score, if (pruned) 'p': true};
+  factory Draft.fromJson(Map<String, dynamic> j) =>
+      Draft(j['t'] as String, score: (j['s'] as num?)?.toDouble(), pruned: j['p'] == true);
+}
+
 class Message {
   final bool fromUser;
   String text;
   String? meta;
   bool error;
-  Message(this.fromUser, this.text, {this.meta, this.error = false});
-  Map<String, dynamic> toJson() => {'u': fromUser, 't': text, if (meta != null) 'm': meta, if (error) 'e': true};
-  factory Message.fromJson(Map<String, dynamic> j) =>
-      Message(j['u'] as bool, j['t'] as String, meta: j['m'] as String?, error: j['e'] == true);
+  final List<Draft> drafts;
+  int? chosen;
+  double? thoughtSeconds;
+  bool reveal = false; // skriv fram texten med en animation (inte sparat)
+  Message(this.fromUser, this.text, {this.meta, this.error = false, List<Draft>? drafts, this.chosen, this.thoughtSeconds})
+      : drafts = drafts ?? [];
+  Map<String, dynamic> toJson() => {
+        'u': fromUser,
+        't': text,
+        if (meta != null) 'm': meta,
+        if (error) 'e': true,
+        if (drafts.isNotEmpty) 'd': [for (final d in drafts) d.toJson()],
+        if (chosen != null) 'c': chosen,
+        if (thoughtSeconds != null) 'th': thoughtSeconds,
+      };
+  factory Message.fromJson(Map<String, dynamic> j) => Message(j['u'] as bool, j['t'] as String,
+      meta: j['m'] as String?,
+      error: j['e'] == true,
+      drafts: [for (final d in (j['d'] as List?) ?? []) Draft.fromJson(d as Map<String, dynamic>)],
+      chosen: j['c'] as int?,
+      thoughtSeconds: (j['th'] as num?)?.toDouble());
 }
 
 class Conversation {
@@ -36,14 +64,14 @@ class Conversation {
 }
 
 class ChatStore {
-  late final File _file;
+  File? _file;
   final List<Conversation> items = [];
 
   Future<void> open() async {
-    _file = File('${(await getApplicationSupportDirectory()).path}/samtal.json');
-    if (await _file.exists()) {
+    final file = _file = File('${(await getApplicationSupportDirectory()).path}/samtal.json');
+    if (await file.exists()) {
       try {
-        final list = jsonDecode(await _file.readAsString()) as List;
+        final list = jsonDecode(await file.readAsString()) as List;
         items.addAll([for (final c in list) Conversation.fromJson(c as Map<String, dynamic>)]);
         items.sort((a, b) => b.updated.compareTo(a.updated));
       } catch (_) {/* trasig fil – börja om */}
@@ -67,5 +95,5 @@ class ChatStore {
     await _write();
   }
 
-  Future<void> _write() => _file.writeAsString(jsonEncode([for (final c in items) c.toJson()]));
+  Future<void> _write() async => _file?.writeAsString(jsonEncode([for (final c in items) c.toJson()]));
 }

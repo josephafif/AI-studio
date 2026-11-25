@@ -146,7 +146,26 @@ EXPORT void lm_info(LM *m, int32_t *out) {
 
 EXPORT void lm_reset(LM *m) { m->pos = 0; }
 EXPORT int lm_pos(LM *m) { return m->pos; }
-EXPORT const float *lm_logits(LM *m) { return m->logits; }
+EXPORT float *lm_logits(LM *m) { return m->logits; }
+
+/* Spolar tillbaka till en tidigare position. Cachen före pos är orörd, så flera utkast kan
+ * dela samma inlästa prompt. Anroparen återställer själv logits för positionen. */
+EXPORT int lm_rewind(LM *m, int pos) {
+    if (pos < 0 || pos > m->pos) return -1;
+    m->pos = pos;
+    return 0;
+}
+
+/* log P(tok) enligt nuvarande logits (log-softmax, utan temperatur). */
+EXPORT float lm_logprob(LM *m, int tok) {
+    const float *lg = m->logits;
+    float mx = -INFINITY;
+    for (int i = 0; i < m->vocab; i++) if (lg[i] > mx) mx = lg[i];
+    double sum = 0;
+    for (int i = 0; i < m->vocab; i++) if (lg[i] > -INFINITY) sum += exp(lg[i] - mx);
+    if (tok < 0 || tok >= m->vocab || !(lg[tok] > -INFINITY)) return -INFINITY;
+    return (float)(lg[tok] - mx - log(sum));
+}
 
 /* ---------------------------------------------------------------- beräkning */
 static void layernorm(float *o, const float *x, const float *w, const float *b, int d) {

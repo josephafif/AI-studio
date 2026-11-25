@@ -43,6 +43,9 @@ class Catalog {
   final Directory dir;
   Catalog._(this._builtin, this.models, this.dir);
 
+  /// Bara för förhandsvisning och tester: en katalog med givna modeller och inga filer.
+  Catalog.preview(List<ModelInfo> models) : this._(models, [...models], Directory.systemTemp);
+
   File get _userManifest => File('${dir.path}/egna-modeller.json');
 
   static Future<Catalog> open() async {
