@@ -201,7 +201,30 @@ static void matmul(float *out, const float *in, int n, const Mat *W, const float
             } else {
                 memcpy(wrow, W->f + (size_t)r * cols, cols * sizeof(float));
             }
-            for (int i = 0; i < n; i++) {
+            /* Fyra tokens åt gången: varje vikt läses en gång per fyra tokens i stället för en gång per token. */
+            int i = 0;
+            for (; i + 4 <= n; i += 4) {
+                const float *x0 = in + (size_t)i * cols, *x1 = x0 + cols, *x2 = x1 + cols, *x3 = x2 + cols;
+                float a0 = 0, a1 = 0, a2 = 0, a3 = 0;
+                #pragma omp simd reduction(+:a0,a1,a2,a3)
+                for (int k = 0; k < cols; k++) {
+                    const float w = wrow[k];
+                    a0 += w * x0[k]; a1 += w * x1[k]; a2 += w * x2[k]; a3 += w * x3[k];
+                }
+                out[(size_t)i * rows + r] = a0 + b;
+                out[(size_t)(i + 1) * rows + r] = a1 + b;
+                out[(size_t)(i + 2) * rows + r] = a2 + b;
+                out[(size_t)(i + 3) * rows + r] = a3 + b;
+            }
+            for (; i + 2 <= n; i += 2) {
+                const float *x0 = in + (size_t)i * cols, *x1 = x0 + cols;
+                float a0 = 0, a1 = 0;
+                #pragma omp simd reduction(+:a0,a1)
+                for (int k = 0; k < cols; k++) { const float w = wrow[k]; a0 += w * x0[k]; a1 += w * x1[k]; }
+                out[(size_t)i * rows + r] = a0 + b;
+                out[(size_t)(i + 1) * rows + r] = a1 + b;
+            }
+            for (; i < n; i++) {
                 const float *x = in + (size_t)i * cols;
                 float acc = 0;
                 #pragma omp simd reduction(+:acc)
@@ -284,6 +307,19 @@ EXPORT int lm_eval(LM *m, const int32_t *toks, int n) {
     layernorm(m->h, m->x + (size_t)(n - 1) * d, m->lnf_w, m->lnf_b, d);
     matmul(m->logits, m->h, 1, &m->wte, NULL); /* delade vikter med inbäddningen */
     m->pos = p0 + n;
+    return 0;
+}
+
+/* Som lm_eval, men skriver logits för varje inmatad position till out[n][vocab].
+ * Används för att kontrollera flera föreslagna tokens i ett enda pass: vikterna läses en gång
+ * för alla n tokens, vilket är det som kostar på en telefon. */
+EXPORT int lm_eval_all(LM *m, const int32_t *toks, int n, float *out) {
+    const int rc = lm_eval(m, toks, n);
+    if (rc != 0) return rc;
+    const int d = m->d;
+    for (int i = 0; i < n; i++) layernorm(m->h + (size_t)i * d, m->x + (size_t)i * d, m->lnf_w, m->lnf_b, d);
+    matmul(out, m->h, n, &m->wte, NULL);
+    memcpy(m->logits, out + (size_t)(n - 1) * m->vocab, (size_t)m->vocab * sizeof(float));
     return 0;
 }
 

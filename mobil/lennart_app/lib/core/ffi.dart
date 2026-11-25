@@ -20,6 +20,8 @@ typedef _RewindD = int Function(Pointer<Void>, int);
 typedef _LogprobC = Float Function(Pointer<Void>, Int32);
 typedef _LogprobD = double Function(Pointer<Void>, int);
 typedef _LogitsC = Pointer<Float> Function(Pointer<Void>);
+typedef _EvalAllC = Int32 Function(Pointer<Void>, Pointer<Int32>, Int32, Pointer<Float>);
+typedef _EvalAllD = int Function(Pointer<Void>, Pointer<Int32>, int, Pointer<Float>);
 typedef _SampleC = Int32 Function(Pointer<Void>, Float, Int32, Pointer<Int32>, Int32, Pointer<Uint64>);
 typedef _SampleD = int Function(Pointer<Void>, double, int, Pointer<Int32>, int, Pointer<Uint64>);
 
@@ -45,12 +47,18 @@ class NativeModel {
   static final _rewind = lib.lookupFunction<_RewindC, _RewindD>('lm_rewind');
   static final _logprob = lib.lookupFunction<_LogprobC, _LogprobD>('lm_logprob');
   static final _logits = lib.lookupFunction<_LogitsC, _LogitsC>('lm_logits');
+  static final _evalAll = lib.lookupFunction<_EvalAllC, _EvalAllD>('lm_eval_all');
 
   final Pointer<Void> _h;
   late final EngineInfo info;
   final Pointer<Uint64> _rng = calloc<Uint64>();
   Pointer<Int32> _buf = calloc<Int32>(1);
   int _bufLen = 1;
+  Pointer<Float> _rows = nullptr;
+  int _rowsLen = 0;
+
+  /// Antal framåtpass (varje pass läser alla vikter en gång).
+  int passes = 0;
 
   NativeModel._(this._h) {
     final out = calloc<Int32>(8);
@@ -87,9 +95,7 @@ class NativeModel {
   /// log P(token) enligt nuvarande logits.
   double logprob(int token) => _logprob(_h, token);
 
-  /// Matar in tokens efter det som redan finns i cachen.
-  void eval(List<int> tokens) {
-    if (tokens.isEmpty) return;
+  void _fill(List<int> tokens) {
     if (tokens.length > _bufLen) {
       calloc.free(_buf);
       _buf = calloc<Int32>(tokens.length);
@@ -98,8 +104,32 @@ class NativeModel {
     for (var i = 0; i < tokens.length; i++) {
       _buf[i] = tokens[i];
     }
+  }
+
+  /// Matar in tokens efter det som redan finns i cachen.
+  void eval(List<int> tokens) {
+    if (tokens.isEmpty) return;
+    _fill(tokens);
     final rc = _eval(_h, _buf, tokens.length);
     if (rc != 0) throw StateError('Motorn kunde inte räkna (kod $rc)');
+    passes++;
+  }
+
+  /// Matar in tokens i ett pass och returnerar logits för varje position:
+  /// rad i är fördelningen för tokenen efter tokens[i].
+  List<Float32List> evalAll(List<int> tokens) {
+    final n = tokens.length, v = info.vocab;
+    _fill(tokens);
+    if (n * v > _rowsLen) {
+      if (_rows != nullptr) calloc.free(_rows);
+      _rows = calloc<Float>(n * v);
+      _rowsLen = n * v;
+    }
+    final rc = _evalAll(_h, _buf, n, _rows);
+    if (rc != 0) throw StateError('Motorn kunde inte räkna (kod $rc)');
+    passes++;
+    final all = _rows.asTypedList(n * v);
+    return [for (var i = 0; i < n; i++) Float32List.fromList(all.sublist(i * v, (i + 1) * v))];
   }
 
   int sample(double temperature, int topK, List<int> banned) {
@@ -116,5 +146,6 @@ class NativeModel {
     _free(_h);
     calloc.free(_rng);
     calloc.free(_buf);
+    if (_rows != nullptr) calloc.free(_rows);
   }
 }

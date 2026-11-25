@@ -75,7 +75,8 @@ class GenDone extends GenEvent {
   final double seconds;
   final int promptTokens;
   final int drafts;
-  GenDone(this.tokens, this.seconds, this.promptTokens, this.drafts);
+  final int passes; // framåtpass för svaret (färre än tokens när ekodekodningen träffar)
+  GenDone(this.tokens, this.seconds, this.promptTokens, this.drafts, {this.passes = 0});
   double get tokensPerSecond => seconds > 0 ? tokens / seconds : 0;
 }
 
@@ -136,7 +137,8 @@ class LennartEngine {
         case 'chosen':
           out.add(GenChosen(m['i'] as int, m['text'] as String));
         case 'done':
-          out.add(GenDone(m['tokens'] as int, (m['seconds'] as num).toDouble(), m['prompt'] as int, m['drafts'] as int));
+          out.add(GenDone(m['tokens'] as int, (m['seconds'] as num).toDouble(), m['prompt'] as int, m['drafts'] as int,
+              passes: (m['passes'] as int?) ?? 0));
           sub.cancel();
           out.close();
         case 'genError':
@@ -213,12 +215,18 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
   final p0 = model.pos;
   final saved = Float32List.fromList(model.logits);
   final limit = maxTokens.clamp(1, ctx - p0);
-  final banned = [tok.padId, tok.userId, tok.assistantId];
+  final banned = {tok.padId, tok.userId, tok.assistantId};
   final genStart = sw.elapsedMicroseconds;
+  final passesStart = model.passes;
+  final rng = math.Random();
+  final echo = _EchoStats();
+  // Ekodekodning: frågan och tidigare utkast används som förslag (se forskning/ekodekodning/).
+  final sources = <List<int>>[prompt];
   var total = 0, written = 0;
 
   if (drafts <= 1) {
-    final d = _Draft.write(model, tok, limit, temperature, topK, banned, stop, onPiece: (p) => toUi.send({'type': 'token', 'text': p}));
+    final d = _Draft.write(model, tok, rng, prompt, sources, limit, temperature, topK, banned, stop, echo,
+        onPiece: (p) => toUi.send({'type': 'token', 'text': p}));
     total = d.tokens.length;
     written = 1;
   } else {
@@ -231,11 +239,12 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
       }
       // Första utkastet är försiktigt (låg temperatur), resten mer varierade.
       final t = i == 0 ? (temperature < 0.35 ? temperature : 0.35) : (temperature < 0.5 ? 0.5 : temperature);
-      final d = _Draft.write(model, tok, limit, t, topK, banned, stop,
+      final d = _Draft.write(model, tok, rng, prompt, sources, limit, t, topK, banned, stop, echo,
           pruneBelow: best?.score,
           onPiece: (p) => toUi.send({'type': 'draft', 'i': i, 'n': drafts, 'text': p}));
       total += d.tokens.length;
       written++;
+      sources.add([...prompt, ...d.tokens]);
       toUi.send({'type': 'draftEnd', 'i': i, 'score': d.pruned ? -99.0 : d.score, 'pruned': d.pruned});
       if (!d.pruned && (best == null || d.score > best.score)) {
         best = d;
@@ -245,7 +254,10 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
     if (best != null) toUi.send({'type': 'chosen', 'i': bestIndex, 'text': best.text});
   }
   final secs = (sw.elapsedMicroseconds - genStart) / 1e6;
-  toUi.send({'type': 'done', 'tokens': total, 'seconds': secs, 'prompt': prompt.length, 'drafts': written});
+  toUi.send({
+    'type': 'done', 'tokens': total, 'seconds': secs, 'prompt': prompt.length, 'drafts': written,
+    'passes': model.passes - passesStart, 'echoAccepted': echo.accepted,
+  });
 }
 
 /// Ett utkast: tokens, text och modellens egen bedömning av det.
@@ -278,40 +290,39 @@ class _Draft {
   }
 
   static const _penalty = 1.12; // mild straff för ord som redan använts i svaret
+  static const _maxProposal = 4; // upp till 4 tokens kostar ungefär som 1 (vikterna läses en gång)
 
-  static _Draft write(NativeModel model, BpeTokenizer tok, int limit, double temperature, int topK, List<int> banned,
-      Pointer<Int32> stop,
+  static double _lse(Float32List row) {
+    var mx = double.negativeInfinity;
+    for (var i = 0; i < row.length; i++) {
+      if (row[i] > mx) mx = row[i];
+    }
+    var sum = 0.0;
+    for (var i = 0; i < row.length; i++) {
+      sum += math.exp(row[i] - mx);
+    }
+    return mx + math.log(sum);
+  }
+
+  /// Skriver ett utkast med ekodekodning: där texten redan förekommit (i frågan eller ett tidigare
+  /// utkast) föreslås fortsättningen därifrån och kontrolleras i ett pass. Ett förslag godtas med
+  /// sannolikheten p(förslag); vid avslag dras en ny token ur p utan förslaget. Det ger exakt samma
+  /// fördelning som vanlig sampling, men färre pass när utkasten upprepar varandra.
+  static _Draft write(NativeModel model, BpeTokenizer tok, math.Random rng, List<int> prompt, List<List<int>> sources,
+      int limit, double temperature, int topK, Set<int> banned, Pointer<Int32> stop, _EchoStats echo,
       {double? pruneBelow, required void Function(String) onPiece}) {
     final d = _Draft();
     final decoder = StreamDecoder(tok);
     final ctx = model.info.context;
-    while (d.tokens.length < limit && stop.value == 0) {
-      final lg = model.logits;
-      // Logsannolikheter räknas på modellens egna, ostraffade fördelning.
-      var mx = double.negativeInfinity;
-      for (var i = 0; i < lg.length; i++) {
-        if (lg[i] > mx) mx = lg[i];
-      }
-      var sum = 0.0;
-      for (var i = 0; i < lg.length; i++) {
-        sum += math.exp(lg[i] - mx);
-      }
-      final lse = mx + math.log(sum);
-      final raw = <int, double>{};
-      final recent = d.tokens.length > 64 ? d.tokens.sublist(d.tokens.length - 64) : d.tokens;
-      for (final t in recent) {
-        if (raw.containsKey(t)) continue;
-        raw[t] = lg[t];
-        lg[t] = lg[t] > 0 ? lg[t] / _penalty : lg[t] * _penalty;
-      }
-      final next = model.sample(temperature, topK, banned);
-      if (next == tok.endId) {
-        d.ended = true;
-        break;
-      }
-      d.tokens.add(next);
-      d._lpSum += (raw[next] ?? lg[next]) - lse;
-      final piece = decoder.add(next);
+    final p0 = model.pos;
+    var cur = Float32List.fromList(model.logits);
+    List<int> recent() => d.tokens.length > 64 ? d.tokens.sublist(d.tokens.length - 64) : d.tokens;
+
+    // Lägger till en token. Returnerar true om utkastet ska avslutas (sållat).
+    bool emit(int x, Float32List row) {
+      d.tokens.add(x);
+      d._lpSum += row[x] - _lse(row); // logsannolikhet enligt modellens egen, ostraffade fördelning
+      final piece = decoder.add(x);
       if (piece.isNotEmpty) {
         d._text.write(piece);
         onPiece(piece);
@@ -319,11 +330,197 @@ class _Draft {
       // Sålla: ett utkast som efter en bit är klart sämre än det bästa hittills avbryts.
       if (pruneBelow != null && d.tokens.length >= 24 && d.meanLogprob - 2.0 * d.repetition < pruneBelow - 0.6) {
         d.pruned = true;
+        return true;
+      }
+      return false;
+    }
+
+    outer:
+    while (d.tokens.length < limit && stop.value == 0) {
+      final dist = _Dist.of(cur, temperature, topK, recent(), banned);
+      var prop = _lookup(sources, [...prompt, ...d.tokens], _maxProposal);
+      final room = math.min(limit - d.tokens.length, ctx - model.pos - 1);
+      if (prop.length > room) prop = room > 0 ? prop.sublist(0, room) : const [];
+      int x;
+      if (prop.isNotEmpty) {
+        echo.proposed++;
+        final x1 = prop[0];
+        if (rng.nextDouble() < dist.prob(x1)) {
+          echo.accepted++;
+          if (x1 == tok.endId) {
+            d.ended = true;
+            break;
+          }
+          if (emit(x1, cur)) break;
+          final rows = model.evalAll(prop); // rad j = fördelningen efter prop[j]
+          for (var j = 1; j <= prop.length; j++) {
+            final row = rows[j - 1];
+            if (d.tokens.length >= limit || stop.value != 0) break outer;
+            final pj = _Dist.of(row, temperature, topK, recent(), banned);
+            if (j < prop.length && rng.nextDouble() < pj.prob(prop[j])) {
+              echo.accepted++;
+              if (prop[j] == tok.endId) {
+                d.ended = true;
+                break outer;
+              }
+              if (emit(prop[j], row)) break outer;
+              continue;
+            }
+            // Avslag, eller alla förslag godtagna: dra nästa token ur pj (utan det avvisade förslaget).
+            final y = pj.sample(rng, without: j < prop.length ? prop[j] : null);
+            model.rewind(p0 + d.tokens.length);
+            if (y == tok.endId) {
+              d.ended = true;
+              break outer;
+            }
+            if (emit(y, row) || model.pos >= ctx) break outer;
+            model.eval([y]);
+            cur = Float32List.fromList(model.logits);
+            continue outer;
+          }
+          continue outer;
+        }
+        x = dist.sample(rng, without: x1);
+      } else {
+        x = dist.sample(rng);
+      }
+      if (x == tok.endId) {
+        d.ended = true;
         break;
       }
-      if (model.pos >= ctx) break;
-      model.eval([next]);
+      if (emit(x, cur) || model.pos >= ctx) break;
+      model.eval([x]);
+      cur = Float32List.fromList(model.logits);
     }
     return d;
+  }
+}
+
+class _EchoStats {
+  int proposed = 0, accepted = 0;
+}
+
+/// Föreslår upp till k tokens: hitta senaste förekomsten av textens sista 3, 2 eller 1 token i någon
+/// källa och returnera det som kom efter.
+List<int> _lookup(List<List<int>> sources, List<int> seq, int k) {
+  for (var n = 3; n >= 1; n--) {
+    if (seq.length < n) continue;
+    List<int>? best;
+    for (final src in sources) {
+      for (var i = src.length - n - 1; i >= 0; i--) {
+        var ok = true;
+        for (var t = 0; t < n; t++) {
+          if (src[i + t] != seq[seq.length - n + t]) {
+            ok = false;
+            break;
+          }
+        }
+        if (ok) {
+          final c = src.sublist(i + n, math.min(src.length, i + n + k));
+          if (best == null || c.length > best.length) best = c;
+          break;
+        }
+      }
+    }
+    if (best != null && best.isNotEmpty) return best;
+  }
+  return const [];
+}
+
+/// Samplingsfördelningen för en position, exakt som tidigare i motorn: upprepningsstraff,
+/// förbjudna tokens, top-k och temperatur. Sparar bara kandidaterna.
+class _Dist {
+  final List<int> ids;
+  final List<double> p;
+  _Dist(this.ids, this.p);
+
+  double prob(int t) {
+    final i = ids.indexOf(t);
+    return i < 0 ? 0 : p[i];
+  }
+
+  int sample(math.Random r, {int? without}) {
+    var total = 1.0;
+    if (without != null) total -= prob(without);
+    if (total <= 1e-12) return ids.first;
+    var u = r.nextDouble() * total;
+    for (var i = 0; i < ids.length; i++) {
+      if (ids[i] == without) continue;
+      u -= p[i];
+      if (u <= 0) return ids[i];
+    }
+    for (var i = ids.length - 1; i >= 0; i--) {
+      if (ids[i] != without) return ids[i];
+    }
+    return ids.first;
+  }
+
+  static _Dist of(Float32List row, double temperature, int topK, List<int> recent, Set<int> banned) {
+    final pen = <int, double>{};
+    for (final t in recent) {
+      if (pen.containsKey(t)) continue;
+      final v = row[t];
+      pen[t] = v > 0 ? v / _Draft._penalty : v * _Draft._penalty;
+    }
+    double val(int i) => banned.contains(i) ? double.negativeInfinity : (pen[i] ?? row[i]);
+    final n = row.length;
+    if (temperature <= 1e-6) {
+      var best = -1;
+      var bv = double.negativeInfinity;
+      for (var i = 0; i < n; i++) {
+        final v = val(i);
+        if (v > bv) {
+          bv = v;
+          best = i;
+        }
+      }
+      return _Dist([best], [1]);
+    }
+    final ids = <int>[];
+    final vals = <double>[];
+    if (topK > 0 && topK < n) {
+      var minI = -1;
+      var minV = double.negativeInfinity;
+      for (var i = 0; i < n; i++) {
+        final v = val(i);
+        if (v == double.negativeInfinity) continue;
+        if (ids.length < topK) {
+          ids.add(i);
+          vals.add(v);
+          if (ids.length == topK) {
+            minI = 0;
+            for (var j = 1; j < topK; j++) {
+              if (vals[j] < vals[minI]) minI = j;
+            }
+            minV = vals[minI];
+          }
+        } else if (v > minV) {
+          ids[minI] = i;
+          vals[minI] = v;
+          minI = 0;
+          for (var j = 1; j < topK; j++) {
+            if (vals[j] < vals[minI]) minI = j;
+          }
+          minV = vals[minI];
+        }
+      }
+    } else {
+      for (var i = 0; i < n; i++) {
+        final v = val(i);
+        if (v == double.negativeInfinity) continue;
+        ids.add(i);
+        vals.add(v);
+      }
+    }
+    var mx = double.negativeInfinity;
+    for (final v in vals) {
+      if (v > mx) mx = v;
+    }
+    final p = [for (final v in vals) math.exp((v - mx) / temperature)];
+    final sum = p.fold<double>(0, (a, b) => a + b);
+    for (var i = 0; i < p.length; i++) {
+      p[i] /= sum;
+    }
+    return _Dist(ids, p);
   }
 }

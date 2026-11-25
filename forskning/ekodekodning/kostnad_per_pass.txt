@@ -1,0 +1,4 @@
+k=1: 25.7 ms per pass  (1.00× ett pass med 1 token)
+k=2: 30.7 ms per pass  (1.20× ett pass med 1 token)
+k=4: 32.9 ms per pass  (1.28× ett pass med 1 token)
+k=8: 49.4 ms per pass  (1.93× ett pass med 1 token)

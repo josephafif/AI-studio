@@ -1,0 +1,9 @@
+157:def write_draft(eng, rng, prompt, p0_logits, limit, T, top_k, banned, end_id, sources, prune_below, recycle, k=4):
+Snabb {'sekunder': 19.4, 'tokens': 691, 'pass_': 691, 'tokens_per_pass': 1.0, 'medelpoang': -0.576, 'godtagna_forslag': '0/0'}
+Snabb + eko {'sekunder': 21.6, 'tokens': 688, 'pass_': 682, 'tokens_per_pass': 1.01, 'medelpoang': -0.425, 'godtagna_forslag': '16/45'}
+Medel {'sekunder': 51.8, 'tokens': 1841, 'pass_': 1826, 'tokens_per_pass': 1.01, 'medelpoang': -0.082, 'godtagna_forslag': '0/0'}
+Medel + eko {'sekunder': 39.8, 'tokens': 1804, 'pass_': 1360, 'tokens_per_pass': 1.33, 'medelpoang': -0.087, 'godtagna_forslag': '611/343'}
+Djup {'sekunder': 102.2, 'tokens': 3723, 'pass_': 3693, 'tokens_per_pass': 1.01, 'medelpoang': -0.148, 'godtagna_forslag': '0/0'}
+Djup + eko {'sekunder': 74.0, 'tokens': 3769, 'pass_': 2595, 'tokens_per_pass': 1.45, 'medelpoang': -0.151, 'godtagna_forslag': '1618/876'}
+
+[exited with code 0]

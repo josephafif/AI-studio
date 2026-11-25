@@ -40,7 +40,7 @@ Future<void> main(List<String> a) async {
             answer.write('FEL: $message');
         }
       }
-      stdout.writeln('--- ${effort.label}: ${done?.tokens} tokens, ${done?.drafts} utkast, ${done?.seconds.toStringAsFixed(1)} s');
+      stdout.writeln('--- ${effort.label}: ${done?.tokens} tokens, ${done?.passes} pass, ${done?.drafts} utkast, ${done?.seconds.toStringAsFixed(1)} s');
       for (final i in drafts.keys) {
         final t = drafts[i].toString().replaceAll('\n', ' ');
         stdout.writeln('   [$i ${scores[i]}] ${t.length > 160 ? '${t.substring(0, 160)}…' : t}');

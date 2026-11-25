@@ -1,0 +1,50 @@
+{
+ "Snabb": {
+  "sekunder": 20.4,
+  "tokens": 691,
+  "pass_": 691,
+  "tokens_per_pass": 1.0,
+  "medelpoang": -0.576,
+  "godtagna_forslag": "0/0"
+ },
+ "Snabb + eko": {
+  "sekunder": 20.4,
+  "tokens": 688,
+  "pass_": 678,
+  "tokens_per_pass": 1.01,
+  "medelpoang": -0.442,
+  "godtagna_forslag": "20/44"
+ },
+ "Medel": {
+  "sekunder": 50.5,
+  "tokens": 1841,
+  "pass_": 1826,
+  "tokens_per_pass": 1.01,
+  "medelpoang": -0.082,
+  "godtagna_forslag": "0/0"
+ },
+ "Medel + eko": {
+  "sekunder": 41.5,
+  "tokens": 1878,
+  "pass_": 1275,
+  "tokens_per_pass": 1.47,
+  "medelpoang": -0.098,
+  "godtagna_forslag": "710/264"
+ },
+ "Djup": {
+  "sekunder": 92.9,
+  "tokens": 3723,
+  "pass_": 3693,
+  "tokens_per_pass": 1.01,
+  "medelpoang": -0.148,
+  "godtagna_forslag": "0/0"
+ },
+ "Djup + eko": {
+  "sekunder": 109.2,
+  "tokens": 3581,
+  "pass_": 2154,
+  "tokens_per_pass": 1.66,
+  "medelpoang": -0.065,
+  "godtagna_forslag": "1709/708"
+ }
+}

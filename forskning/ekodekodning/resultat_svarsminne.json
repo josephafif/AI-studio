@@ -1,0 +1,16 @@
+{
+ "utan minne": {
+  "sekunder": 13.1,
+  "tokens": 484,
+  "pass_": 484,
+  "tokens_per_pass": 1.0,
+  "godtagna_forslag": "0/0"
+ },
+ "med svarsminne": {
+  "sekunder": 13.9,
+  "tokens": 582,
+  "pass_": 481,
+  "tokens_per_pass": 1.21,
+  "godtagna_forslag": "170/264"
+ }
+}
