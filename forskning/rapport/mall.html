@@ -183,7 +183,7 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
 
 <section aria-labelledby="s7">
   <h2 id="s7"><span class="n">07</span>Arkitekturpilot för Lennart 4</h2>
-  <p>Tre små modeller (13 M parametrar, 4,8 M utan inbäddning) tränades med exakt samma data och ordning på cirka 10 M tokens svensk Wikipedia. <b>A</b> är byggd som Lennart 3. <b>B</b> är modern, med RoPE, RMSNorm, SwiGLU och QK-normering. <b>C</b> är B plus en extra förlust på mittlagret, så att modellens första halva lär sig skissa själv.</p>
+  <p>Tre små modeller (13 M parametrar, 4,7–4,8 M utan inbäddning) tränades med exakt samma data och ordning på cirka 10 M tokens svensk Wikipedia. <b>A</b> är byggd som Lennart 3. <b>B</b> är modern, med RoPE, RMSNorm, SwiGLU och QK-normering. <b>C</b> är B plus en extra förlust på mittlagret, så att modellens första halva lär sig skissa själv.</p>
   <figure>
     <figcaption>Valideringsförlust i bits per byte (lägre är bättre) under träningen</figcaption>
     <div class="legend" id="pilot-legend"></div>
@@ -195,7 +195,9 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
     <div class="legend" id="mitt-legend"></div>
     <div class="chart" id="mitt"></div>
   </figure>
-  <p id="pilot-text"></p>
+  <p><b>B lär sig klart snabbare.</b> Den moderna arkitekturen når A:s slutnivå efter ungefär 57 % av datan, alltså 1,7× effektivare, och är bara ~2 % långsammare per steg. Det är den viktigaste siffran för Lennart 4: samma GPU-vecka på Kaggle räcker betydligt längre.</p>
+  <p><b>C: självskiss utan kostnad.</b> Med den extra förlusten gissar mittlagret samma ord som slutet i 84,5 % av fallen, mot 45 % i B, och slutkvaliteten blev inte sämre (1,089 mot 1,096 vid 6 M tokens). Med vår motor lönar sig självskiss från omkring 70 % godtagna skisser. Vid 85 % ger kalkylen ungefär 1,4× snabbare svar vid girig avkodning, vilket är räknat och inte uppmätt. C stoppades vid 1 500 steg för att hinna, och jämförs med B vid samma steg.</p>
+  <p class="muted">Ett sidofynd: i A stämmer mittlagret allt sämre med slutet ju längre träningen pågår (68 % → 41 %). Modellen flyttar arbetet till de sista lagren, vilket förklarar varför Lennart 3.4 bestämmer sig så sent.</p>
 </section>
 
 <section aria-labelledby="sys">
@@ -203,8 +205,8 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
   <div class="system">
     <div class="box"><span class="st">finns i appen nu</span><span class="t">Ekodekodning</span><span class="s">Tänkandet återanvänder sig självt. Medel −23 %, Djup −28 % tid, med exakt samma svar.</span></div>
     <div class="box"><span class="st">finns i appen nu</span><span class="t">Osäkerhetsspärr</span><span class="s">Svar under gränsen markeras. 71 % rätt över gränsen, 11 % under.</span></div>
-    <div class="box"><span class="st">bevisat i natt</span><span class="t">Läsare + uppslagsverk</span><span class="s">Fakta i ett sökbart index, inte i vikterna. Modellen tränas att läsa.</span></div>
-    <div class="box"><span class="st">till Lennart 4</span><span class="t">Självskiss</span><span class="s">Mittlagret tränas att gissa, så att första halvan kan skissa åt hela modellen.</span></div>
+    <div class="box"><span class="st">nästa steg</span><span class="t">Läsare + uppslagsverk</span><span class="s">Sökningen hittar svaret i 40–65 % av fallen. Läsning måste tränas med varierade frågor, inte mallar.</span></div>
+    <div class="box"><span class="st">bevisat i piloten</span><span class="t">Modern arkitektur + självskiss</span><span class="s">1,7× effektivare träning. Mittlagret gissar rätt i 85 % av fallen, för ~1,4× snabbare svar.</span></div>
   </div>
   <h3>Begränsningar</h3>
   <ul class="plain">
@@ -386,11 +388,12 @@ if (lasBase && lasReader) {
     `På övningar som liknar träningen valde han rätt artikel i 62 % av fallen (före 37 %), men på riktiga frågor sjönk han till ${fmt(r)} % (före ${fmt(b)} %): han hittar på svar i rätt form.`]);
 } else findings.push(["06", "mix", "Lästräningen pågår.", "Resultatet fylls i när finjusteringen är klar."]);
 if (pilot["lennart3"] && pilot["modern"]) {
-  const a = lastBpb("lennart3"), bb = lastBpb("modern"), cc = lastBpb("modern+skiss");
-  const better = bb < a;
-  let s = `Efter ~10 M tokens: A ${fmt(a, 3)}, B ${fmt(bb, 3)}` + (cc ? `, C ${fmt(cc, 3)}` : "") + " bits per byte.";
-  if (cc) s += ` Mittlagret i C stämmer med slutet i ${fmt(lastMid("modern+skiss"))} % av fallen, mot ${fmt(lastMid("modern"))} % i B.`;
-  findings.push(["07", better ? "ja" : "nej", better ? "Den moderna arkitekturen lär sig snabbare." : "Den moderna arkitekturen vann inte i liten skala.", s]);
+  const a = lastBpb("lennart3"), bb = lastBpb("modern");
+  const at = (v, step) => pilot[v] ? pilot[v][step - 1] : null; // rad nummer step (var 250:e steg)
+  let s = `Efter ~10 M tokens: B ${fmt(bb, 3)} mot A ${fmt(a, 3)} bits per byte, och B nådde A:s slutnivå efter ungefär 57 % av träningen.`;
+  const c6 = at("modern+skiss", 6), b6 = at("modern", 6);
+  if (c6 && b6) s += ` Vid 6 M tokens: C ${fmt(c6[1], 3)} mot B ${fmt(b6[1], 3)} bits per byte, mittlagret stämmer med slutet i ${fmt(c6[2])} % mot ${fmt(b6[2])} %.`;
+  findings.push(["07", bb < a ? "ja" : "nej", bb < a ? "Den moderna arkitekturen lär sig klart snabbare." : "Den moderna arkitekturen vann inte i liten skala.", s]);
 } else findings.push(["07", "mix", "Arkitekturpiloten pågår.", "Resultatet fylls i när träningen är klar."]);
 const ol = document.getElementById("findings");
 for (const [k, v, head, body] of findings) {

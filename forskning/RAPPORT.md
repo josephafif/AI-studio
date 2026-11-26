@@ -12,8 +12,8 @@ vanlig processor (4 kärnor). Kod och rådata ligger i respektive mapp under `fo
 | 3 | Vet Lennart när han inte vet? | **Ja, förvånansvärt bra.** Hans egen säkerhet förutsäger rätt/fel med AUROC 0,85. Svar över gränsen är rätt i 71 % av fallen, under gränsen i 11 %. Nu finns det i appen som "Osäker – dubbelkolla gärna". |
 | 4 | Var i modellen "bestämmer" han sig? | **Sent.** Halvvägs (lager 11 av 21) stämmer gissningen med slutsvaret bara i 28 % av fallen. Tidiga lager kan inte skissa åt de sena utan att träningen ändras. |
 | 5 | Kan ett uppslagsverk ersätta minnet? | Sökning i svenska Wikipedia hittar svaret i 40–65 % av fallen, **men Lennart 3.4 kan inte läsa** (31 % med text, 32 % utan). |
-| 6 | Kan han lära sig läsa? | LÄSRESULTAT |
-| 7 | Vilken arkitektur för Lennart 4? | PILOTRESULTAT |
+| 6 | Kan han lära sig läsa? | **Inte så snabbt.** 35 minuters lästräning lärde ut svarets *form*, inte förståelsen. På riktiga frågor blev det säkert framförda fel (15 % mot 37 %). Lärdomen styr hur Lennart 4 ska tränas. |
+| 7 | Vilken arkitektur för Lennart 4? | **Modern + självskiss.** RoPE, RMSNorm och SwiGLU når Lennart 3-arkitekturens nivå med ~57 % av datan (1,7× effektivare). En extra förlust på mittlagret gör att första halvan gissar rätt i 85 % av fallen, utan kvalitetsförlust. |
 
 **Den stora insikten:** för en liten modell är flaskhalsen inte beräkningen och inte att formulera sig.
 Det är **att lagra och kontrollera fakta**. Därför bör nästa Lennart byggas som ett *system*:
@@ -146,5 +146,31 @@ kunde, så träffsäkerheten utan text sjönk från 32 % till 25 %.
 han inte glömmer. Mallgenererade frågor lär ut formen, inte förståelsen. Ett uppslagsverk hjälper ändå
 lite redan nu: vanliga Lennart 3.4 går från 32 % till 37 % med tre träffar i frågan.
 
-PILOTDETALJER
+## 7. Arkitekturpilot för Lennart 4
+
+Tre små modeller (13 M parametrar, 4,7–4,8 M utan inbäddning, 6 lager × 256) tränades med exakt samma
+data och ordning på svensk Wikipedia (4 096 tokens per steg, cosinus-schema över 2 500 steg).
+
+| Tokens | A, som Lennart 3 | B, modern | C, modern + självskiss |
+|---|---|---|---|
+| 3,1 M (750 steg) | 1,386 | 1,259 | 1,253 |
+| 6,1 M (1 500 steg) | 1,185 | 1,096 | **1,089** |
+| 10,2 M (2 500 steg) | 1,104 | **1,020** | (stoppad vid 1 500 för att hinna) |
+
+*Bits per byte på valideringstext, lägre är bättre.*
+
+**B lär sig klart snabbare.** Med RoPE, RMSNorm, SwiGLU och QK-normering når B A:s slutnivå efter
+ungefär 57 % av träningen. Det motsvarar 1,7× fler tokens per beräkning. Per steg är B bara ~2 %
+långsammare (3 380 mot 3 455 tokens/s i en ren mätning). Det här är den viktigaste siffran för
+Lennart 4: samma GPU-vecka på Kaggle räcker till betydligt mer.
+
+**C, självskiss:** med en extra förlust på mittlagret stämmer mittlagrets gissning med slutet i
+84,5 % av fallen, mot 45,4 % i B, utan att slutkvaliteten blev sämre. C låg till och med något före B (1,089 mot 1,096), troligen för att mittlagret får en egen, direkt inlärningssignal. Räknat på
+vår motor (utkast med halva modellen, kontroll av 4 tokens i ett pass på 1,28×, och de skissade
+lagrens cache återanvänds) lönar sig självskiss först när omkring 70 % av skisserna godtas (vid 70 % ger det ~5 % snabbare, vid 80 % ~27 %). Med 84,5 % samstämmighet ger kalkylen omkring 1,4× snabbare svar vid girig avkodning. Vid sampling godtas färre skisser, så vinsten blir mindre. Det är räknat, inte uppmätt. Träningen kostade 67 % mer tid per steg i piloten, eftersom utmatningslagret är stort i en så liten modell. I Lennart 4-storlek (24 lager × 1024) blir tillägget ungefär 10 %.
+
+En sak till syns i piloten: mittlagret i A stämmer allt *sämre* med slutet ju längre träningen pågår
+(68 % → 41 %). Modellen flyttar mer och mer av arbetet till de sista lagren. Det förklarar varför
+Lennart 3.4 med sina 21 lager bestämmer sig så sent.
+
 
