@@ -43,7 +43,7 @@ jobs:
         shell: bash
         run: |
           # lmengine.dll byggs med tools/bygg_motor_windows.sh (mingw-w64, statisk OpenMP).
-          test "$(sha256sum mobil/engine/lmengine.c | cut -c1-16)" = "$(cat mobil/engine/windows/kalla.sha)" \
+          test "$(tr -d "\r" < mobil/engine/lmengine.c | sha256sum | cut -c1-16)" = "$(tr -d "\r" < mobil/engine/windows/kalla.sha)" \
             || { echo "lmengine.dll är inte byggd från aktuella lmengine.c – kör tools/bygg_motor_windows.sh"; exit 1; }
 
       - name: Lägg motorn och Microsofts C++-bibliotek bredvid Lennart.exe

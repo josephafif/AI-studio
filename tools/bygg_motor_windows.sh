@@ -8,5 +8,5 @@ x86_64-w64-mingw32-gcc-win32 -O3 -march=x86-64-v2 -mtune=generic -fopenmp -share
   -o mobil/engine/windows/lmengine.dll mobil/engine/lmengine.c -lm
 x86_64-w64-mingw32-strip mobil/engine/windows/lmengine.dll
 x86_64-w64-mingw32-objdump -p mobil/engine/windows/lmengine.dll | grep "DLL Name"
-sha256sum mobil/engine/lmengine.c | cut -c1-16 > mobil/engine/windows/kalla.sha
+tr -d "\r" < mobil/engine/lmengine.c | sha256sum | cut -c1-16 > mobil/engine/windows/kalla.sha
 echo "klart: mobil/engine/windows/lmengine.dll"
