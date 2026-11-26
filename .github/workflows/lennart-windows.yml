@@ -1,0 +1,28 @@
+# Bygger Lennart för Windows (Flutter kan bara bygga Windows-program på Windows).
+# Modellerna läggs till efteråt – de är för stora för git.
+name: Lennart för Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ccr-a45a6728-ofy6vq]
+    paths:
+      - "mobil/lennart_app/**"
+      - "mobil/engine/**"
+      - ".github/workflows/lennart-windows.yml"
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force out | Out-Null
+          "hej från windows $(Get-Date)" | Out-File out/hej.txt
+          Get-Command gcc, cl, cmake -ErrorAction SilentlyContinue | Format-Table Name, Source
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test
+          path: out
