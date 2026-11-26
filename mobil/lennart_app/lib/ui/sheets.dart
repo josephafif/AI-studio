@@ -13,7 +13,7 @@ import 'theme.dart';
 bool _isWide(BuildContext context) => MediaQuery.sizeOf(context).width >= 860;
 
 /// Telefonen: ark som glider upp underifrån. Datorn: en dialog mitt på skärmen.
-Future<T?> _present<T>(BuildContext context, WidgetBuilder builder, {bool scrollControlled = false}) {
+Future<T?> _present<T>(BuildContext context, WidgetBuilder builder, {bool scrollControlled = false, double maxWidth = 500}) {
   if (_isWide(context)) {
     return showDialog<T>(
       context: context,
@@ -21,7 +21,10 @@ Future<T?> _present<T>(BuildContext context, WidgetBuilder builder, {bool scroll
         backgroundColor: Colors.transparent,
         elevation: 0,
         insetPadding: const EdgeInsets.all(24),
-        child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 500), child: builder(ctx)),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxWidth),
+          child: builder(ctx),
+        ),
       ),
     );
   }
@@ -31,39 +34,48 @@ Future<T?> _present<T>(BuildContext context, WidgetBuilder builder, {bool scroll
 Widget _sheet(BuildContext context, {String? title, required List<Widget> children}) {
   final c = context.c;
   final wide = _isWide(context);
+  // Material (inte en dekorerad Container) så att tryck- och hovringseffekter syns på raderna.
   return Container(
     margin: wide ? EdgeInsets.zero : const EdgeInsets.fromLTRB(8, 0, 8, 8),
-    padding: EdgeInsets.fromLTRB(8, 10, 8, 12 + MediaQuery.of(context).padding.bottom),
     decoration: BoxDecoration(
-      color: c.surface,
       borderRadius: BorderRadius.circular(28),
-      border: Border.all(color: c.stroke),
       boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: c.dark ? 0.45 : 0.14), blurRadius: 30)],
     ),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!wide)
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(color: c.stroke, borderRadius: BorderRadius.circular(4)),
-            ),
-          ),
-        if (title != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 16, 12, 6),
-            child: Text(
-              title,
-              style: TextStyle(color: c.text, fontSize: 17, fontWeight: FontWeight.w700),
-            ),
-          )
-        else
-          const SizedBox(height: 8),
-        ...children,
-      ],
+    child: Material(
+      color: c.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
+        side: BorderSide(color: c.stroke),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(8, 10, 8, 12 + MediaQuery.of(context).padding.bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (!wide)
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(color: c.stroke, borderRadius: BorderRadius.circular(4)),
+                ),
+              ),
+            if (title != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 16, 12, 6),
+                child: Text(
+                  title,
+                  style: TextStyle(color: c.text, fontSize: 17, fontWeight: FontWeight.w700),
+                ),
+              )
+            else
+              const SizedBox(height: 8),
+            ...children,
+          ],
+        ),
+      ),
     ),
   );
 }
@@ -99,50 +111,66 @@ Future<ModelPick?> pickModel(
   return _present<ModelPick>(
     context,
     scrollControlled: true,
+    maxWidth: 860,
     (ctx) => StatefulBuilder(
       builder: (ctx, setState) {
         final c = ctx.c;
+        final modelRows = [
+          _section(ctx, 'Modell'),
+          for (final m in models.reversed)
+            _Row(
+              leading: ModelIcon(size: 36, color: m.color, label: ModelIcon.labelFor(m.name)),
+              title: m.name,
+              badge: m == models.last ? 'nyast' : null,
+              subtitle: '${m.paramsLabel} parametrar · ${m.description}',
+              selected: m.id == currentId,
+              onTap: () => Navigator.pop(ctx, PickModel(m)),
+            ),
+        ];
+        final effortRows = [
+          _section(ctx, 'Tänkande'),
+          for (final e in Effort.values)
+            _Row(
+              leading: _EffortBars(level: e.index, color: c.accent),
+              title: e.label,
+              subtitle: e.description,
+              selected: e == current,
+              onTap: () {
+                setState(() => current = e);
+                onEffort(e);
+              },
+            ),
+          Divider(color: c.stroke, height: 20, indent: 14, endIndent: 14),
+          _Row(
+            leading: Icon(Icons.add_rounded, color: c.text),
+            title: 'Lägg till modell från fil',
+            subtitle: 'Ett .lennart-paket, t.ex. från Kaggle',
+            onTap: () => Navigator.pop(ctx, PickImport()),
+          ),
+        ];
+        // Datorn: modeller till vänster, tänkande till höger. Telefonen: under varandra.
+        final body = _isWide(ctx)
+            ? IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: modelRows),
+                    ),
+                    Container(width: 1, margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 14), color: c.stroke),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: effortRows),
+                    ),
+                  ],
+                ),
+              )
+            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [...modelRows, ...effortRows]);
         return _sheet(
           ctx,
           children: [
             ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.8),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _section(ctx, 'Modell'),
-                    for (final m in models.reversed)
-                      _Row(
-                        leading: ModelIcon(size: 36, color: m.color, label: ModelIcon.labelFor(m.name)),
-                        title: m.name,
-                        badge: m == models.last ? 'nyast' : null,
-                        subtitle: '${m.paramsLabel} parametrar · ${m.description}',
-                        selected: m.id == currentId,
-                        onTap: () => Navigator.pop(ctx, PickModel(m)),
-                      ),
-                    _section(ctx, 'Tänkande'),
-                    for (final e in Effort.values)
-                      _Row(
-                        leading: _EffortBars(level: e.index, color: c.accent),
-                        title: e.label,
-                        subtitle: e.description,
-                        selected: e == current,
-                        onTap: () {
-                          setState(() => current = e);
-                          onEffort(e);
-                        },
-                      ),
-                    Divider(color: c.stroke, height: 20, indent: 14, endIndent: 14),
-                    _Row(
-                      leading: Icon(Icons.add_rounded, color: c.text),
-                      title: 'Lägg till modell från fil',
-                      subtitle: 'Ett .lennart-paket, t.ex. från Kaggle',
-                      onTap: () => Navigator.pop(ctx, PickImport()),
-                    ),
-                  ],
-                ),
-              ),
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(ctx).size.height * 0.82),
+              child: SingleChildScrollView(child: body),
             ),
           ],
         );
@@ -316,7 +344,7 @@ Future<void> agentSettings(BuildContext context) => _present<void>(
                     _Row(
                       leading: Icon(Icons.folder_open_rounded, color: c.text),
                       title: 'Arbetsmapp',
-                      subtitle: mapp ?? 'Ingen vald – filverktygen kan bara läsa och skriva här',
+                      subtitle: mapp ?? 'Ingen vald. Filverktygen får bara arbeta i mappen du väljer.',
                       onTap: () async {
                         final d = await getDirectoryPath(confirmButtonText: 'Välj mapp');
                         if (d != null) setState(() => Prefs.arbetsmapp = d);
@@ -331,8 +359,8 @@ Future<void> agentSettings(BuildContext context) => _present<void>(
                           color: v.andrar ? Palette.danger : c.text,
                           size: 20,
                         ),
-                        title: '${kommandoFor(v.namn)}  ·  ${v.namn}',
-                        subtitle: v.andrar ? '${v.beskrivning} ' : v.beskrivning,
+                        title: kommandoFor(v.namn),
+                        subtitle: v.beskrivning,
                         onTap: () {},
                       ),
                   Padding(
@@ -475,9 +503,36 @@ Widget _slider(BuildContext ctx, String label, String value, String hint, Widget
 
 /// System / Ljust / Mörkt.
 class AppearancePicker extends StatelessWidget {
-  const AppearancePicker({super.key});
+  final bool compact; // smal sidopanel: bara ikoner
+  const AppearancePicker({super.key, this.compact = false});
   @override
   Widget build(BuildContext context) {
+    if (compact) {
+      return ValueListenableBuilder<ThemeMode>(
+        valueListenable: appearance,
+        builder: (ctx, mode, _) => Row(
+          children: [
+            Text(
+              'Utseende',
+              style: TextStyle(fontWeight: FontWeight.w600, color: ctx.c.text, fontSize: 13),
+            ),
+            const Spacer(),
+            for (final (m, icon, tip) in [
+              (ThemeMode.system, Icons.brightness_auto_rounded, 'Som systemet'),
+              (ThemeMode.light, Icons.light_mode_rounded, 'Ljust'),
+              (ThemeMode.dark, Icons.dark_mode_rounded, 'Mörkt'),
+            ])
+              IconButton(
+                tooltip: tip,
+                visualDensity: VisualDensity.compact,
+                style: IconButton.styleFrom(backgroundColor: mode == m ? ctx.c.bubble : Colors.transparent),
+                icon: Icon(icon, size: 18, color: mode == m ? ctx.c.accent : ctx.c.muted),
+                onPressed: () => appearance.set(m),
+              ),
+          ],
+        ),
+      );
+    }
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: appearance,
       builder: (ctx, mode, _) => Glass(

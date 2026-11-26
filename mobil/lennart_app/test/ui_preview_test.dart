@@ -11,6 +11,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:lennart_app/core/catalog.dart';
 import 'package:lennart_app/core/chats.dart';
 import 'package:lennart_app/core/engine.dart';
+import 'package:lennart_app/core/prefs.dart';
 import 'package:lennart_app/core/tokenizer.dart';
 import 'package:lennart_app/ui/ascii.dart';
 import 'package:lennart_app/ui/chat_screen.dart';
@@ -23,6 +24,20 @@ class _FakeEngine extends LennartEngine {
 
   @override
   Stream<GenEvent> generate(List<ChatTurn> turns, GenSettings s) async* {
+    // Agentläge: frågan om 12 gånger 7 besvaras med ett verktygsanrop, och resultatet med ett svar.
+    if (turns.last.text.startsWith('<resultat')) {
+      for (final w in '12 gånger 7 är 84. Räknaren håller med mig, så det är nog rätt.'.split(' ')) {
+        await Future<void>.delayed(const Duration(milliseconds: 30));
+        yield GenToken('$w ');
+      }
+      yield GenDone(16, 0.8, 30, 1, score: -0.1);
+      return;
+    }
+    if (turns.last.text.contains('12 gånger 7')) {
+      yield GenToken('<verktyg namn="raknare">{"uttryck": "12*7"}</verktyg>');
+      yield GenDone(14, 0.5, 12, 1, score: -0.1);
+      return;
+    }
     if (s.effort.sentenceWise) {
       const meningar = [
         ['Ett starkt lösenord är långt och unikt för varje tjänst.', 'Ett starkt lösenord är långt från din lokala enhet.',
@@ -112,6 +127,59 @@ void main() {
   }, skip: !enabled);
 
   for (final dark in [true, false]) {
+    testWidgets('dator ${dark ? 'mörk' : 'ljus'}', (tester) async {
+      debugDisableShadows = false;
+      await _loadFonts();
+      tester.view.physicalSize = const Size(1280 * 1.25, 820 * 1.25);
+      tester.view.devicePixelRatio = 1.25;
+      Prefs.effort = Effort.snabb;
+      Prefs.agent = true;
+      final catalog = Catalog.preview([
+        _m('lennart', 'Lennart', 995544, 152),
+        _m('lennart-2', 'Lennart 2', 8130624, 192),
+        _m('lennart-3', 'Lennart 3', 298407936, 262),
+        _m('lennart-3-1', 'Lennart 3.1', 298407936, 322),
+        _m('lennart-3-2', 'Lennart 3.2', 298407936, 20),
+        _m('lennart-3-3', 'Lennart 3.3', 298407936, 60),
+        _m('lennart-3-4', 'Lennart 3.4', 298407936, 300),
+      ]);
+      final store = ChatStore();
+      await tester.pumpWidget(MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: buildTheme(dark ? Brightness.dark : Brightness.light),
+        home: ChatScreen(catalog: catalog, store: store, engine: _FakeEngine()),
+      ));
+      final mode = dark ? 'mork' : 'ljus';
+      Future<void> wait(int n) async {
+        for (var i = 0; i < n; i++) {
+          await tester.pump(const Duration(milliseconds: 50));
+        }
+      }
+
+      await wait(12);
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/d1-start-$mode.png'));
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down_rounded));
+      await wait(10);
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/d2-modeller-$mode.png'));
+      await tester.tapAt(const Offset(40, 40));
+      await wait(10);
+      await tester.enterText(find.byType(TextField), 'Vad är 12 gånger 7?');
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await wait(60);
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/d3-agent-$mode.png'));
+      await tester.tap(find.byIcon(Icons.add_rounded));
+      await wait(8);
+      await tester.tap(find.text('Agent och verktyg'));
+      await wait(10);
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/d4-agentinst-$mode.png'));
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump(const Duration(seconds: 1));
+      Prefs.agent = false;
+      Prefs.effort = Effort.medel;
+      debugDisableShadows = true;
+    }, skip: !enabled);
+
     testWidgets('förhandsvisning ${dark ? 'mörk' : 'ljus'}', (tester) async {
       debugDisableShadows = false;
       await _loadFonts();

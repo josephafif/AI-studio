@@ -35,8 +35,7 @@ mixin _Clock<T extends StatefulWidget> on State<T>, SingleTickerProviderStateMix
       onTick((t - last).clamp(0.0, 0.1));
       last = t;
       clock.value = t;
-    })
-      ..start();
+    })..start();
   }
 
   @override
@@ -67,14 +66,19 @@ class _Atlas {
     return _cache.putIfAbsent(key, () {
       if (_cache.length > 12) _cache.clear();
       final style = mono.copyWith(fontSize: px.roundToDouble(), height: 1.0, fontWeight: weight, color: Colors.white);
-      final probe = TextPainter(text: TextSpan(text: 'MMMMMMMMMM', style: style), textDirection: TextDirection.ltr)..layout();
+      final probe = TextPainter(
+        text: TextSpan(text: 'MMMMMMMMMM', style: style),
+        textDirection: TextDirection.ltr,
+      )..layout();
       final cw = (probe.width / 10).ceilToDouble() + 2, ch = probe.height.ceilToDouble() + 2;
       final runes = glyphs.runes.toList();
       final rec = ui.PictureRecorder();
       final canvas = Canvas(rec);
       for (var i = 0; i < runes.length; i++) {
-        final tp = TextPainter(text: TextSpan(text: String.fromCharCode(runes[i]), style: style), textDirection: TextDirection.ltr)
-          ..layout();
+        final tp = TextPainter(
+          text: TextSpan(text: String.fromCharCode(runes[i]), style: style),
+          textDirection: TextDirection.ltr,
+        )..layout();
         tp.paint(canvas, Offset(i * cw + (cw - tp.width) / 2, (ch - tp.height) / 2));
       }
       final img = rec.endRecording().toImageSync((runes.length * cw).ceil(), ch.ceil());
@@ -96,20 +100,34 @@ class _Batch {
   /// Ritar tecken nummer [i] i atlasen centrerat på (x, y) med färgen [argb].
   void add(int i, double x, double y, int argb, [double size = 1]) {
     final s = scale * size;
-    _xf..add(s)..add(0)..add(x - atlas.cw * s / 2)..add(y - atlas.ch * s / 2);
-    _rc..add(i * atlas.cw)..add(0)..add((i + 1) * atlas.cw)..add(atlas.ch);
+    _xf
+      ..add(s)
+      ..add(0)
+      ..add(x - atlas.cw * s / 2)
+      ..add(y - atlas.ch * s / 2);
+    _rc
+      ..add(i * atlas.cw)
+      ..add(0)
+      ..add((i + 1) * atlas.cw)
+      ..add(atlas.ch);
     _col.add(argb);
   }
 
   void draw(Canvas canvas) {
     if (_col.isEmpty) return;
-    canvas.drawRawAtlas(atlas.image, Float32List.fromList(_xf), Float32List.fromList(_rc), Int32List.fromList(_col),
-        BlendMode.modulate, null, Paint()..filterQuality = FilterQuality.low);
+    canvas.drawRawAtlas(
+      atlas.image,
+      Float32List.fromList(_xf),
+      Float32List.fromList(_rc),
+      Int32List.fromList(_col),
+      BlendMode.modulate,
+      null,
+      Paint()..filterQuality = FilterQuality.low,
+    );
   }
 }
 
-int _argb(Color c, double alpha) =>
-    ((alpha.clamp(0.0, 1.0) * 255).round() << 24) | (c.toARGB32() & 0x00FFFFFF);
+int _argb(Color c, double alpha) => ((alpha.clamp(0.0, 1.0) * 255).round() << 24) | (c.toARGB32() & 0x00FFFFFF);
 
 // ───────────────────────────────────────────────── roterande ASCII-klot
 /// Ett jordklot av tecken: kontinenter, gradnät, solljus med glans, atmosfär i kanten och en
@@ -139,10 +157,7 @@ class _AsciiSphereState extends State<AsciiSphere> with SingleTickerProviderStat
     final dark = context.c.dark;
     final dpr = MediaQuery.of(context).devicePixelRatio;
     return RepaintBoundary(
-      child: CustomPaint(
-        size: Size.square(widget.size),
-        painter: _SpherePainter(this, widget.color, dark, dpr),
-      ),
+      child: CustomPaint(size: Size.square(widget.size), painter: _SpherePainter(this, widget.color, dark, dpr)),
     );
   }
 }
@@ -180,14 +195,20 @@ class _SpherePainter extends CustomPainter {
     // Glöd bakom klotet (radiell gradient – billigare än oskärpa)
     final glowR = rPx * (1.7 + 0.12 * e);
     canvas.drawCircle(
-        c,
-        glowR,
-        Paint()
-          ..shader = ui.Gradient.radial(c, glowR, [
+      c,
+      glowR,
+      Paint()
+        ..shader = ui.Gradient.radial(
+          c,
+          glowR,
+          [
             color.withValues(alpha: (dark ? 0.30 : 0.20) + 0.12 * e),
             color.withValues(alpha: (dark ? 0.08 : 0.05)),
             color.withValues(alpha: 0),
-          ], [0, 0.45, 1]));
+          ],
+          [0, 0.45, 1],
+        ),
+    );
 
     final hsl = HSLColor.fromColor(color);
     final atmo = dark ? const Color(0xFF8FE3FF) : const Color(0xFF0A86B8);
@@ -220,7 +241,8 @@ class _SpherePainter extends CustomPainter {
         final px3 = x * ca - z1 * sa, pz3 = x * sa + z1 * ca, py3 = y1;
 
         // Kontinenter: summa av vågor i 3D – sammanhängande land som följer med rotationen.
-        final n = math.sin(2.1 * px3 + 1.3 * py3 + 0.7) * math.cos(1.7 * pz3 - 1.1 * py3) +
+        final n =
+            math.sin(2.1 * px3 + 1.3 * py3 + 0.7) * math.cos(1.7 * pz3 - 1.1 * py3) +
             0.55 * math.sin(4.3 * pz3 + 2.9 * px3 - 0.4) * math.cos(3.7 * py3 + 0.6) +
             0.25 * math.sin(9.1 * px3 - 7.3 * pz3 + 5.1 * py3);
         final land = ((n - 0.10) * 5).clamp(0.0, 1.0);
@@ -247,9 +269,9 @@ class _SpherePainter extends CustomPainter {
           final lv = v * (0.75 + 0.25 * land);
           col = lv < 0.5 ? Color.lerp(deep, mid, lv * 2)! : Color.lerp(mid, hi, (lv - 0.5) * 2)!;
           if (ice > 0.5) {
-          g = _land[math.min(k, 3)]; // isen är ljus men gles
-          col = Color.lerp(col, hi, 0.5)!;
-        }
+            g = _land[math.min(k, 3)]; // isen är ljus men gles
+            col = Color.lerp(col, hi, 0.5)!;
+          }
           a = 0.40 + 0.60 * v;
         } else {
           // Hav: vågorna vandrar över ytan
@@ -328,21 +350,28 @@ class _ModelIconState extends State<ModelIcon> with SingleTickerProviderStateMix
                 transform: GradientRotation(seconds * (widget.thinking ? 3 : 0.6)),
                 colors: [col, Palette.cyan, col.withValues(alpha: 0.2), col],
               ),
-              boxShadow: [BoxShadow(color: col.withValues(alpha: dark ? glow : glow * 0.6), blurRadius: s * 0.35)],
+              boxShadow: [
+                BoxShadow(
+                  color: col.withValues(alpha: dark ? glow : glow * 0.6),
+                  blurRadius: s * 0.35,
+                ),
+              ],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(s * 0.3 - 1.5),
               child: CustomPaint(
                 painter: _IconPainter(f, col, dark, widget.thinking),
                 child: Center(
-                  child: Text(widget.label,
-                      style: mono.copyWith(
-                        fontSize: s * (widget.label.length > 2 ? 0.3 : 0.4),
-                        fontWeight: FontWeight.w800,
-                        color: dark ? Colors.white : const Color(0xFF0D141C),
-                        letterSpacing: -0.5,
-                        shadows: [Shadow(color: col, blurRadius: s * 0.18)],
-                      )),
+                  child: Text(
+                    widget.label,
+                    style: mono.copyWith(
+                      fontSize: s * (widget.label.length > 2 ? 0.3 : 0.4),
+                      fontWeight: FontWeight.w800,
+                      color: dark ? Colors.white : const Color(0xFF0D141C),
+                      letterSpacing: -0.5,
+                      shadows: [Shadow(color: col, blurRadius: s * 0.18)],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -363,15 +392,16 @@ class _IconPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
     canvas.drawRect(
-        rect,
-        Paint()
-          ..shader = LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: dark
-                ? [Color.lerp(const Color(0xFF05070A), color, 0.28)!, const Color(0xFF05070A)]
-                : [Color.lerp(Colors.white, color, 0.35)!, Colors.white],
-          ).createShader(rect));
+      rect,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: dark
+              ? [Color.lerp(const Color(0xFF05070A), color, 0.28)!, const Color(0xFF05070A)]
+              : [Color.lerp(Colors.white, color, 0.35)!, Colors.white],
+        ).createShader(rect),
+    );
     if (size.width < 26) return;
     final n = size.width > 44 ? 6 : 4;
     final cell = size.width / n;
@@ -381,8 +411,12 @@ class _IconPainter extends CustomPainter {
         if (r.nextDouble() > (thinking ? 0.75 : 0.5)) continue;
         final tp = TextPainter(
           text: TextSpan(
-              text: _glyphs[r.nextInt(_glyphs.length)],
-              style: mono.copyWith(fontSize: cell * 0.8, color: color.withValues(alpha: 0.12 + r.nextDouble() * 0.2))),
+            text: _glyphs[r.nextInt(_glyphs.length)],
+            style: mono.copyWith(
+              fontSize: cell * 0.8,
+              color: color.withValues(alpha: 0.12 + r.nextDouble() * 0.2),
+            ),
+          ),
           textDirection: TextDirection.ltr,
         )..layout();
         tp.paint(canvas, Offset(x * cell + (cell - tp.width) / 2, y * cell + (cell - tp.height) / 2));
@@ -390,8 +424,7 @@ class _IconPainter extends CustomPainter {
     }
     // Skanningslinje
     final sy = (frame % 24) / 24 * size.height;
-    canvas.drawRect(Rect.fromLTWH(0, sy, size.width, size.height * 0.08),
-        Paint()..color = color.withValues(alpha: 0.18));
+    canvas.drawRect(Rect.fromLTWH(0, sy, size.width, size.height * 0.08), Paint()..color = color.withValues(alpha: 0.18));
   }
 
   @override
@@ -443,10 +476,10 @@ class _RainPainter extends CustomPainter {
       final p = Offset(size.width * (bx + 0.06 * math.sin(t * 0.11 + ph)), size.height * (by + 0.04 * math.cos(t * 0.09 + ph)));
       final r = size.width * 0.75;
       canvas.drawCircle(
-          p,
-          r,
-          Paint()
-            ..shader = ui.Gradient.radial(p, r, [c.withValues(alpha: ac.dark ? 0.13 : 0.10), c.withValues(alpha: 0)]));
+        p,
+        r,
+        Paint()..shader = ui.Gradient.radial(p, r, [c.withValues(alpha: ac.dark ? 0.13 : 0.10), c.withValues(alpha: 0)]),
+      );
     }
     final tint = ac.dark ? color : ac.rain;
     final headCol = ac.dark ? Colors.white : HSLColor.fromColor(ac.rain).withLightness(0.18).toColor();
@@ -494,8 +527,7 @@ class _RainPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RainPainter o) =>
-      o.color != color || o.ac != ac || o.dpr != dpr || o.intensity != intensity || o.st != st;
+  bool shouldRepaint(_RainPainter o) => o.color != color || o.ac != ac || o.dpr != dpr || o.intensity != intensity || o.st != st;
 }
 
 // ───────────────────────────────────────────────── avkodande text
@@ -525,16 +557,16 @@ class _ScrambleTextState extends State<ScrambleText> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: _c,
-        builder: (_, __) {
-          final done = (widget.text.length * Curves.easeOut.transform(_c.value)).floor();
-          final s = StringBuffer(widget.text.substring(0, done));
-          for (var i = done; i < widget.text.length; i++) {
-            s.write(widget.text[i] == ' ' ? ' ' : _glyph());
-          }
-          return Text(s.toString(), style: widget.style, textAlign: TextAlign.center);
-        },
-      );
+    animation: _c,
+    builder: (_, __) {
+      final done = (widget.text.length * Curves.easeOut.transform(_c.value)).floor();
+      final s = StringBuffer(widget.text.substring(0, done));
+      for (var i = done; i < widget.text.length; i++) {
+        s.write(widget.text[i] == ' ' ? ' ' : _glyph());
+      }
+      return Text(s.toString(), style: widget.style, textAlign: TextAlign.center);
+    },
+  );
 }
 
 /// Några tecken som flimrar i slutet av ett svar medan det skrivs.
@@ -554,11 +586,21 @@ class _DecodingTailState extends State<DecodingTail> {
   }
 
   @override
-  Widget build(BuildContext context) => Text.rich(TextSpan(children: [
+  Widget build(BuildContext context) => Text.rich(
+    TextSpan(
+      children: [
         for (var i = 0; i < 3; i++)
-          TextSpan(text: _glyph(), style: mono.copyWith(color: widget.color.withValues(alpha: 0.9 - i * 0.28), fontSize: 14)),
-        TextSpan(text: '▌', style: mono.copyWith(color: widget.color, fontSize: 14)),
-      ]));
+          TextSpan(
+            text: _glyph(),
+            style: mono.copyWith(color: widget.color.withValues(alpha: 0.9 - i * 0.28), fontSize: 14),
+          ),
+        TextSpan(
+          text: '▌',
+          style: mono.copyWith(color: widget.color, fontSize: 14),
+        ),
+      ],
+    ),
+  );
 }
 
 /// Spinner av punktskriftstecken + text, medan modellen tänker.
@@ -581,11 +623,24 @@ class _BrailleSpinnerState extends State<BrailleSpinner> {
   }
 
   @override
-  Widget build(BuildContext context) => Text.rich(TextSpan(children: [
-        TextSpan(text: _frames[_i % _frames.length], style: mono.copyWith(color: widget.color, fontSize: 16, fontWeight: FontWeight.w700)),
-        TextSpan(text: ' ${widget.text}', style: mono.copyWith(color: widget.color.withValues(alpha: 0.9), fontSize: 13)),
-        TextSpan(text: ['.  ', '.. ', '...'][(_i ~/ 4) % 3], style: mono.copyWith(color: widget.color, fontSize: 13)),
-      ]));
+  Widget build(BuildContext context) => Text.rich(
+    TextSpan(
+      children: [
+        TextSpan(
+          text: _frames[_i % _frames.length],
+          style: mono.copyWith(color: widget.color, fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+        TextSpan(
+          text: ' ${widget.text}',
+          style: mono.copyWith(color: widget.color.withValues(alpha: 0.9), fontSize: 13),
+        ),
+        TextSpan(
+          text: ['.  ', '.. ', '...'][(_i ~/ 4) % 3],
+          style: mono.copyWith(color: widget.color, fontSize: 13),
+        ),
+      ],
+    ),
+  );
 }
 
 /// "Tänker"-symbol: en gnista med åtta strålar som pulserar och vrider sig (ritad, inga tecken
@@ -601,10 +656,8 @@ class ThinkingStar extends StatefulWidget {
 
 class _ThinkingStarState extends State<ThinkingStar> with SingleTickerProviderStateMixin, _Clock {
   @override
-  Widget build(BuildContext context) => CustomPaint(
-        size: Size.square(widget.size),
-        painter: _SparkPainter(clock, widget.color, widget.animate),
-      );
+  Widget build(BuildContext context) =>
+      CustomPaint(size: Size.square(widget.size), painter: _SparkPainter(clock, widget.color, widget.animate));
 }
 
 class _SparkPainter extends CustomPainter {

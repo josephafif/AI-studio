@@ -18,16 +18,42 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color bg, surface, glass, stroke, text, muted, accent, rain, bubble;
   final bool dark;
   const AppColors({
-    required this.bg, required this.surface, required this.glass, required this.stroke,
-    required this.text, required this.muted, required this.accent, required this.rain, required this.bubble, required this.dark,
+    required this.bg,
+    required this.surface,
+    required this.glass,
+    required this.stroke,
+    required this.text,
+    required this.muted,
+    required this.accent,
+    required this.rain,
+    required this.bubble,
+    required this.dark,
   });
 
   static const darkColors = AppColors(
-    bg: Color(0xFF05070A), surface: Color(0xFF0D1219), glass: Color(0x14FFFFFF), stroke: Color(0x1FFFFFFF),
-    text: Color(0xFFE9EEF5), muted: Color(0xFF8B97A8), accent: Palette.green, rain: Palette.green, bubble: Color(0xFF18202A), dark: true);
+    bg: Color(0xFF05070A),
+    surface: Color(0xFF0D1219),
+    glass: Color(0x14FFFFFF),
+    stroke: Color(0x1FFFFFFF),
+    text: Color(0xFFE9EEF5),
+    muted: Color(0xFF8B97A8),
+    accent: Palette.green,
+    rain: Palette.green,
+    bubble: Color(0xFF18202A),
+    dark: true,
+  );
   static const lightColors = AppColors(
-    bg: Color(0xFFF3F6F9), surface: Color(0xFFFFFFFF), glass: Color(0xB3FFFFFF), stroke: Color(0x1A0B1A2A),
-    text: Color(0xFF0D141C), muted: Color(0xFF5B6675), accent: Color(0xFF0E9F62), rain: Color(0xFF0E7A55), bubble: Color(0xFFE6EBF0), dark: false);
+    bg: Color(0xFFF3F6F9),
+    surface: Color(0xFFFFFFFF),
+    glass: Color(0xB3FFFFFF),
+    stroke: Color(0x1A0B1A2A),
+    text: Color(0xFF0D141C),
+    muted: Color(0xFF5B6675),
+    accent: Color(0xFF0E9F62),
+    rain: Color(0xFF0E7A55),
+    bubble: Color(0xFFE6EBF0),
+    dark: false,
+  );
 
   @override
   AppColors copyWith() => this;

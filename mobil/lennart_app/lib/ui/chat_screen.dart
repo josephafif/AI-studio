@@ -1410,7 +1410,10 @@ class _HistoryDrawerState extends State<_HistoryDrawer> {
                     },
                   ),
           ),
-          const Padding(padding: EdgeInsets.fromLTRB(14, 0, 14, 8), child: AppearancePicker()),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 0, 8, 4),
+            child: AppearancePicker(compact: widget.docked),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 4, 18, 14),
             child: Text(
