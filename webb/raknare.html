@@ -1,0 +1,389 @@
+<title>Lennart</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+/* Layout: en smal spalt som appen – klotet och namnet överst, räknaren som huvudsak, sedan kort om Lennart. */
+:root {
+  --bg: #f3f6f9; --surface: #ffffff; --raised: #e9eef3; --ink: #0d141c; --muted: #5b6675; --line: #dde3ea;
+  --accent: #8a3fd6; --accent-ink: #ffffff; --glow: rgba(138, 63, 214, 0.16); --good: #0e8a55; --bad: #c43c3c;
+  --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  --sans: "Inter", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #05070a; --surface: #0d1219; --raised: #161d27; --ink: #e9eef5; --muted: #8b97a8; --line: #1f2833;
+    --accent: #c98bff; --accent-ink: #12061f; --glow: rgba(201, 139, 255, 0.18); --good: #3ddc97; --bad: #ff7b7b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #05070a; --surface: #0d1219; --raised: #161d27; --ink: #e9eef5; --muted: #8b97a8; --line: #1f2833;
+  --accent: #c98bff; --accent-ink: #12061f; --glow: rgba(201, 139, 255, 0.18); --good: #3ddc97; --bad: #ff7b7b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.55 var(--sans); }
+.wrap { max-width: 720px; margin: 0 auto; padding-block: 20px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 8px; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 22px; font-weight: 500; }
+.mark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; font: 700 13px var(--mono);
+  color: var(--ink); background: var(--raised); border: 1px solid var(--accent); box-shadow: 0 0 14px var(--glow); }
+nav { display: flex; gap: 16px; font-size: 14px; }
+nav a { color: var(--muted); text-decoration: none; }
+nav a:hover, nav a:focus-visible { color: var(--ink); }
+.hero { display: grid; justify-items: center; text-align: center; gap: 6px; padding-block: 8px 28px; }
+#klot { width: min(300px, 78vw); aspect-ratio: 1; max-width: 100%; }
+h1 { font: 500 clamp(2.4rem, 8vw, 3.4rem)/1.05 var(--serif); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); max-width: 46ch; margin: 0; }
+.facts { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; font: 500 12.5px var(--mono); color: var(--muted); margin-top: 6px; }
+section { padding-block: 22px; }
+h2 { font: 500 1.7rem/1.2 var(--serif); margin: 0 0 4px; letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: 0 0 16px; max-width: 60ch; }
+
+/* Räknaren */
+.calc { background: var(--surface); border: 1px solid var(--line); border-radius: 26px; padding: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08); display: grid; gap: 12px; }
+.screen { background: var(--raised); border-radius: 18px; padding: 12px 14px 10px; display: grid; gap: 2px; min-width: 0; }
+.screen label { font-size: 12px; color: var(--muted); }
+#uttryck { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font: 500 20px/1.3 var(--mono); padding: 2px 0; }
+#svar { font: 700 clamp(1.9rem, 7vw, 2.6rem)/1.15 var(--mono); text-align: right; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; min-height: 1.2em; }
+#svar.fel { font: 500 15px/1.4 var(--sans); color: var(--bad); text-align: left; }
+.keys { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.keys button { font: 500 18px var(--mono); padding: 14px 0; border-radius: 14px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink); cursor: pointer; transition: background 0.12s, transform 0.08s; }
+.keys button:hover { background: var(--raised); }
+.keys button:active { transform: scale(0.97); }
+.keys button:focus-visible, nav a:focus-visible, .hist button:focus-visible, .copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.keys .op { color: var(--accent); }
+.keys .fn { font-size: 14px; color: var(--muted); }
+.keys .eq { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+.keys .eq:hover { filter: brightness(1.08); background: var(--accent); }
+.hint { font-size: 12.5px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.hint code { font: 500 12px var(--mono); color: var(--ink); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; min-width: 0; display: grid; gap: 8px; align-content: start; }
+.panel h3 { font: 600 13px var(--sans); margin: 0; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.hist { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.hist button { width: 100%; display: flex; justify-content: space-between; gap: 10px; text-align: left; border: 0; background: transparent;
+  color: var(--ink); padding: 6px 8px; border-radius: 10px; font: 400 14px var(--mono); cursor: pointer; }
+.hist button:hover { background: var(--raised); }
+.hist .r { font-weight: 700; white-space: nowrap; }
+.hist .u { color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.empty { color: var(--muted); font-size: 13.5px; }
+pre.proto { margin: 0; font: 400 12.5px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink); }
+pre.proto .t { color: var(--accent); }
+pre.proto .m { color: var(--muted); }
+.copy { justify-self: start; font: 500 12.5px var(--sans); color: var(--accent); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+
+/* Om Lennart */
+.about { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.card { border-top: 2px solid var(--accent); padding-top: 10px; display: grid; gap: 4px; align-content: start; }
+.card h3 { font: 500 1.15rem var(--serif); margin: 0; }
+.card p { margin: 0; color: var(--muted); font-size: 14.5px; }
+.versions { margin-top: 18px; font: 400 13px var(--mono); color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px; }
+.versions span { border: 1px solid var(--line); border-radius: 8px; padding: 3px 8px; }
+.versions span.now { border-color: var(--accent); color: var(--ink); }
+footer { color: var(--muted); font-size: 13px; padding-top: 24px; border-top: 1px solid var(--line); margin-top: 18px; }
+@media (max-width: 620px) {
+  .two, .about { grid-template-columns: 1fr; }
+  nav { display: none; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><span class="mark" aria-hidden="true">L</span>Lennart</div>
+    <nav aria-label="Sidans delar"><a href="#raknaren">Räknaren</a><a href="#om">Om Lennart</a></nav>
+  </header>
+
+  <div class="hero">
+    <canvas id="klot" width="600" height="600" role="img" aria-label="Ett roterande klot ritat med tecken"></canvas>
+    <h1>Hej, jag är Lennart.</h1>
+    <p class="lede">En svensk AI som körs på din egen telefon eller dator. Här kan du använda min räknare direkt i webbläsaren.</p>
+    <div class="facts"><span>7 versioner</span><span>upp till 298 M parametrar</span><span>körs lokalt</span></div>
+  </div>
+
+  <section id="raknaren" aria-labelledby="rh">
+    <h2 id="rh">Räknaren</h2>
+    <p class="sub">Samma räknare som Lennart använder i agentläget. Den räknar medan du skriver, förstår decimalkomma och kör aldrig någon kod.</p>
+    <div class="calc">
+      <div class="screen">
+        <label for="uttryck">Uttryck</label>
+        <input id="uttryck" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" value="1299*0,8">
+        <div id="svar" aria-live="polite">1039,2</div>
+      </div>
+      <div class="keys" id="keys">
+        <button class="fn" data-k="sqrt(">√</button><button class="fn" data-k="(">(</button><button class="fn" data-k=")">)</button><button class="fn" data-k="%">%</button><button class="fn" data-act="del" aria-label="Radera">⌫</button>
+        <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button><button class="op" data-k="÷" aria-label="Dela med">÷</button><button class="fn" data-act="clear">C</button>
+        <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button><button class="op" data-k="×" aria-label="Gånger">×</button><button class="op" data-k="^" aria-label="Upphöjt till">xʸ</button>
+        <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button><button class="op" data-k="−" aria-label="Minus">−</button><button class="fn" data-k="pi">π</button>
+        <button data-k="0">0</button><button data-k=",">,</button><button class="fn" data-act="ans">svar</button><button class="op" data-k="+" aria-label="Plus">+</button><button class="eq" data-act="eq" aria-label="Spara i historiken">=</button>
+      </div>
+      <div class="hint"><span><code>Enter</code> sparar i historiken</span><span><code>Esc</code> rensar</span><span>Funktioner: <code>sqrt</code> <code>abs</code> <code>round</code> <code>pi</code></span></div>
+    </div>
+
+    <div class="two" style="margin-top:12px">
+      <div class="panel">
+        <h3>Historik</h3>
+        <ul class="hist" id="hist"></ul>
+        <p class="empty" id="histEmpty">Tryck på = eller Enter så sparas uträkningen här. Exemplen nedan går att trycka på.</p>
+      </div>
+      <div class="panel">
+        <h3>Så frågar Lennart räknaren</h3>
+        <pre class="proto" id="proto"></pre>
+        <button class="copy" id="copy" type="button">Kopiera</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="om" aria-labelledby="oh">
+    <h2 id="oh">Om Lennart</h2>
+    <p class="sub">Lennart är tränad från grunden på svensk text, Wikipedia och egna samtal, med extra kunskap om IT-säkerhet.</p>
+    <div class="about">
+      <div class="card"><h3>På telefonen</h3><p>Android-appen har alla versioner och svarar utan internet. Tänkandet Djup+ bygger svaret mening för mening ur upp till 20 utkast.</p></div>
+      <div class="card"><h3>På datorn</h3><p>Windows-versionen ser ut som appen, med sidopanel, kortkommandon och modellerna i en mapp bredvid programmet.</p></div>
+      <div class="card"><h3>Agentläge</h3><p>Verktyg för klocka, dagar kvar, räknare och anteckningar. Verktyg som ändrar något frågar först, och inget går ut på internet.</p></div>
+    </div>
+    <div class="versions" aria-label="Versioner">
+      <span>Lennart</span><span>Lennart 2</span><span>Lennart 3</span><span>3.1</span><span>3.2</span><span>3.3</span><span class="now">3.4 · nyast</span>
+    </div>
+  </section>
+
+  <footer>Lennart · AI Control Center · Räknaren körs helt i din webbläsare.</footer>
+</div>
+
+<script>
+// Lennarts räknare i webbläsaren – samma regler som verktyget "raknare" i appen
+// (mobil/lennart_app/lib/agent/verktyg.dart): + − × ÷, ^ (högerassociativ), parenteser, procent,
+// decimalkomma och funktionerna sqrt, abs och round samt pi. Egen tolkare – kör aldrig kod.
+function rakna(text) {
+  const s = String(text)
+    .replace(/×/g, "*").replace(/÷/g, "/").replace(/−/g, "-").replace(/,/g, ".").replace(/\s/g, "");
+  if (s.length > 200) throw new Error("Uttrycket är för långt");
+  if (s.length === 0) throw new Error("Skriv ett uttryck, t.ex. 12*7");
+  let i = 0;
+  const ta = (c) => (s[i] === c ? (i++, true) : false);
+
+  function summa() {
+    let v = produkt();
+    for (;;) {
+      if (ta("+")) v += produkt();
+      else if (ta("-")) v -= produkt();
+      else return v;
+    }
+  }
+  function produkt() {
+    let v = potens();
+    for (;;) {
+      if (ta("*")) v *= potens();
+      else if (ta("/")) {
+        const d = potens();
+        if (d === 0) throw new Error("Division med noll");
+        v /= d;
+      } else return v;
+    }
+  }
+  function potens() {
+    const b = unar();
+    if (ta("^")) return Math.pow(b, potens());
+    return b;
+  }
+  function unar() {
+    if (ta("-")) return -unar();
+    if (ta("+")) return unar();
+    let v = atom();
+    if (ta("%")) v /= 100;
+    return v;
+  }
+  function atom() {
+    if (ta("(")) {
+      const v = summa();
+      if (!ta(")")) throw new Error("En parentes stängs inte");
+      return v;
+    }
+    for (const f of ["sqrt", "abs", "round"]) {
+      if (s.startsWith(f + "(", i)) {
+        i += f.length + 1;
+        const v = summa();
+        if (!ta(")")) throw new Error("En parentes stängs inte");
+        if (f === "sqrt") {
+          if (v < 0) throw new Error("Roten ur ett negativt tal");
+          return Math.sqrt(v);
+        }
+        return f === "abs" ? Math.abs(v) : Math.round(v);
+      }
+    }
+    if (s.startsWith("pi", i)) {
+      i += 2;
+      return Math.PI;
+    }
+    const m = /^(\d+(\.\d+)?|\.\d+)/.exec(s.slice(i));
+    if (!m) throw new Error(i < s.length ? `Förstår inte "${s.slice(i)}"` : "Uttrycket tar slut för tidigt");
+    i += m[0].length;
+    return parseFloat(m[0]);
+  }
+
+  const v = summa();
+  if (i !== s.length) throw new Error(`Förstår inte "${s.slice(i)}"`);
+  if (!Number.isFinite(v)) throw new Error("Uttrycket har inget ändligt värde");
+  if (Number.isInteger(v) && Math.abs(v) < 1e15) return String(v === 0 ? 0 : v);
+  return String(parseFloat(v.toPrecision(12))).replace(".", ",");
+}
+
+const $ = (id) => document.getElementById(id);
+const input = $("uttryck"), svar = $("svar"), histEl = $("hist"), histEmpty = $("histEmpty"), proto = $("proto");
+let last = "1039,2";
+const exempel = [["(12+8)*3/4", "15"], ["25%*1290", "322,5"], ["sqrt(2)", "1,41421356237"]];
+let hist = [];
+try { hist = JSON.parse(localStorage.getItem("lennart-raknare") || "[]"); } catch (e) { hist = []; }
+if (!Array.isArray(hist)) hist = [];
+
+function esc(t) { return String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+function update() {
+  const u = input.value;
+  let r = null, fel = null;
+  try { r = rakna(u); } catch (e) { fel = e.message; }
+  if (fel) {
+    svar.textContent = u.trim() ? fel : "";
+    svar.className = u.trim() ? "fel" : "";
+  } else {
+    svar.textContent = r;
+    svar.className = "";
+    last = r;
+  }
+  const arg = JSON.stringify({ uttryck: u });
+  const res = fel ? `<resultat namn="raknare" fel="ja">${esc(fel)}</resultat>` : `<resultat namn="raknare">${esc(r)}</resultat>`;
+  proto.innerHTML =
+    `<span class="m">// Lennart skriver:</span>\n<span class="t">&lt;verktyg namn="raknare"&gt;</span>${esc(arg)}<span class="t">&lt;/verktyg&gt;</span>\n` +
+    `<span class="m">// Appen svarar:</span>\n<span class="t">${esc(res).replace(/&lt;\/?resultat[^&]*&gt;/g, (m) => m)}</span>`;
+  return fel ? null : r;
+}
+
+function renderHist() {
+  histEl.replaceChildren();
+  const rows = hist.length ? hist : exempel;
+  histEmpty.hidden = hist.length > 0 ? true : false;
+  rows.slice(0, 8).forEach(([u, r]) => {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button";
+    const us = document.createElement("span"); us.className = "u"; us.textContent = u;
+    const rs = document.createElement("span"); rs.className = "r"; rs.textContent = "= " + r;
+    b.append(us, rs);
+    b.addEventListener("click", () => { input.value = u; update(); input.focus(); });
+    li.appendChild(b);
+    histEl.appendChild(li);
+  });
+}
+
+function save() {
+  const r = update();
+  if (r === null) return;
+  const u = input.value.trim();
+  hist = [[u, r], ...hist.filter((h) => h[0] !== u)].slice(0, 20);
+  try { localStorage.setItem("lennart-raknare", JSON.stringify(hist)); } catch (e) { /* privat läge */ }
+  renderHist();
+}
+
+function insert(k) {
+  const s = input.selectionStart ?? input.value.length, e = input.selectionEnd ?? input.value.length;
+  input.value = input.value.slice(0, s) + k + input.value.slice(e);
+  const p = s + k.length;
+  input.setSelectionRange(p, p);
+  update();
+}
+
+$("keys").addEventListener("click", (ev) => {
+  const b = ev.target.closest("button");
+  if (!b) return;
+  const act = b.dataset.act;
+  if (act === "clear") { input.value = ""; update(); }
+  else if (act === "del") {
+    const s = input.selectionStart ?? input.value.length, e = input.selectionEnd ?? s;
+    if (s !== e) input.value = input.value.slice(0, s) + input.value.slice(e);
+    else if (s > 0) { input.value = input.value.slice(0, s - 1) + input.value.slice(s); input.setSelectionRange(s - 1, s - 1); }
+    update();
+  }
+  else if (act === "ans") insert(last);
+  else if (act === "eq") save();
+  else insert(b.dataset.k);
+  if (window.matchMedia("(hover: hover)").matches) input.focus();
+});
+input.addEventListener("input", update);
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); save(); }
+  if (e.key === "Escape") { input.value = ""; update(); }
+});
+$("copy").addEventListener("click", () => {
+  const t = proto.textContent;
+  const done = () => { $("copy").textContent = "Kopierat"; setTimeout(() => ($("copy").textContent = "Kopiera"), 1400); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done, () => selectProto());
+  else selectProto();
+});
+function selectProto() { const r = document.createRange(); r.selectNodeContents(proto); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+
+update();
+renderHist();
+
+/* ASCII-klotet, samma idé som i appen: kontinenter av vågor i 3D, solljus, glans och en partikelring. */
+(function klot() {
+  const cv = $("klot"), ctx = cv.getContext("2d");
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const N = 46, ramp = " .·:-~=+*#%@";
+  let ang = 0.6, prev = performance.now();
+  function col(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#c98bff"; }
+  function frame(now) {
+    const dt = Math.min(0.1, (now - prev) / 1000); prev = now;
+    ang += dt * 0.32;
+    const W = cv.width, H = cv.height, cw = W / N, R = 0.66;
+    ctx.clearRect(0, 0, W, H);
+    const accent = col("--accent"), ink = col("--ink"), muted = col("--muted");
+    const g = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, W * 0.55);
+    g.addColorStop(0, col("--glow")); g.addColorStop(1, "transparent");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    ctx.font = `700 ${Math.round(cw * 1.05)}px ${getComputedStyle(document.body).getPropertyValue("--mono") || "monospace"}`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    const ca = Math.cos(ang), sa = Math.sin(ang), tl = 0.41, ct = Math.cos(tl), st = Math.sin(tl);
+    const L = [-0.62, 0.5, 0.6], ll = Math.hypot(...L), lx = L[0] / ll, ly = L[1] / ll, lz = L[2] / ll;
+    for (let j = 0; j < N; j++) {
+      for (let i = 0; i < N; i++) {
+        const x = ((i + 0.5) / N * 2 - 1) / R, y = -((j + 0.5) / N * 2 - 1) / R, r2 = x * x + y * y;
+        if (r2 > 1) continue;
+        const z = Math.sqrt(1 - r2);
+        const y1 = y * ct + z * st, z1 = -y * st + z * ct;
+        const px = x * ca - z1 * sa, pz = x * sa + z1 * ca, py = y1;
+        const n = Math.sin(2.1 * px + 1.3 * py + 0.7) * Math.cos(1.7 * pz - 1.1 * py) + 0.55 * Math.sin(4.3 * pz + 2.9 * px - 0.4) * Math.cos(3.7 * py + 0.6);
+        const land = Math.min(1, Math.max(0, (n - 0.1) * 5));
+        const diffuse = Math.max(0, x * lx + y * ly + z * lz);
+        const spec = Math.pow(Math.max(0, 2 * diffuse * z - lz), 26) * (1 - land);
+        const v = Math.min(1, 0.1 + diffuse * 0.85);
+        let ch, fill, a;
+        if (spec > 0.3) { ch = "*"; fill = ink; a = 0.9; }
+        else if (land > 0.5) { ch = ramp[3 + Math.round(v * 8)]; fill = v > 0.55 ? ink : accent; a = 0.35 + 0.65 * v; }
+        else { ch = ramp[1 + Math.round(v * 4)]; fill = accent; a = 0.25 + 0.55 * v; }
+        ctx.globalAlpha = a; ctx.fillStyle = fill;
+        ctx.fillText(ch, (i + 0.5) * cw, (j + 0.5) * cw);
+      }
+    }
+    // partikelring
+    const t = now / 1000;
+    for (let k = 0; k < 160; k++) {
+      const phi = k / 160 * Math.PI * 6 + (still ? 0 : t * 0.22), rr = 1.3 + (k % 3) * 0.08;
+      const x0 = Math.cos(phi) * rr, z0 = Math.sin(phi) * rr, tx = 1.34, tz = -0.32;
+      const y2 = -z0 * Math.sin(tx), z2 = z0 * Math.cos(tx);
+      const X = x0 * Math.cos(tz) - y2 * Math.sin(tz), Y = x0 * Math.sin(tz) + y2 * Math.cos(tz), Z = z2;
+      if (Z < 0 && X * X + Y * Y < 1) continue;
+      const depth = (Z / rr + 1) / 2;
+      ctx.globalAlpha = 0.15 + 0.7 * depth; ctx.fillStyle = k % 5 ? muted : accent;
+      ctx.fillText(k % 9 ? "·" : "•", W / 2 + X * R * W / 2, H / 2 - Y * R * H / 2);
+    }
+    ctx.globalAlpha = 1;
+    if (!still) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>

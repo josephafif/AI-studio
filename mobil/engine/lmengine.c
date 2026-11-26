@@ -12,7 +12,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifdef _WIN32
+#if defined(__wasm__)
+/* Webbversionen: modellen läses in i minnet med lm_load_mem (ingen filmappning i webbläsaren). */
+#define EXPORT __attribute__((used, visibility("default")))
+#elif defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define EXPORT __declspec(dllexport)
@@ -46,6 +49,7 @@ typedef struct LM {
     int vocab, d, layers, heads, ctx, has_bias, gelu_tanh, quant;
     void *map;
     size_t map_size;
+    int owned; /* 1 = map är ett minnesblock från malloc (lm_load_mem), 0 = filmappning */
     Mat wte;
     const float *wpe, *lnf_w, *lnf_b;
     Layer *L;
@@ -78,7 +82,10 @@ static Mat take_mat(LM *m, size_t *off, int rows, int cols) {
 
 /* ---------------------------------------------------------------- filmappning (Linux/Android och Windows) */
 static void *map_file(const char *path, size_t *size) {
-#ifdef _WIN32
+#if defined(__wasm__)
+    (void)path; (void)size;
+    return NULL;
+#elif defined(_WIN32)
     /* Sökvägen kommer som UTF-8 (Dart) – Windows vill ha UTF-16 för å, ä, ö i mappnamn. */
     wchar_t wpath[MAX_PATH * 2];
     if (!MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH * 2)) return NULL;
@@ -107,7 +114,9 @@ static void *map_file(const char *path, size_t *size) {
 }
 
 static void unmap_file(void *p, size_t size) {
-#ifdef _WIN32
+#if defined(__wasm__)
+    (void)p; (void)size;
+#elif defined(_WIN32)
     (void)size;
     UnmapViewOfFile(p);
 #else
@@ -117,11 +126,16 @@ static void unmap_file(void *p, size_t size) {
 
 EXPORT void lm_free(LM *m) {
     if (!m) return;
-    if (m->map) unmap_file(m->map, m->map_size);
+    if (m->map) {
+        if (m->owned) free(m->map);
+        else unmap_file(m->map, m->map_size);
+    }
     free(m->L); free(m->kcache); free(m->vcache);
     free(m->x); free(m->h); free(m->qkv); free(m->att); free(m->ff); free(m->logits); free(m->scores);
     free(m);
 }
+
+static LM *load_from(void *map, size_t fsize, int owned, char *err, int errlen);
 
 EXPORT LM *lm_load(const char *path, int nthreads, char *err, int errlen) {
 #ifdef _OPENMP
@@ -132,14 +146,26 @@ EXPORT LM *lm_load(const char *path, int nthreads, char *err, int errlen) {
     size_t fsize = 0;
     void *map = map_file(path, &fsize);
     if (!map) { snprintf(err, errlen, "kan inte öppna %s", path); return NULL; }
+    return load_from(map, fsize, 0, err, errlen);
+}
+
+/* Läser en modell som redan ligger i minnet (webbversionen). [data] ska komma från malloc;
+ * motorn tar över det och frigör det i lm_free, även om inläsningen misslyckas. */
+EXPORT LM *lm_load_mem(void *data, size_t size, char *err, int errlen) {
+    if (!data) { snprintf(err, errlen, "inget minne"); return NULL; }
+    return load_from(data, size, 1, err, errlen);
+}
+
+static LM *load_from(void *map, size_t fsize, int owned, char *err, int errlen) {
     if (fsize < 64 || memcmp(map, "LMOD0001", 8) != 0) {
-        unmap_file(map, fsize);
+        if (owned) free(map); else unmap_file(map, fsize);
         snprintf(err, errlen, "inte en .lmod-fil");
         return NULL;
     }
     LM *m = calloc(1, sizeof(LM));
     m->map = map;
     m->map_size = fsize;
+    m->owned = owned;
     const int32_t *hd = (const int32_t *)((const char *)map + 8);
     /* hd[0]=version, vocab, d, layers, heads, ctx, has_bias, gelu_tanh, quant */
     m->vocab = hd[1]; m->d = hd[2]; m->layers = hd[3]; m->heads = hd[4]; m->ctx = hd[5];

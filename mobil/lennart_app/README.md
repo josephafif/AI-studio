@@ -12,6 +12,7 @@ motorn `../engine/lmengine.c` via `dart:ffi`.
 | `lib/agent/` | Agentgrunden: verktyg, verktygsprotokoll, agentslinga med godkännande |
 | `android/` | Android (modellerna packas i APK:n och packas upp vid första start) |
 | `windows/` | Windows (modellerna ligger i mappen `modeller` bredvid `Lennart.exe`) |
+| `webbmotor/` | Webbversionens arbetstråd (Dart → JavaScript): tokenizer, generering och verktygssinne mot motorn som WebAssembly |
 | `tool/` | Kontrollverktyg som kör motorn utan Flutter (`effort_check.dart` m.fl.) |
 | `test/` | Agenttester och skärmdumpstest (`LENNART_PREVIEW=1 flutter test test/ui_preview_test.dart --update-goldens`) |
 
@@ -44,3 +45,14 @@ att kompilera till JavaScript för webbversionen.
 
 Se också kommentaren överst i `lib/agent/agent.dart` och `moln/lennart4/PLAN.md`. Formatet för verktygsanrop
 passar Lennarts samtalsformat, så Lennart 4 kan tränas på det direkt.
+
+## Webbversionen
+
+`webb/lennart.html` är samma app i webbläsaren, med Windows-versionens gränssnitt. Man lägger till en modell
+från en `.lennart`-fil, och den körs helt lokalt. Modellen och samtalen sparas i webbläsaren.
+
+- Motorn (`../engine/lmengine.c`) byggs till WebAssembly med Zig och läser modellen direkt ur minnet
+  (`lm_load_mem`).
+- Tokenizern, genereringen (`lib/core/generering.dart`, samma kod som i appen) och verktygssinnet kompileras
+  från Dart till JavaScript och körs i en Web Worker.
+- Bygg: `pip install ziglang && python webb/app/bygg.py`. Resultatet är en enda HTML-fil.

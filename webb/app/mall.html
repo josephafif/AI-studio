@@ -1,0 +1,935 @@
+<title>Lennart</title>
+<meta name="description" content="Lennart i webbläsaren – samma app som på Windows, med modellen inläst från en .lennart-fil.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Noto+Serif:wght@500;700&display=swap">
+<style>
+/* Samma utseende som Windows-versionen: sidopanel till vänster, samtalet i mitten, fältet nederst.
+   Accentfärgen följer vald modell (modellens nyans). */
+:root {
+  --bg: #f3f6f9; --surface: #ffffff; --glass: rgba(255, 255, 255, 0.7); --stroke: rgba(11, 26, 42, 0.10);
+  --text: #0d141c; --muted: #5b6675; --bubble: #e6ebf0; --green: #0e9f62; --danger: #d64545;
+  --sida: rgba(255, 255, 255, 0.55); --skugga: 0 20px 60px rgba(13, 20, 28, 0.18);
+  --h: 290; --acc: hsl(var(--h) 65% 42%); --acc2: hsl(calc(var(--h) + 40) 70% 45%); --glow: hsl(var(--h) 70% 50% / 0.16);
+  --sans: "Roboto", "Segoe UI", system-ui, sans-serif;
+  --serif: "Noto Serif", Georgia, Cambria, serif;
+  --mono: "Roboto Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #05070a; --surface: #0d1219; --glass: rgba(255, 255, 255, 0.08); --stroke: rgba(255, 255, 255, 0.12);
+    --text: #e9eef5; --muted: #8b97a8; --bubble: #18202a; --green: #3ddc97; --danger: #ff6b6b;
+    --sida: rgba(24, 20, 36, 0.55); --skugga: 0 24px 80px rgba(0, 0, 0, 0.55);
+    --acc: hsl(var(--h) 85% 70%); --acc2: hsl(calc(var(--h) + 40) 85% 66%); --glow: hsl(var(--h) 90% 60% / 0.22);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #05070a; --surface: #0d1219; --glass: rgba(255, 255, 255, 0.08); --stroke: rgba(255, 255, 255, 0.12);
+  --text: #e9eef5; --muted: #8b97a8; --bubble: #18202a; --green: #3ddc97; --danger: #ff6b6b;
+  --sida: rgba(24, 20, 36, 0.55); --skugga: 0 24px 80px rgba(0, 0, 0, 0.55);
+  --acc: hsl(var(--h) 85% 70%); --acc2: hsl(calc(var(--h) + 40) 85% 66%); --glow: hsl(var(--h) 90% 60% / 0.22);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--text); font: 400 16px/1.5 var(--sans); overflow: hidden; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button:focus-visible, textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+svg { width: 22px; height: 22px; fill: currentColor; flex: none; }
+
+.app { display: flex; height: 100dvh; position: relative;
+  background: radial-gradient(1200px 700px at 0% 0%, hsl(var(--h) 60% 40% / 0.16), transparent 60%),
+              radial-gradient(1000px 800px at 100% 100%, hsl(190 70% 40% / 0.10), transparent 60%), var(--bg); }
+
+/* Sidopanelen */
+#sida { width: 356px; flex: none; display: flex; flex-direction: column; background: var(--sida); border-right: 1px solid var(--stroke);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 20; }
+.logga { display: flex; align-items: center; gap: 14px; padding: 22px 22px 14px; font: 700 27px/1 var(--serif); letter-spacing: -0.02em; }
+.mbadge { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font: 700 15px var(--mono); color: var(--text);
+  background: linear-gradient(var(--surface), var(--surface)) padding-box, linear-gradient(135deg, var(--acc), var(--acc2)) border-box;
+  border: 2px solid transparent; box-shadow: 0 0 18px var(--glow); flex: none; }
+.mbadge.liten { width: 26px; height: 26px; border-radius: 8px; font-size: 9.5px; letter-spacing: -0.04em; border-width: 1.5px; box-shadow: 0 0 10px var(--glow); }
+.radknapp { display: flex; align-items: center; gap: 16px; width: 100%; padding: 12px 22px; text-align: left; border-radius: 12px; font-weight: 700; font-size: 18.5px; }
+.radknapp:hover { background: var(--glass); }
+.rubrik { font-weight: 700; font-size: 15.5px; color: var(--muted); padding: 22px 23px 10px; }
+#lista { flex: 1; overflow: auto; padding: 0 8px; }
+.tomlista { color: var(--muted); font-size: 14px; padding: 6px 15px; }
+.samtal { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 12px; border-radius: 12px; text-align: left; }
+.samtal:hover, .samtal.aktiv { background: var(--glass); }
+.samtal .t { flex: 1; min-width: 0; }
+.samtal .t b { display: block; font-weight: 500; font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.samtal .t span { color: var(--muted); font-size: 13.5px; }
+.samtal .ta { opacity: 0; color: var(--muted); padding: 6px; border-radius: 8px; }
+.samtal:hover .ta, .samtal.aktiv .ta, .samtal .ta:focus-visible { opacity: 1; }
+.samtal .ta:hover { color: var(--danger); }
+.sidfot { padding: 14px 18px 18px; border-top: 1px solid transparent; }
+.utseende { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 16px; }
+.utseende span { flex: 1; }
+.utseende button { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--muted); }
+.utseende button[aria-pressed="true"] { background: var(--glass); color: var(--green); }
+.utseende svg { width: 20px; height: 20px; }
+.liten-text { color: var(--muted); font-size: 14px; margin-top: 14px; }
+
+/* Huvudytan */
+main { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
+#regn { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.topp { position: relative; display: flex; align-items: center; gap: 10px; padding: 14px 18px; min-height: 64px; z-index: 2; }
+#titel { flex: 1; text-align: center; font-weight: 700; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 12px; }
+.ikon { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; }
+.ikon:hover { background: var(--glass); }
+#meny { display: none; }
+#logg { position: relative; flex: 1; overflow-y: auto; z-index: 1; scroll-behavior: auto; }
+.spalt { max-width: 1000px; margin: 0 auto; padding: 8px 32px 24px; }
+
+.tomt { min-height: 100%; display: grid; place-items: center; text-align: center; padding: 20px; }
+.tomt canvas { width: min(440px, 70vw); aspect-ratio: 1; display: block; margin: 0 auto -10px; }
+.tomt h1 { font: 500 clamp(28px, 4vw, 36px)/1.2 var(--serif); margin: 0 0 10px; }
+.tomt p { color: var(--muted); max-width: 52ch; margin: 0 auto 16px; }
+.knapp { display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; border-radius: 999px; font-weight: 700;
+  background: var(--text); color: var(--bg); }
+.knapp.ljus { background: var(--glass); color: var(--text); border: 1px solid var(--stroke); }
+.knapp svg { width: 20px; height: 20px; }
+
+.anv { display: flex; justify-content: flex-end; margin: 18px 0; }
+.anv div { background: var(--bubble); padding: 12px 20px; border-radius: 24px; max-width: 78%; font-size: 18px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.svar { margin: 14px 0 22px; }
+.svar .text { font-size: 18px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.svar .text.fel { color: var(--danger); }
+.markor::after { content: "▍"; color: var(--acc); animation: blink 1s steps(2) infinite; margin-left: 1px; }
+@keyframes blink { 50% { opacity: 0; } }
+.meta { display: flex; align-items: center; gap: 6px; margin-top: 8px; color: var(--muted); font-size: 14.5px; }
+.meta button { width: 34px; height: 34px; border-radius: 8px; display: grid; place-items: center; color: var(--muted); }
+.meta button:hover { background: var(--glass); color: var(--text); }
+.meta svg { width: 19px; height: 19px; }
+.osaker { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 4px 12px; border-radius: 999px; font-size: 13.5px;
+  color: #c98a1e; border: 1px solid rgba(201, 138, 30, 0.4); background: rgba(201, 138, 30, 0.08); }
+.osaker svg { width: 16px; height: 16px; }
+
+.tank { margin-bottom: 10px; }
+.tankrad { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: 17px; padding: 4px 6px 4px 0; border-radius: 8px; }
+.tankrad:hover { color: var(--text); }
+.stjarna { width: 22px; height: 22px; color: var(--acc); }
+.tanker .stjarna { animation: snurra 2.4s linear infinite; }
+@keyframes snurra { to { transform: rotate(360deg); } }
+.tankrad .pil { width: 18px; height: 18px; transition: transform 0.2s; }
+.tank.oppen .tankrad .pil { transform: rotate(90deg); }
+.live { font: 400 15px var(--mono); color: var(--muted); opacity: 0.75; margin: 6px 0 0 32px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.utkast { border-left: 2px solid var(--stroke); margin: 8px 0 6px 10px; padding: 2px 0 2px 22px; display: none; }
+.tank.oppen .utkast { display: block; }
+.utkast h4 { font: 700 14.5px var(--mono); color: var(--muted); margin: 12px 0 4px; }
+.utkast h4.vald { color: var(--acc); }
+.utkast h5 { font: 700 13px var(--sans); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 16px 0 0; }
+.utkast p { margin: 0; color: var(--muted); font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.anrop { margin: 14px 0 6px; }
+.anrop .fore { font-size: 17px; margin-bottom: 6px; }
+.anrop .rad { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 17px; min-width: 0; }
+.anrop .rad b { color: var(--text); }
+.anrop .rad code { font: 400 13px var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.anrop svg { width: 18px; height: 18px; }
+.kort { border: 1px solid var(--stroke); background: color-mix(in srgb, var(--bubble) 70%, transparent); border-radius: 14px; padding: 10px 16px 12px; margin: 8px 0; }
+.kort.fel { border-color: color-mix(in srgb, var(--danger) 50%, transparent); }
+.kort .h { display: flex; align-items: center; gap: 10px; font: 700 14px var(--mono); }
+.kort .h svg { width: 18px; height: 18px; color: var(--green); }
+.kort.fel .h svg { color: var(--danger); }
+.kort pre { margin: 8px 0 0; font: 400 14.5px/1.5 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere; }
+.kort.fel pre { color: var(--danger); }
+
+/* Fältet */
+.nere { position: relative; z-index: 2; padding: 8px 32px 10px; }
+.falt { max-width: 1000px; margin: 0 auto; border-radius: 28px; padding: 14px 14px 12px; background: color-mix(in srgb, var(--surface) 82%, transparent);
+  border: 1px solid var(--stroke); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); transition: border-color 0.2s, box-shadow 0.2s; }
+.falt:focus-within { border-color: color-mix(in srgb, var(--acc) 70%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--acc) 35%, transparent), 0 0 30px var(--glow); }
+#in { display: block; width: 100%; resize: none; border: 0; outline: 0; background: transparent; color: var(--text); font: 400 19px/1.45 var(--sans);
+  padding: 4px 12px 12px; max-height: 220px; caret-color: var(--acc); }
+#in::placeholder { color: var(--muted); }
+.knapprad { display: flex; align-items: center; gap: 10px; }
+.rund { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; border: 1px solid var(--stroke); flex: none; }
+.rund:hover { background: var(--glass); }
+.rund.fylld { background: var(--text); color: var(--bg); border: 0; }
+.rund.fylld:disabled { background: var(--stroke); color: var(--muted); cursor: default; }
+.chip { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px 6px 7px; border-radius: 16px; background: var(--glass); min-width: 0; }
+.chip:hover { background: color-mix(in srgb, var(--glass) 70%, var(--stroke)); }
+.chip b { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip span.niva { color: var(--muted); font-size: 18px; }
+.chip svg { width: 18px; height: 18px; color: var(--muted); }
+.fyll { flex: 1; }
+#status { color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.tips { text-align: center; color: var(--muted); font-size: 14px; padding-top: 10px; }
+
+/* Dialoger och menyer */
+.bak { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); display: grid; place-items: center; z-index: 50; padding: 16px; }
+.bak[hidden] { display: none; }
+.dialog { background: var(--surface); border: 1px solid var(--stroke); border-radius: 28px; box-shadow: var(--skugga); max-width: 1080px; width: 100%;
+  max-height: calc(100dvh - 32px); overflow: auto; padding: 26px 26px 22px; }
+.dialog.smal { max-width: 520px; }
+.tva { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
+.tva > div + div { border-left: 1px solid var(--stroke); padding-left: 22px; }
+.drubrik { font: 700 14px var(--sans); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 8px; }
+.val { display: flex; align-items: center; gap: 16px; width: 100%; padding: 10px 10px; border-radius: 14px; text-align: left; }
+.val:hover { background: var(--glass); }
+.val .t { flex: 1; min-width: 0; }
+.val .t b { display: flex; align-items: center; gap: 8px; font-size: 19px; }
+.val .t span { color: var(--muted); font-size: 15.5px; display: block; }
+.val .bock { color: var(--green); visibility: hidden; }
+.val[aria-checked="true"] .bock { visibility: visible; }
+.nyast { font: 700 12px var(--sans); color: var(--green); background: color-mix(in srgb, var(--green) 14%, transparent); padding: 2px 7px; border-radius: 6px; }
+.staplar { display: inline-flex; align-items: flex-end; gap: 3px; width: 42px; height: 24px; justify-content: center; }
+.staplar i { width: 5px; border-radius: 2px; background: var(--stroke); }
+.staplar i.p { background: var(--green); }
+.linje { height: 1px; background: var(--stroke); margin: 10px 0; }
+.taBort { color: var(--muted); padding: 6px; border-radius: 8px; }
+.taBort:hover { color: var(--danger); background: var(--glass); }
+.dialog h2 { font: 500 26px/1.25 var(--sans); margin: 0 0 12px; }
+.dialog p { color: var(--muted); margin: 0 0 12px; }
+.dialog pre { font: 400 13.5px var(--mono); background: var(--bubble); padding: 12px; border-radius: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.dknappar { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+.dknappar button { padding: 10px 22px; border-radius: 999px; font-weight: 700; }
+.dknappar .ja { background: var(--green); color: #03140c; }
+.dknappar .nej { color: var(--green); }
+.meny { position: fixed; z-index: 40; background: var(--surface); border: 1px solid var(--stroke); border-radius: 20px; box-shadow: var(--skugga); padding: 8px; width: min(380px, calc(100vw - 24px)); }
+.meny[hidden] { display: none; }
+.vaxel { width: 46px; height: 26px; border-radius: 13px; background: var(--stroke); position: relative; flex: none; transition: background 0.2s; }
+.vaxel::after { content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: var(--surface); transition: transform 0.2s; }
+[aria-checked="true"] > .vaxel { background: var(--green); }
+[aria-checked="true"] > .vaxel::after { transform: translateX(20px); }
+#notis { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 12px;
+  font-size: 15px; z-index: 60; max-width: calc(100vw - 32px); box-shadow: var(--skugga); }
+#notis[hidden] { display: none; }
+#slapp { position: fixed; inset: 12px; border: 2px dashed var(--acc); border-radius: 28px; display: grid; place-items: center; font: 700 22px var(--sans);
+  background: color-mix(in srgb, var(--bg) 80%, transparent); z-index: 70; }
+#slapp[hidden] { display: none; }
+#skugga { display: none; }
+
+@media (max-width: 860px) {
+  #sida { position: fixed; inset: 0 auto 0 0; width: min(330px, 86vw); transform: translateX(-102%); transition: transform 0.25s; background: var(--surface); }
+  .app.sidaoppen #sida { transform: none; }
+  .app.sidaoppen #skugga { display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 15; }
+  #meny { display: grid; }
+  .spalt { padding: 8px 16px 20px; }
+  .nere { padding: 6px 12px 8px; }
+  .tips { display: none; }
+  .tva { grid-template-columns: 1fr; }
+  .tva > div + div { border-left: 0; padding-left: 0; border-top: 1px solid var(--stroke); padding-top: 14px; margin-top: 10px; }
+  .anv div, .svar .text { font-size: 17px; }
+  #titel { font-size: 16px; }
+  .chip b, .chip span.niva { font-size: 16px; }
+  .dialog { padding: 20px 14px 16px; border-radius: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tanker .stjarna, .markor::after { animation: none; }
+}
+</style>
+
+<div class="app" id="app">
+  <aside id="sida" aria-label="Samtal">
+    <div class="logga"><span class="mbadge" id="loggaBadge">L</span>Lennart</div>
+    <button class="radknapp" id="nytt"><svg viewBox="0 0 24 24"><path d="M5 19h1.4l9.8-9.8-1.4-1.4L5 17.6V19Zm-2 2v-4.2L16.2 3.6q.3-.3.7-.4.4-.2.8-.2t.8.2q.4.1.7.4l1.4 1.4q.3.3.4.7.2.4.2.8t-.2.8q-.1.4-.4.7L7.2 21H3ZM15.5 8.5l-.7-.7 1.4 1.4-.7-.7ZM11 21q-.4 0-.7-.3-.3-.3-.3-.7t.3-.7q.3-.3.7-.3h9q.4 0 .7.3.3.3.3.7t-.3.7q-.3.3-.7.3h-9Z"/></svg>Nytt samtal</button>
+    <div class="rubrik">Senaste</div>
+    <div id="lista"></div>
+    <div class="sidfot">
+      <div class="utseende"><span>Utseende</span>
+        <button data-tema="auto" aria-label="Som systemet" title="Som systemet"><svg viewBox="0 0 24 24"><path d="M12 2 14.4 4.6 18 4l.6 3.6L22 9.5 20.4 12.9 22 16.3 18.6 18.2 18 22l-3.6-.6L12 24l-2.4-2.6L6 22l-.6-3.8L2 16.3l1.6-3.4L2 9.5l3.4-1.9L6 4l3.6.6L12 2Zm-2.2 13.3h4.4l.8 2.2h1.8L12.6 7h-1.2L7.2 17.5H9l.8-2.2Zm.6-1.6L12 9.2l1.6 4.5h-3.2Z"/></svg></button>
+        <button data-tema="light" aria-label="Ljust" title="Ljust"><svg viewBox="0 0 24 24"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10ZM11 1h2v3h-2V1Zm0 19h2v3h-2v-3ZM3.5 4.9l1.4-1.4L7 5.6 5.6 7 3.5 4.9ZM17 18.4l1.4-1.4 2.1 2.1-1.4 1.4-2.1-2.1ZM1 11h3v2H1v-2Zm19 0h3v2h-3v-2ZM4.9 20.5l-1.4-1.4L5.6 17 7 18.4l-2.1 2.1ZM18.4 7 17 5.6l2.1-2.1 1.4 1.4L18.4 7Z"/></svg></button>
+        <button data-tema="dark" aria-label="Mörkt" title="Mörkt"><svg viewBox="0 0 24 24"><path d="M12 21q-3.8 0-6.4-2.6T3 12q0-3.8 2.6-6.4T12 3q.4 0 .7.1l.8.1q-.9.6-1.4 1.7T11.5 7q0 2.3 1.6 3.9T17 12.5q1.2 0 2.2-.5t1.7-1.4l.1.8q.1.3.1.6 0 3.8-2.6 6.4T12 21Z"/></svg></button>
+      </div>
+      <div class="liten-text">Allt körs lokalt i webbläsaren. Inget skickas någonstans.</div>
+    </div>
+  </aside>
+  <div id="skugga"></div>
+  <main>
+    <canvas id="regn" aria-hidden="true"></canvas>
+    <header class="topp">
+      <button class="ikon" id="meny" aria-label="Visa samtalen"><svg viewBox="0 0 24 24"><path d="M3 18v-2h13v2H3Zm0-5v-2h18v2H3Zm0-5V6h18v2H3Z"/></svg></button>
+      <div id="titel"></div>
+      <button class="ikon" id="nytt2" aria-label="Nytt samtal" title="Nytt samtal"><svg viewBox="0 0 24 24"><path d="M5 21q-.8 0-1.4-.6T3 19V5q0-.8.6-1.4T5 3h8.9l-2 2H5v14h14v-6.9l2-2V19q0 .8-.6 1.4T19 21H5Zm4-6v-4.3l9.2-9.2q.3-.3.7-.4.4-.2.8-.2t.8.2q.4.1.7.4L22.4 3q.3.3.4.7.2.4.2.8t-.1.8q-.2.4-.5.7L13.3 15H9Zm2-2h1.4l5.8-5.8-.7-.7-.7-.7-5.8 5.8V13Z"/></svg></button>
+    </header>
+    <div id="logg" aria-live="polite"></div>
+    <div class="nere">
+      <div class="falt">
+        <textarea id="in" rows="1" placeholder="Fråga Lennart" aria-label="Meddelande"></textarea>
+        <div class="knapprad">
+          <button class="rund" id="plus" aria-label="Fler val" aria-haspopup="menu"><svg viewBox="0 0 24 24"><path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z"/></svg></button>
+          <button class="chip" id="chip" aria-haspopup="dialog"><span class="mbadge liten" id="chipBadge">L</span><b id="chipNamn">Ingen modell</b><span class="niva" id="chipNiva"></span><svg viewBox="0 0 24 24"><path d="m12 15.4-6-6L7.4 8l4.6 4.6L16.6 8 18 9.4l-6 6Z"/></svg></button>
+          <span class="fyll"></span>
+          <span id="status"></span>
+          <button class="rund fylld" id="skicka" aria-label="Skicka" disabled><svg viewBox="0 0 24 24"><path d="M11 20V7.8l-5.6 5.6L4 12l8-8 8 8-1.4 1.4L13 7.8V20h-2Z"/></svg></button>
+        </div>
+      </div>
+      <div class="tips">Enter skickar · Shift+Enter ny rad · Esc stoppar</div>
+    </div>
+  </main>
+</div>
+<div class="meny" id="plusmeny" role="menu" hidden></div>
+<div class="bak" id="bak" hidden><div class="dialog" id="dialog" role="dialog" aria-modal="true"></div></div>
+<div id="notis" role="status" hidden></div>
+<div id="slapp" hidden>Släpp .lennart-filen här</div>
+<input type="file" id="fil" accept=".lennart" multiple hidden>
+<script type="text/plain" id="arbetare">/*ARBETARE*/</script>
+<script>
+'use strict';
+/* ───────────────────────────── hjälp */
+const $ = (s) => document.querySelector(s);
+const E = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const sov = (ms) => new Promise((ok) => setTimeout(ok, ms));
+const IKON = {
+  kopiera: '<svg viewBox="0 0 24 24"><path d="M9 18q-.8 0-1.4-.6T7 16V4q0-.8.6-1.4T9 2h9q.8 0 1.4.6T20 4v12q0 .8-.6 1.4T18 18H9Zm0-2h9V4H9v12Zm-4 6q-.8 0-1.4-.6T3 20V6h2v14h11v2H5Z"/></svg>',
+  igen: '<svg viewBox="0 0 24 24"><path d="M12 20q-3.4 0-5.7-2.3T4 12q0-3.4 2.3-5.7T12 4q1.7 0 3.3.7 1.5.7 2.7 2V4h2v7h-7V9h4.2q-.8-1.4-2.2-2.2T12 6Q9.5 6 7.8 7.8T6 12q0 2.5 1.8 4.3T12 18q1.9 0 3.5-1.1t2.2-2.9h2.1q-.7 2.7-2.8 4.3T12 20Z"/></svg>',
+  ta: '<svg viewBox="0 0 24 24"><path d="M7 21q-.8 0-1.4-.6T5 19V6H4V4h5V3h6v1h5v2h-1v13q0 .8-.6 1.4T17 21H7ZM17 6H7v13h10V6ZM9 17h2V8H9v9Zm4 0h2V8h-2v9Z"/></svg>',
+  pil: '<svg class="pil" viewBox="0 0 24 24"><path d="M12.6 12 8 7.4 9.4 6l6 6-6 6L8 16.6l4.6-4.6Z"/></svg>',
+  stjarna: '<svg class="stjarna" viewBox="0 0 24 24"><path d="M11 2h2v7.6l5.4-5.4 1.4 1.4-5.4 5.4H22v2h-7.6l5.4 5.4-1.4 1.4-5.4-5.4V22h-2v-7.6l-5.4 5.4-1.4-1.4L9.6 13H2v-2h7.6L4.2 5.6l1.4-1.4L11 9.6V2Z"/></svg>',
+  verktyg: '<svg viewBox="0 0 24 24"><path d="m18.9 21-5.4-5.4 2.1-2.1 5.4 5.4L18.9 21Zm-13.8 0L3 18.9 9.9 12l-1.7-1.7-.7.7-1.3-1.3v2L4.8 10.3 2 7.5l1.4-1.4h2L4 4.7l3.3-3.3q.5-.5 1.1-.7.6-.2 1.2-.2t1.2.2q.6.2 1.1.7L9.6 3.7l1.4 1.4-.7.7 1.7 1.7 2.3-2.3q-.1-.3-.2-.6v-.7q0-1.5 1-2.5t2.4-1q.4 0 .7.1.4.1.6.3l-2.5 2.5 1.8 1.8 2.5-2.5q.2.3.3.6.1.4.1.8 0 1.4-1 2.4t-2.5 1q-.4 0-.7-.1l-.6-.2L5.1 21Z"/></svg>',
+  ok: '<svg viewBox="0 0 24 24"><path d="m10.6 16.6 7-7-1.4-1.4-5.6 5.6-2.8-2.8-1.4 1.4 4.2 4.2ZM12 22q-2.1 0-3.9-.8-1.8-.8-3.2-2.1-1.3-1.4-2.1-3.2Q2 14.1 2 12t.8-3.9q.8-1.8 2.1-3.2Q6.3 3.6 8.1 2.8 9.9 2 12 2t3.9.8q1.8.8 3.2 2.1 1.3 1.4 2.1 3.2.8 1.8.8 3.9t-.8 3.9q-.8 1.8-2.1 3.2-1.4 1.3-3.2 2.1-1.8.8-3.9.8Zm0-2q3.4 0 5.7-2.3T20 12q0-3.4-2.3-5.7T12 4Q8.6 4 6.3 6.3T4 12q0 3.4 2.3 5.7T12 20Z"/></svg>',
+  fel: '<svg viewBox="0 0 24 24"><path d="M12 17q.4 0 .7-.3.3-.3.3-.7t-.3-.7Q12.4 15 12 15t-.7.3q-.3.3-.3.7t.3.7q.3.3.7.3Zm-1-4h2V7h-2v6Zm1 9q-2.1 0-3.9-.8-1.8-.8-3.2-2.1-1.3-1.4-2.1-3.2Q2 14.1 2 12t.8-3.9q.8-1.8 2.1-3.2Q6.3 3.6 8.1 2.8 9.9 2 12 2t3.9.8q1.8.8 3.2 2.1 1.3 1.4 2.1 3.2.8 1.8.8 3.9t-.8 3.9q-.8 1.8-2.1 3.2-1.4 1.3-3.2 2.1-1.8.8-3.9.8Z"/></svg>',
+  bock: '<svg class="bock" viewBox="0 0 24 24"><path d="m9.6 18-5.7-5.7 1.4-1.4 4.3 4.3 9.2-9.2 1.4 1.4L9.6 18Z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24"><path d="M11 13H5v-2h6V5h2v6h6v2h-6v6h-2v-6Z"/></svg>',
+  upp: '<svg viewBox="0 0 24 24"><path d="M11 20V7.8l-5.6 5.6L4 12l8-8 8 8-1.4 1.4L13 7.8V20h-2Z"/></svg>',
+  stopp: '<svg viewBox="0 0 24 24"><path d="M6 18V6h12v12H6Z"/></svg>',
+  agent: '<svg viewBox="0 0 24 24"><path d="M20 9V7h-2V5q0-.8-.6-1.4T16 3h-2V1h-2v2h-2V1H8v2H6q-.8 0-1.4.6T4 5v2H2v2h2v2H2v2h2v2H2v2h2v2q0 .8.6 1.4T6 21h2v2h2v-2h2v2h2v-2h2q.8 0 1.4-.6T18 19v-2h2v-2h-2v-2h2v-2h-2V9h2Zm-4 10H6V5h10v14ZM8 11h6V7H8v4Zm0 6h6v-4H8v4Z"/></svg>',
+  info: '<svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6Zm1-8q.4 0 .7-.3.3-.3.3-.7t-.3-.7Q12.4 7 12 7t-.7.3Q11 7.6 11 8t.3.7q.3.3.7.3Zm0 13q-2.1 0-3.9-.8-1.8-.8-3.2-2.1-1.3-1.4-2.1-3.2Q2 14.1 2 12t.8-3.9q.8-1.8 2.1-3.2Q6.3 3.6 8.1 2.8 9.9 2 12 2t3.9.8q1.8.8 3.2 2.1 1.3 1.4 2.1 3.2.8 1.8.8 3.9t-.8 3.9q-.8 1.8-2.1 3.2-1.4 1.3-3.2 2.1-1.8.8-3.9.8Z"/></svg>',
+};
+const lager = {
+  get(k, d) { try { const v = localStorage.getItem('lennart.' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('lennart.' + k, JSON.stringify(v)); return true; } catch (e) { return false; } },
+};
+function notis(text, ms = 4200) {
+  const n = $('#notis'); n.textContent = text; n.hidden = false;
+  clearTimeout(notis.t); notis.t = setTimeout(() => { n.hidden = true; }, ms);
+}
+const NIVAER = [
+  { id: 'snabb', namn: 'Snabb', besk: 'Svarar direkt med första utkastet', drafts: 1, plus: false },
+  { id: 'medel', namn: 'Medel', besk: 'Skriver 3 utkast och väljer det bästa', drafts: 3, plus: false },
+  { id: 'djup', namn: 'Djup', besk: 'Skriver upp till 6 utkast, sållar bort svaga tidigt', drafts: 6, plus: false },
+  { id: 'djupPlus', namn: 'Djup+', besk: 'Bygger svaret mening för mening ur upp till 20 utkast', drafts: 20, plus: true },
+];
+const VISAS = { klocka: 'Klocka', dagar_till: 'Dagar kvar', kalender: 'Kalender', helgdagar: 'Röda dagar', raknare: 'Räknare', omvandla: 'Enheter',
+  slumpa: 'Slump', losenord: 'Lösenord', att_gora: 'Listor', textinfo: 'Textinfo', anteckna: 'Anteckning', lista_mapp: 'Filer', las_fil: 'Läste filen', sok_i_filer: 'Sökning' };
+const BESKRIV = { anteckna: 'Sparar en anteckning (med datum) i webbläsaren.', att_gora: 'Att-göra-lista och inköpslista: lägga till, visa, bocka av och rensa.' };
+
+/* ───────────────────────────── tillstånd */
+let pref = Object.assign({ modell: null, niva: 'medel', agent: true, tema: 'auto' }, lager.get('prefs', {}));
+let samtal = lager.get('samtal', []);
+let filer = lager.get('filer', {});
+let aktiv = null;           // samtalet som visas
+let upptagen = false;
+let aktuellGen = null;      // pågående svar
+const modeller = new Map(); // id → { id, entry, blob }
+const sparaPref = () => lager.set('prefs', pref);
+function sparaSamtal() {
+  samtal.sort((a, b) => b.tid - a.tid);
+  while (!lager.set('samtal', samtal) && samtal.length > 1) samtal.pop(); // fullt: släpp de äldsta
+}
+
+/* ───────────────────────────── modeller (sparas i webbläsarens IndexedDB) */
+const idb = (() => {
+  let db = null;
+  const oppna = () => db || (db = new Promise((ok, fel) => {
+    try {
+      const r = indexedDB.open('lennart', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('modeller', { keyPath: 'id' });
+      r.onsuccess = () => ok(r.result); r.onerror = () => fel(r.error);
+    } catch (e) { fel(e); }
+  }));
+  const tx = async (mode, f) => {
+    const d = await oppna();
+    return new Promise((ok, fel) => {
+      const t = d.transaction('modeller', mode); const r = f(t.objectStore('modeller'));
+      t.oncomplete = () => ok(r ? r.result : undefined); t.onerror = () => fel(t.error); t.onabort = () => fel(t.error);
+    });
+  };
+  return { alla: () => tx('readonly', (s) => s.getAll()), spara: (m) => tx('readwrite', (s) => s.put(m)), ta: (id) => tx('readwrite', (s) => s.delete(id)) };
+})();
+
+const version = (namn) => (String(namn).match(/(\d+(?:\.\d+)*)\s*$/) || [null, '1'])[1];
+const versionTal = (namn) => version(namn).split('.').map(Number);
+const nyans = (e) => (Number.isFinite(e && e.hue) ? e.hue : [...String(e && e.id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7));
+function parametrar(n) {
+  if (!n) return '';
+  if (n >= 1e9) return (n / 1e9).toFixed(1).replace('.', ',') + ' mdr';
+  if (n >= 1e6) return Math.round(n / 1e6) + ' M';
+  if (n >= 1e3) return Math.round(n / 1e3) + ' k';
+  return String(n);
+}
+function sorterade() {
+  return [...modeller.values()].sort((a, b) => {
+    const x = versionTal(a.entry.name), y = versionTal(b.entry.name);
+    for (let i = 0; i < Math.max(x.length, y.length); i++) if ((y[i] || 0) !== (x[i] || 0)) return (y[i] || 0) - (x[i] || 0);
+    return 0;
+  });
+}
+const aktivModell = () => modeller.get(pref.modell) || null;
+
+async function lasPaketHuvud(f) {
+  const head = new Uint8Array(await f.slice(0, 12).arrayBuffer());
+  if (head.length < 12 || String.fromCharCode(...head.slice(0, 8)) !== 'LENPKG01') throw new Error(`${f.name} är inte ett Lennart-modellpaket (.lennart)`);
+  const len = new DataView(head.buffer).getUint32(8, true);
+  if (len > 64 << 20) throw new Error(`${f.name} verkar vara skadad`);
+  const meta = JSON.parse(new TextDecoder().decode(await f.slice(12, 12 + len).arrayBuffer()));
+  const entry = meta.entry || {};
+  if (!/^[a-z0-9-]{1,60}$/.test(entry.id || '')) throw new Error(`${f.name} har ett ogiltigt modell-id`);
+  entry.name = entry.name || entry.id;
+  return entry;
+}
+
+async function importera(lista) {
+  for (const f of lista) {
+    try {
+      const entry = await lasPaketHuvud(f);
+      modeller.set(entry.id, { id: entry.id, entry, blob: f });
+      pref.modell = entry.id; sparaPref();
+      if (laddadId === entry.id) laddadId = null; // en ny version av samma modell läses in på nytt
+      renderAllt();
+      sattStatus(`Sparar ${entry.name} i webbläsaren …`);
+      idb.spara({ id: entry.id, entry, blob: f })
+        .then(() => { sattStatus(''); notis(`${entry.name} är tillagd och finns kvar nästa gång du öppnar sidan.`); })
+        .catch(() => { sattStatus(''); notis(`${entry.name} är tillagd, men webbläsaren kunde inte spara den. Den finns kvar tills du stänger sidan.`, 6000); });
+      laddaModell(entry.id).catch((e) => notis(e.message, 6000));
+    } catch (e) { notis(e.message, 6000); }
+  }
+}
+
+async function taBortModell(id) {
+  const m = modeller.get(id); if (!m) return;
+  if (!confirm(`Ta bort ${m.entry.name} från webbläsaren?`)) return;
+  modeller.delete(id);
+  idb.ta(id).catch(() => {});
+  if (pref.modell === id) { pref.modell = sorterade()[0] ? sorterade()[0].id : null; sparaPref(); }
+  if (laddadId === id) laddadId = null;
+  renderAllt(); oppnaModellval();
+}
+
+/* ───────────────────────────── motorn i en Web Worker */
+const arbetareKod = document.getElementById('arbetare').textContent;
+let arb = null, laddadId = null, laddar = null, nastaId = 1;
+const lyssnare = new Set();
+let startfel = null;
+function startaArbetare() {
+  laddadId = null; laddar = null;
+  try {
+    arb = new Worker(URL.createObjectURL(new Blob([arbetareKod], { type: 'text/javascript' })));
+  } catch (e) {
+    arb = null; startfel = 'Webbläsaren tillät inte att Lennarts motor startade här (' + e.message + '). Ladda ned sidan och öppna filen direkt i Chrome, Edge eller Firefox.';
+    return;
+  }
+  arb.onmessage = (e) => {
+    if (e.data.type === 'startfel') { startfel = 'Lennarts motor (WebAssembly) fick inte starta på den här sidan: ' + e.data.message + '. Ladda ned lennart.html och öppna filen direkt i Chrome, Edge eller Firefox.'; notis(startfel, 9000); renderLogg(); }
+    for (const f of [...lyssnare]) f(e.data);
+  };
+  arb.onerror = (e) => { e.preventDefault(); notis('Motorn stannade: ' + (e.message || 'okänt fel'), 6000); };
+}
+function fraga(msg, typer, onProgress) {
+  if (!arb) startaArbetare();
+  if (!arb) return Promise.reject(new Error(startfel));
+  const id = nastaId++;
+  return new Promise((ok, fel) => {
+    const f = (d) => {
+      if (d.id !== id) return;
+      if (d.type === 'progress') { if (onProgress) onProgress(d); return; }
+      lyssnare.delete(f);
+      if (typer.includes(d.type)) ok(d); else fel(new Error(d.message || 'Något gick fel'));
+    };
+    lyssnare.add(f);
+    arb.postMessage(Object.assign({ id }, msg));
+  });
+}
+async function laddaModell(id) {
+  if (!arb) startaArbetare();
+  if (laddadId === id) return;
+  if (laddar && laddar.id === id) return laddar.p;
+  const m = modeller.get(id);
+  if (!m) throw new Error('Lägg till en modell först (en .lennart-fil).');
+  const p = (async () => {
+    sattStatus(`Läser in ${m.entry.name} …`);
+    try {
+      await fraga({ cmd: 'ladda', paket: m.blob }, ['loaded'], (d) => sattStatus(`Läser in ${m.entry.name} … ${Math.round(d.done / d.total * 100)} %`));
+      laddadId = id;
+    } finally { sattStatus(''); }
+  })();
+  laddar = { id, p };
+  try { await p; } finally { if (laddar && laddar.id === id) laddar = null; }
+}
+
+/* ───────────────────────────── samtal */
+function nyttSamtal() {
+  if (upptagen) return;
+  aktiv = null; stangSida(); renderAllt(); $('#in').focus();
+}
+function oppnaSamtal(s) { if (upptagen) return; aktiv = s; stangSida(); renderAllt(true); }
+function taBortSamtal(s) {
+  samtal = samtal.filter((x) => x !== s); sparaSamtal();
+  if (aktiv === s) aktiv = null;
+  renderAllt();
+}
+const lagg = (m) => { aktiv.meddelanden.push(m); aktiv.tid = Date.now(); return m; };
+
+async function skicka() {
+  const inp = $('#in');
+  const text = inp.value.trim();
+  if (!text || upptagen) return;
+  inp.value = ''; storlek();
+  if (!aktiv) { aktiv = { id: Date.now().toString(36), titel: text.slice(0, 70), meddelanden: [], tid: Date.now() }; samtal.unshift(aktiv); }
+  aktiv.modell = aktivModell() ? aktivModell().entry.name : 'Verktyg';
+  lagg({ anv: true, text });
+  sparaSamtal(); upptagen = true; renderAllt(true);
+  try {
+    if (pref.agent) {
+      const a = await fraga({ cmd: 'tolka', text }, ['avsikt']);
+      if (a.namn) { await korVerktyg(a); return; }
+    }
+    if (!aktivModell()) {
+      lagg({ anv: false, text: 'Lägg till en modell först, så kan jag svara på det här. Tryck på modellnamnet nedanför och välj "Lägg till modell från fil". Utan modell kan jag ändå svara på sådant som verktygen klarar, till exempel vad klockan är eller hur många km 3 mil är.', meta: 'Lennart · ingen modell' });
+      return;
+    }
+    await generera();
+  } catch (e) {
+    lagg({ anv: false, text: e.message || String(e), fel: true });
+  } finally {
+    upptagen = false; sparaSamtal(); renderAllt(); uppdateraKnapp();
+  }
+}
+
+/* Lennart säger vad han gör, anropar verktyget och svarar utifrån resultatet – ett steg i taget. */
+async function korVerktyg(a) {
+  lagg({ anv: false, kind: 'anrop', namn: a.namn, argument: a.argument, fore: a.fore, text: a.fore });
+  renderLogg(true);
+  await sov(500);
+  let nekad = false;
+  if (a.andrar) nekad = !(await godkann(a));
+  const r = await fraga({ cmd: 'verktyg', namn: a.namn, argument: a.argument, filer, nekad }, ['resultat']);
+  for (const [k, v] of Object.entries(r.andrade || {})) filer[k] = v;
+  if (Object.keys(r.andrade || {}).length && !lager.set('filer', filer)) notis('Webbläsaren kunde inte spara listan.');
+  lagg({ anv: true, kind: 'resultat', namn: a.namn, text: r.resultat, felRes: r.fel });
+  renderLogg(true);
+  await sov(350);
+  const namn = aktivModell() ? aktivModell().entry.name : 'Lennart';
+  lagg({ anv: false, text: r.svar, meta: `${namn} · verktyg: ${r.visas}` });
+}
+
+function godkann(a) {
+  return new Promise((ok) => {
+    const d = $('#dialog'); d.className = 'dialog smal'; d.replaceChildren();
+    d.append(E('h2', null, `Får Lennart använda ${VISAS[a.namn] || a.namn}?`), E('p', null, BESKRIV[a.namn] || ''), E('pre', null, JSON.stringify(a.argument, null, 2)));
+    const rad = E('div', 'dknappar'), nej = E('button', 'nej', 'Neka'), ja = E('button', 'ja', 'Tillåt');
+    rad.append(nej, ja); d.append(rad);
+    const klar = (v) => { stangDialog(); ok(v); };
+    nej.onclick = () => klar(false); ja.onclick = () => klar(true);
+    visaDialog(() => klar(false)); ja.focus();
+  });
+}
+
+function turer() {
+  return aktiv.meddelanden.filter((m) => !m.fel && m.text && !m.kind && !m.generar).map((m) => [m.anv, m.text]);
+}
+
+async function generera() {
+  const modell = aktivModell(); const e = modell.entry;
+  const niva = NIVAER.find((n) => n.id === pref.niva) || NIVAER[1];
+  await laddaModell(modell.id);
+  const svar = lagg({ anv: false, text: '', drafts: [], niva: niva.id, generar: true, utkastNu: 0, antal: niva.drafts, mening: -1 });
+  renderLogg(true);
+  const t0 = performance.now();
+  await new Promise((ok) => {
+    const f = (d) => {
+      switch (d.type) {
+        case 'token': svar.text += d.text; break;
+        case 'draft': {
+          while (svar.drafts.length <= d.i) svar.drafts.push({ text: '' });
+          const u = svar.drafts[d.i]; u.text += d.text; u.seg = d.seg == null ? -1 : d.seg;
+          svar.utkastNu = d.i; svar.antal = d.n; svar.mening = u.seg; break;
+        }
+        case 'draftEnd': if (svar.drafts[d.i]) { svar.drafts[d.i].score = d.score; svar.drafts[d.i].pruned = d.pruned; } break;
+        case 'segment': if (svar.drafts[d.i]) svar.drafts[d.i].picked = true; svar.text = (svar.text + d.text).replace(/^\s+/, ''); break;
+        case 'chosen': svar.chosen = d.i; svar.text = d.text.trim(); break;
+        case 'done': {
+          lyssnare.delete(f); aktuellGen = null;
+          svar.text = svar.text.trim() || '…'; svar.generar = false;
+          if (svar.drafts.length) svar.sekunder = (performance.now() - t0) / 1000;
+          svar.osaker = d.score != null && d.score < -0.5;
+          svar.meta = `${e.name} · ${niva.namn.toLowerCase()} · ${d.tokens} tok · ${(d.seconds > 0 ? d.tokens / d.seconds : 0).toFixed(1)} tok/s`;
+          ok(); break;
+        }
+        case 'genError': lyssnare.delete(f); aktuellGen = null; svar.text = d.message; svar.fel = true; svar.generar = false; ok(); break;
+        default: return;
+      }
+      planeraRender();
+    };
+    lyssnare.add(f);
+    aktuellGen = { svar, f, ok, niva, e };
+    uppdateraKnapp();
+    arb.postMessage({ cmd: 'generate', id: nastaId++, turns: turer(), temperature: e.temperature ?? 0.7, maxTokens: e.max_tokens ?? 200,
+      topK: e.top_k ?? 40, drafts: niva.drafts, plus: niva.plus });
+  });
+}
+
+/* Stoppa: motorn räknar utan avbrott, så tråden avslutas och startas om. Modellen läses in igen vid nästa fråga. */
+function stoppa() {
+  if (!aktuellGen) return;
+  const { svar, f, ok, niva, e } = aktuellGen;
+  aktuellGen = null; lyssnare.delete(f);
+  if (arb) arb.terminate();
+  arb = null; startaArbetare();
+  if (!svar.text && svar.drafts.length) {
+    const bast = svar.drafts.filter((d) => !d.pruned).sort((a, b) => (b.score ?? -9) - (a.score ?? -9))[0] || svar.drafts[svar.drafts.length - 1];
+    svar.text = bast.text;
+  }
+  svar.text = svar.text.trim() || '…'; svar.generar = false;
+  svar.meta = `${e.name} · ${niva.namn.toLowerCase()} · stoppad`;
+  ok();
+}
+
+function igen() {
+  if (upptagen || !aktiv) return;
+  const m = aktiv.meddelanden;
+  while (m.length && !(m[m.length - 1].anv && !m[m.length - 1].kind)) m.pop();
+  const sista = m.pop();
+  if (!sista) return;
+  $('#in').value = sista.text; skicka();
+}
+
+/* ───────────────────────────── rendering */
+let renderPlan = 0;
+function planeraRender() { if (!renderPlan) renderPlan = requestAnimationFrame(() => { renderPlan = 0; renderLogg(); }); }
+const naraBotten = () => { const l = $('#logg'); return l.scrollHeight - l.scrollTop - l.clientHeight < 140; };
+
+function renderAllt(rulla) {
+  const m = aktivModell();
+  document.documentElement.style.setProperty('--h', m ? nyans(m.entry) : 290);
+  $('#chipBadge').textContent = m ? version(m.entry.name) : '+';
+  $('#loggaBadge').textContent = 'L';
+  $('#chipNamn').textContent = m ? m.entry.name : 'Lägg till modell';
+  $('#chipNiva').textContent = m ? (NIVAER.find((n) => n.id === pref.niva) || NIVAER[1]).namn : '';
+  $('#in').placeholder = m ? `Fråga ${m.entry.name}` : 'Fråga Lennart';
+  $('#titel').textContent = aktiv ? aktiv.titel : '';
+  for (const b of document.querySelectorAll('[data-tema]')) b.setAttribute('aria-pressed', String(b.dataset.tema === pref.tema));
+  if (pref.tema === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = pref.tema;
+  renderLista(); renderLogg(rulla); uppdateraKnapp();
+}
+
+function renderLista() {
+  const l = $('#lista'); l.replaceChildren();
+  if (!samtal.length) { l.append(E('div', 'tomlista', 'Dina samtal sparas här, i webbläsaren.')); return; }
+  for (const s of samtal) {
+    const b = E('div', 'samtal' + (s === aktiv ? ' aktiv' : '')); b.tabIndex = 0; b.setAttribute('role', 'button');
+    const t = E('div', 't'); t.append(E('b', null, s.titel), E('span', null, s.modell || ''));
+    const ta = E('button', 'ta'); ta.innerHTML = IKON.ta; ta.setAttribute('aria-label', 'Ta bort samtalet');
+    ta.onclick = (ev) => { ev.stopPropagation(); taBortSamtal(s); };
+    b.append(t, ta);
+    b.onclick = () => oppnaSamtal(s);
+    b.onkeydown = (ev) => { if (ev.key === 'Enter') oppnaSamtal(s); };
+    l.append(b);
+  }
+}
+
+function renderLogg(rulla) {
+  const l = $('#logg');
+  const vidBotten = rulla || naraBotten();
+  l.replaceChildren();
+  if (!aktiv || !aktiv.meddelanden.length) { l.append(tomVy()); startaKlot(); return; }
+  stoppaKlot();
+  const spalt = E('div', 'spalt');
+  const sistaSvar = aktiv.meddelanden.map((m, i) => (!m.anv && !m.kind ? i : -1)).filter((i) => i >= 0).pop();
+  aktiv.meddelanden.forEach((m, i) => spalt.append(byggMeddelande(m, i === sistaSvar)));
+  l.append(spalt);
+  if (vidBotten) l.scrollTop = l.scrollHeight;
+}
+
+function tomVy() {
+  const v = E('div', 'tomt'), inre = E('div');
+  const c = E('canvas'); c.id = 'klot'; c.width = 880; c.height = 880; c.setAttribute('aria-hidden', 'true');
+  inre.append(c, E('h1', null, 'Vad har du på hjärta?'));
+  if (startfel) inre.append(E('p', null, startfel));
+  else if (!modeller.size) {
+    inre.append(E('p', null, 'Lägg till en Lennart-modell (.lennart-fil) så körs den här i webbläsaren. Modellen sparas i webbläsaren och skickas ingenstans. Utan modell kan du ändå fråga sådant som verktygen svarar på, till exempel vad klockan är.'));
+    const k = E('button', 'knapp'); k.innerHTML = IKON.plus + 'Lägg till modell från fil'; k.onclick = () => $('#fil').click();
+    inre.append(k);
+  }
+  v.append(inre); return v;
+}
+
+function byggMeddelande(m, sist) {
+  if (m.kind === 'anrop') {
+    const d = E('div', 'anrop');
+    if (m.fore) d.append(E('div', 'fore', m.fore));
+    const r = E('div', 'rad'); r.innerHTML = IKON.verktyg;
+    r.append(E('span', null, 'Använder '), E('b', null, VISAS[m.namn] || m.namn), E('code', null, JSON.stringify(m.argument)));
+    d.append(r); return d;
+  }
+  if (m.kind === 'resultat') {
+    const k = E('div', 'kort' + (m.felRes ? ' fel' : '')), h = E('div', 'h');
+    h.innerHTML = m.felRes ? IKON.fel : IKON.ok; h.append(E('span', null, VISAS[m.namn] || m.namn));
+    k.append(h, E('pre', null, m.text)); return k;
+  }
+  if (m.anv) { const d = E('div', 'anv'); d.append(E('div', null, m.text)); return d; }
+  const d = E('div', 'svar');
+  if (m.drafts && (m.drafts.length || (m.generar && m.niva !== 'snabb'))) d.append(byggTank(m));
+  const visaText = m.text || (m.generar && m.niva === 'snabb');
+  if (visaText) {
+    const t = E('div', 'text' + (m.fel ? ' fel' : '') + (m.generar && (m.niva === 'snabb' || m.niva === 'djupPlus') ? ' markor' : ''), m.text);
+    d.append(t);
+  }
+  if (m.osaker) { const o = E('div', 'osaker'); o.innerHTML = IKON.info; o.append(E('span', null, 'Osäker – dubbelkolla gärna')); d.append(o); }
+  if (!m.generar && (m.meta || m.text)) {
+    const meta = E('div', 'meta');
+    const kop = E('button'); kop.innerHTML = IKON.kopiera; kop.setAttribute('aria-label', 'Kopiera svaret'); kop.title = 'Kopiera';
+    kop.onclick = () => { (navigator.clipboard ? navigator.clipboard.writeText(m.text) : Promise.reject()).then(() => notis('Kopierat'), () => notis('Kunde inte kopiera')); };
+    meta.append(kop);
+    if (sist && !m.kind) { const ig = E('button'); ig.innerHTML = IKON.igen; ig.setAttribute('aria-label', 'Svara igen'); ig.title = 'Svara igen'; ig.onclick = igen; meta.append(ig); }
+    if (m.meta) meta.append(E('span', null, m.meta));
+    d.append(meta);
+  }
+  return d;
+}
+
+function byggTank(m) {
+  const t = E('div', 'tank' + (m.generar ? ' tanker' : '') + (m.oppen ? ' oppen' : ''));
+  const rad = E('button', 'tankrad'); rad.innerHTML = IKON.stjarna;
+  let rubrik;
+  if (m.generar) rubrik = m.niva === 'djupPlus' ? `Tänker · mening ${Math.max(1, m.mening + 1)} · utkast ${m.utkastNu + 1} av ${m.antal}` : `Tänker · utkast ${m.utkastNu + 1} av ${m.antal}`;
+  else rubrik = `Tänkte i ${(m.sekunder || 0).toFixed(1).replace('.', ',')} s · ${m.drafts.length} utkast`;
+  rad.append(E('span', null, rubrik)); rad.insertAdjacentHTML('beforeend', IKON.pil);
+  rad.setAttribute('aria-expanded', String(!!m.oppen));
+  rad.onclick = () => { m.oppen = !m.oppen; renderLogg(); };
+  t.append(rad);
+  if (m.generar && !m.oppen) {
+    const nu = m.drafts[m.utkastNu];
+    const rad = nu ? nu.text.replace(/\s+/g, ' ').trim() : '';
+    const live = E('div', 'live', rad.length > 90 ? '…' + rad.slice(-90) : rad);
+    t.append(live);
+  }
+  const lista = E('div', 'utkast');
+  let seg = -2;
+  m.drafts.forEach((u, i) => {
+    if (m.niva === 'djupPlus' && u.seg !== seg) { seg = u.seg; lista.append(E('h5', null, `Mening ${seg + 1}`)); }
+    const vald = m.niva === 'djupPlus' ? u.picked : m.chosen === i;
+    let h = `Utkast ${i + 1}`;
+    if (u.pruned) h += ' · sållat tidigt';
+    else if (vald) h += ' · valt';
+    if (!u.pruned && u.score != null) h += `  (${u.score.toFixed(2)})`;
+    lista.append(E('h4', vald ? 'vald' : null, h), E('p', null, u.text.trim()));
+  });
+  t.append(lista);
+  return t;
+}
+
+function uppdateraKnapp() {
+  const b = $('#skicka');
+  if (aktuellGen) { b.innerHTML = IKON.stopp; b.disabled = false; b.setAttribute('aria-label', 'Stoppa'); return; }
+  b.innerHTML = IKON.upp; b.setAttribute('aria-label', 'Skicka');
+  b.disabled = upptagen || !$('#in').value.trim();
+}
+function sattStatus(t) { $('#status').textContent = t; }
+
+/* ───────────────────────────── dialoger och menyer */
+let dialogStang = null;
+function visaDialog(onStang) {
+  dialogStang = onStang || stangDialog; $('#bak').hidden = false;
+}
+function stangDialog() { $('#bak').hidden = true; dialogStang = null; }
+$('#bak').addEventListener('click', (e) => { if (e.target.id === 'bak' && dialogStang) dialogStang(); });
+
+function oppnaModellval() {
+  const d = $('#dialog'); d.className = 'dialog'; d.replaceChildren();
+  const tva = E('div', 'tva'), v = E('div'), h = E('div');
+  v.append(E('div', 'drubrik', 'Modell'));
+  const lista = sorterade();
+  if (!lista.length) v.append(E('p', null, 'Inga modeller än. Lägg till en .lennart-fil, till exempel Lennart 3.4 från Kaggle.'));
+  lista.forEach((m, i) => {
+    const b = E('div', 'val'); b.setAttribute('role', 'menuitemradio'); b.tabIndex = 0; b.setAttribute('aria-checked', String(m.id === pref.modell));
+    const badge = E('span', 'mbadge', version(m.entry.name));
+    badge.style.cssText = `--acc: hsl(${nyans(m.entry)} 80% 62%); --acc2: hsl(${nyans(m.entry) + 40} 80% 60%); --glow: hsl(${nyans(m.entry)} 80% 55% / .2)`;
+    const t = E('div', 't'), nb = E('b', null, m.entry.name);
+    if (i === 0 && lista.length > 1) nb.append(E('span', 'nyast', 'nyast'));
+    t.append(nb, E('span', null, `${m.entry.params ? parametrar(m.entry.params) + ' parametrar · ' : ''}Svensk AI-assistent`));
+    const ta = E('button', 'taBort'); ta.innerHTML = IKON.ta; ta.setAttribute('aria-label', `Ta bort ${m.entry.name}`);
+    ta.onclick = (ev) => { ev.stopPropagation(); taBortModell(m.id); };
+    b.append(badge, t); b.insertAdjacentHTML('beforeend', IKON.bock); b.append(ta);
+    const valj = () => { pref.modell = m.id; sparaPref(); stangDialog(); renderAllt(); laddaModell(m.id).catch((e) => notis(e.message, 6000)); };
+    b.onclick = valj; b.onkeydown = (ev) => { if (ev.key === 'Enter') valj(); };
+    v.append(b);
+  });
+  h.append(E('div', 'drubrik', 'Tänkande'));
+  NIVAER.forEach((n, i) => {
+    const b = E('button', 'val'); b.setAttribute('role', 'menuitemradio'); b.setAttribute('aria-checked', String(n.id === pref.niva));
+    const st = E('span', 'staplar');
+    for (let k = 0; k < 4; k++) { const s = E('i', k <= i ? 'p' : null); s.style.height = (8 + k * 5) + 'px'; st.append(s); }
+    const t = E('div', 't'); t.append(E('b', null, n.namn), E('span', null, n.besk));
+    b.append(st, t); b.insertAdjacentHTML('beforeend', IKON.bock);
+    b.onclick = () => { pref.niva = n.id; sparaPref(); stangDialog(); renderAllt(); };
+    h.append(b);
+  });
+  h.append(E('div', 'linje'));
+  const lagg = E('button', 'val'); lagg.innerHTML = '<span class="staplar">' + IKON.plus + '</span>';
+  const lt = E('div', 't'); lt.append(E('b', null, 'Lägg till modell från fil'), E('span', null, 'Ett .lennart-paket, t.ex. från Kaggle'));
+  lagg.append(lt); lagg.onclick = () => { stangDialog(); $('#fil').click(); };
+  h.append(lagg);
+  tva.append(v, h); d.append(tva);
+  visaDialog();
+  const forsta = d.querySelector('[aria-checked="true"]') || d.querySelector('.val'); if (forsta) forsta.focus();
+}
+
+function oppnaPlusmeny() {
+  const m = $('#plusmeny');
+  if (!m.hidden) { m.hidden = true; return; }
+  m.replaceChildren();
+  const lagg = E('button', 'val'); lagg.innerHTML = '<span class="staplar">' + IKON.plus + '</span>';
+  const lt = E('div', 't'); lt.append(E('b', null, 'Lägg till modell från fil'), E('span', null, 'Ett .lennart-paket'));
+  lagg.append(lt); lagg.onclick = () => { m.hidden = true; $('#fil').click(); };
+  const ag = E('button', 'val'); ag.setAttribute('role', 'menuitemcheckbox'); ag.setAttribute('aria-checked', String(pref.agent));
+  ag.innerHTML = '<span class="staplar">' + IKON.agent + '</span>';
+  const at = E('div', 't'); at.append(E('b', null, 'Agentläge'), E('span', null, 'Lennart använder verktyg själv: klocka, kalender, räknare, enheter, listor, anteckningar …'));
+  ag.append(at, E('span', 'vaxel'));
+  ag.onclick = () => { pref.agent = !pref.agent; sparaPref(); ag.setAttribute('aria-checked', String(pref.agent)); };
+  const vt = E('button', 'val'); vt.innerHTML = '<span class="staplar">' + IKON.verktyg + '</span>';
+  const vtt = E('div', 't'); vtt.append(E('b', null, 'Vad verktygen kan'), E('span', null, 'Exempel på frågor'));
+  vt.append(vtt); vt.onclick = () => { m.hidden = true; visaVerktyg(); };
+  m.append(lagg, ag, vt);
+  const r = $('#plus').getBoundingClientRect();
+  m.hidden = false;
+  m.style.left = Math.max(12, Math.min(r.left, innerWidth - m.offsetWidth - 12)) + 'px';
+  m.style.top = Math.max(12, r.top - m.offsetHeight - 10) + 'px';
+}
+
+function visaVerktyg() {
+  const d = $('#dialog'); d.className = 'dialog smal'; d.replaceChildren();
+  d.append(E('h2', null, 'Verktygen'), E('p', null, 'Med agentläget på använder Lennart verktygen själv när du frågar. Svaret byggs av verktygets resultat, så siffrorna blir rätt. Anteckningar och listor sparas i webbläsaren.'));
+  d.append(E('pre', null, [
+    'Vad är klockan?', 'Vilken vecka är det?', 'Hur många dagar är det kvar till jul?', 'När är påsk 2027?', 'Vilka röda dagar är det 2027?',
+    'Vad är 15 % av 2300?', 'Hur många km är 3 mil?', '70 grader fahrenheit i celsius', 'Slå två tärningar', 'Välj åt mig: pizza eller tacos',
+    'Skapa ett starkt lösenord', 'Lägg till mjölk, bröd och ägg på inköpslistan', 'Vad står på inköpslistan?', 'Anteckna att jag ska ringa banken',
+    'Hur många ord är det i den här texten: …',
+  ].join('\n')));
+  const rad = E('div', 'dknappar'), ok = E('button', 'ja', 'Okej'); ok.onclick = stangDialog; rad.append(ok); d.append(rad);
+  visaDialog(); ok.focus();
+}
+
+/* ───────────────────────────── sidopanel på smal skärm */
+const stangSida = () => $('#app').classList.remove('sidaoppen');
+$('#meny').onclick = () => $('#app').classList.add('sidaoppen');
+$('#skugga').onclick = stangSida;
+
+/* ───────────────────────────── inmatning */
+function storlek() { const i = $('#in'); i.style.height = 'auto'; i.style.height = Math.min(i.scrollHeight, 220) + 'px'; uppdateraKnapp(); }
+$('#in').addEventListener('input', storlek);
+$('#in').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) { e.preventDefault(); skicka(); }
+});
+$('#skicka').onclick = () => (aktuellGen ? stoppa() : skicka());
+$('#plus').onclick = oppnaPlusmeny;
+$('#chip').onclick = oppnaModellval;
+$('#nytt').onclick = nyttSamtal;
+$('#nytt2').onclick = nyttSamtal;
+$('#fil').onchange = (e) => { importera([...e.target.files]); e.target.value = ''; };
+for (const b of document.querySelectorAll('[data-tema]')) b.onclick = () => { pref.tema = b.dataset.tema; sparaPref(); renderAllt(); };
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    if (!$('#bak').hidden && dialogStang) dialogStang();
+    else if (!$('#plusmeny').hidden) $('#plusmeny').hidden = true;
+    else if (aktuellGen) stoppa();
+  }
+});
+document.addEventListener('click', (e) => { if (!$('#plusmeny').hidden && !e.target.closest('#plusmeny') && !e.target.closest('#plus')) $('#plusmeny').hidden = true; });
+let dragDjup = 0;
+addEventListener('dragenter', (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { dragDjup++; $('#slapp').hidden = false; } });
+addEventListener('dragleave', () => { if (--dragDjup <= 0) { dragDjup = 0; $('#slapp').hidden = true; } });
+addEventListener('dragover', (e) => e.preventDefault());
+addEventListener('drop', (e) => { e.preventDefault(); dragDjup = 0; $('#slapp').hidden = true; const f = [...(e.dataTransfer?.files || [])]; if (f.length) importera(f); });
+
+/* ───────────────────────────── ASCII-klotet och regnet */
+const stilla = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const farg = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+let klotRaf = 0;
+function stoppaKlot() { cancelAnimationFrame(klotRaf); klotRaf = 0; }
+function startaKlot() {
+  stoppaKlot();
+  const cv = document.getElementById('klot'); if (!cv) return;
+  const ctx = cv.getContext('2d'), N = 52, ramp = ' .:-=+*#%@';
+  let ang = 0.6, forra = performance.now();
+  const rita = (nu) => {
+    if (!document.getElementById('klot')) return;
+    const dt = Math.min(0.1, (nu - forra) / 1000); forra = nu; ang += dt * 0.3;
+    const W = cv.width, cw = W / N, R = 0.62, acc = farg('--acc'), text = farg('--text'), muted = farg('--muted');
+    const ljus = getComputedStyle(document.body).colorScheme === 'light' || farg('--bg').toLowerCase() === '#f3f6f9';
+    ctx.clearRect(0, 0, W, W);
+    const g = ctx.createRadialGradient(W / 2, W / 2, 0, W / 2, W / 2, W * 0.5); g.addColorStop(0, farg('--glow')); g.addColorStop(1, 'transparent');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, W);
+    ctx.font = `700 ${Math.round(cw * 1.02)}px ${farg('--mono')}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const ca = Math.cos(ang), sa = Math.sin(ang), ct = Math.cos(0.41), st = Math.sin(0.41);
+    const L = [-0.62, 0.55, 0.56], ll = Math.hypot(...L), lx = L[0] / ll, ly = L[1] / ll, lz = L[2] / ll;
+    for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+      const x = ((i + 0.5) / N * 2 - 1) / R, y = -((j + 0.5) / N * 2 - 1) / R, r2 = x * x + y * y;
+      if (r2 > 1) continue;
+      const z = Math.sqrt(1 - r2), y1 = y * ct + z * st, z1 = -y * st + z * ct;
+      const px = x * ca - z1 * sa, pz = x * sa + z1 * ca, py = y1;
+      const n = Math.sin(2.1 * px + 1.3 * py + 0.7) * Math.cos(1.7 * pz - 1.1 * py) + 0.55 * Math.sin(4.3 * pz + 2.9 * px - 0.4) * Math.cos(3.7 * py + 0.6);
+      const land = n > 0.12, dif = Math.max(0, x * lx + y * ly + z * lz), v = Math.min(1, 0.12 + dif * 0.88);
+      const spec = Math.pow(Math.max(0, 2 * dif * z - lz), 24) * (land ? 0 : 1);
+      let ch, f, a;
+      if (spec > 0.35) { ch = '*'; f = text; a = 0.95; }
+      else if (land) { ch = ramp[3 + Math.round(v * 6)]; f = v > 0.62 ? text : acc; a = 0.35 + 0.65 * v; }
+      else { ch = ramp[1 + Math.round(v * 3)]; f = acc; a = 0.2 + 0.5 * v; }
+      ctx.globalAlpha = Math.min(1, ljus ? a * 1.4 + 0.1 : a); ctx.fillStyle = f; ctx.fillText(ch, (i + 0.5) * cw, (j + 0.5) * cw);
+    }
+    const t = nu / 1000;
+    for (let k = 0; k < 170; k++) {
+      const phi = k / 170 * Math.PI * 6 + (stilla ? 0 : t * 0.2), rr = 1.32 + (k % 3) * 0.08;
+      const x0 = Math.cos(phi) * rr, z0 = Math.sin(phi) * rr, tx = 1.32, tz = -0.3;
+      const y2 = -z0 * Math.sin(tx), z2 = z0 * Math.cos(tx);
+      const X = x0 * Math.cos(tz) - y2 * Math.sin(tz), Y = x0 * Math.sin(tz) + y2 * Math.cos(tz);
+      if (z2 < 0 && X * X + Y * Y < 1) continue;
+      ctx.globalAlpha = 0.15 + 0.6 * ((z2 / rr + 1) / 2); ctx.fillStyle = k % 5 ? muted : acc;
+      ctx.fillText('·', W / 2 + X * R * W / 2, W / 2 - Y * R * W / 2);
+    }
+    ctx.globalAlpha = 1;
+    if (!stilla) klotRaf = requestAnimationFrame(rita);
+  };
+  klotRaf = requestAnimationFrame(rita);
+}
+
+(function regn() {
+  const cv = $('#regn'), ctx = cv.getContext('2d'), tecken = '01#$%&*+-=<>[]{}/\\|λΣΔåäöÅÄÖ;:?!~^';
+  let W = 0, H = 0, kol = [], forra = 0;
+  const STEG = 22;
+  const anpassa = () => {
+    const dpr = Math.min(2, devicePixelRatio || 1), r = cv.getBoundingClientRect();
+    W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    kol = Array.from({ length: Math.ceil(W / STEG) }, () => ({ y: Math.random() * H, fart: 30 + Math.random() * 70, spar: [], aktiv: Math.random() < 0.55 }));
+  };
+  addEventListener('resize', anpassa); anpassa();
+  const rita = (nu) => {
+    requestAnimationFrame(rita);
+    if (document.hidden || nu - forra < 45) return;
+    const dt = forra ? Math.min(0.2, (nu - forra) / 1000) : 0.05; forra = nu;
+    ctx.clearRect(0, 0, W, H);
+    ctx.font = `500 15px ${farg('--mono')}`; ctx.textAlign = 'center';
+    const acc = farg('--acc'), muted = farg('--muted');
+    kol.forEach((c, i) => {
+      if (!c.aktiv) { if (Math.random() < 0.002) c.aktiv = true; return; }
+      c.y += c.fart * dt;
+      if (c.spar.length === 0 || c.y - c.spar[c.spar.length - 1].y > 19) c.spar.push({ y: c.y, ch: tecken[(Math.random() * tecken.length) | 0] });
+      if (c.spar.length > 14) c.spar.shift();
+      c.spar.forEach((s, k) => {
+        const a = (k + 1) / c.spar.length;
+        ctx.globalAlpha = (k === c.spar.length - 1 ? 0.32 : 0.16 * a);
+        ctx.fillStyle = k === c.spar.length - 1 ? acc : (i % 3 ? acc : muted);
+        ctx.fillText(s.ch, i * STEG + STEG / 2, s.y);
+      });
+      if (c.spar.length && c.spar[0].y > H + 20) { c.y = -20; c.spar = []; c.fart = 30 + Math.random() * 70; c.aktiv = Math.random() < 0.7; }
+    });
+    ctx.globalAlpha = 1;
+  };
+  if (stilla) return;
+  requestAnimationFrame(rita);
+})();
+
+/* ───────────────────────────── start */
+startaArbetare();
+renderAllt();
+idb.alla().then((lista) => {
+  for (const m of lista || []) if (!modeller.has(m.id)) modeller.set(m.id, m);
+  if (!modeller.has(pref.modell)) { pref.modell = sorterade()[0] ? sorterade()[0].id : null; sparaPref(); }
+  renderAllt();
+  if (pref.modell) laddaModell(pref.modell).catch((e) => notis(e.message, 6000));
+}).catch(() => {});
+$('#in').focus();
+</script>

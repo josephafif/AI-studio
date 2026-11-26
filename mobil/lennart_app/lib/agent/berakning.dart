@@ -536,3 +536,76 @@ String textinfo(String text) {
   return '$ord ord, $tecken tecken ($utanMellanslag utan mellanslag), $meningar ${meningar == 1 ? 'mening' : 'meningar'}. '
       'Tar ungefär $las att läsa.';
 }
+
+// ───────────────────────────────────────────────────────── listor och anteckningar
+// Logiken utan filer: appen läser och skriver filerna i arbetsmappen, webbversionen i webbläsarens lagring.
+const listfiler = {'att-gora': 'att-gora.md', 'inkop': 'inkopslista.md'};
+const listnamn = {'att-gora': 'att-göra-listan', 'inkop': 'inköpslistan'};
+
+String listfil(Map<String, dynamic> arg) => listfiler[arg['lista']] ?? listfiler['att-gora']!;
+
+/// Kör en åtgärd på en lista (markdown-checklista). Returnerar resultatet och listans nya innehåll,
+/// eller null som innehåll om listan inte ändrades.
+(String, String?) listAtgard(String innehall, Map<String, dynamic> arg) {
+  final lista = listfiler.containsKey(arg['lista']) ? arg['lista'] as String : 'att-gora';
+  final namn = listnamn[lista]!;
+  final punkter = [
+    for (final r in innehall.split('\n'))
+      if (RegExp(r'^- \[[ xX]\] ').hasMatch(r)) r,
+  ];
+  String spara(List<String> ny) => ny.isEmpty ? '' : '${ny.join('\n')}\n';
+  String text(String rad) => rad.substring(6).trim();
+  bool klar(String rad) => rad[3] != ' ';
+  String? str(String k) {
+    final v = arg[k];
+    if (v == null || v.toString().trim().isEmpty) return null;
+    return v.toString().trim();
+  }
+
+  switch ((arg['atgard'] ?? 'visa').toString()) {
+    case 'lagg_till':
+      final t = str('text') ?? (throw VerktygsFel('Argumentet "text" saknas'));
+      final saker = (lista == 'inkop' ? t.split(RegExp(r'\s*,\s*|\s+och\s+|\n')) : t.split(RegExp(r'\s*;\s*|\n')))
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+      if (saker.isEmpty) throw VerktygsFel('Inget att lägga till');
+      if (punkter.length + saker.length > 500) throw VerktygsFel('Listan är full');
+      final ny = spara([...punkter, for (final x in saker) '- [ ] ${x.length > 300 ? x.substring(0, 300) : x}']);
+      return (
+        saker.length == 1 ? 'Lade till "${saker.first}" på $namn' : 'Lade till ${saker.length} saker på $namn: ${saker.join(', ')}',
+        ny,
+      );
+    case 'visa':
+      if (punkter.isEmpty) return ('Listan är tom ($namn)', null);
+      return (
+        [for (var i = 0; i < punkter.length; i++) '${i + 1}. [${klar(punkter[i]) ? 'x' : ' '}] ${text(punkter[i])}'].join('\n'),
+        null,
+      );
+    case 'klar':
+      final q = (str('text') ?? (throw VerktygsFel('Argumentet "text" saknas'))).toLowerCase();
+      final nr = int.tryParse(q);
+      var i = nr != null ? nr - 1 : punkter.indexWhere((p) => !klar(p) && text(p).toLowerCase() == q);
+      if (nr == null && i < 0) i = punkter.indexWhere((p) => !klar(p) && text(p).toLowerCase().contains(q));
+      if (i < 0 || i >= punkter.length) throw VerktygsFel('Hittade inget på $namn som matchar "$q"');
+      final ny = [...punkter];
+      ny[i] = '- [x] ${text(punkter[i])}';
+      final kvar = ny.where((p) => !klar(p)).length;
+      return ('Bockade av "${text(punkter[i])}". $kvar kvar på $namn', spara(ny));
+    case 'rensa':
+      final kvar = punkter.where((p) => !klar(p)).toList();
+      return ('Tog bort ${punkter.length - kvar.length} avbockade från $namn', spara(kvar));
+  }
+  throw VerktygsFel('Okänd åtgärd – välj lagg_till, visa, klar eller rensa');
+}
+
+/// Lägger till en anteckning med datum och tid. Returnerar resultatet och filens nya innehåll.
+(String, String) anteckna(String innehall, String text, DateTime nu) {
+  final t = text.replaceAll('\n', ' ').trim();
+  if (t.isEmpty) throw VerktygsFel('Argumentet "text" saknas');
+  if (t.length > 2000) throw VerktygsFel('Anteckningen är för lång');
+  final rad = '- ${nu.year}-${_two(nu.month)}-${_two(nu.day)} ${_two(nu.hour)}.${_two(nu.minute)} – $t\n';
+  final ny = innehall.isEmpty || innehall.endsWith('\n') ? '$innehall$rad' : '$innehall\n$rad';
+  final antal = ny.split('\n').where((l) => l.startsWith('- ')).length;
+  return ('Sparade anteckningen ($antal i anteckningar.md)', ny);
+}

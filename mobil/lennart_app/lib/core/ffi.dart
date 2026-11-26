@@ -5,6 +5,8 @@ import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
+import 'generering.dart';
+
 typedef _LoadC = Pointer<Void> Function(Pointer<Utf8>, Int32, Pointer<Utf8>, Int32);
 typedef _LoadD = Pointer<Void> Function(Pointer<Utf8>, int, Pointer<Utf8>, int);
 typedef _InfoC = Void Function(Pointer<Void>, Pointer<Int32>);
@@ -32,7 +34,7 @@ class EngineInfo {
 }
 
 /// En inläst modell. Används bara i modellisolaten.
-class NativeModel {
+class NativeModel implements Motor {
   static DynamicLibrary? _lib;
   static DynamicLibrary get lib =>
       _lib ??= DynamicLibrary.open(Platform.isWindows ? 'lmengine.dll' : 'liblmengine.so'); // Windows: bredvid Lennart.exe
@@ -58,7 +60,11 @@ class NativeModel {
   int _rowsLen = 0;
 
   /// Antal framåtpass (varje pass läser alla vikter en gång).
+  @override
   int passes = 0;
+
+  @override
+  int get context => info.context;
 
   NativeModel._(this._h) {
     final out = calloc<Int32>(8);
@@ -81,15 +87,19 @@ class NativeModel {
     }
   }
 
+  @override
   int get pos => _pos(_h);
+  @override
   void reset() => _reset(_h);
 
   /// Spolar tillbaka cachen till [p] (för att skriva ett nytt utkast från samma prompt).
+  @override
   void rewind(int p) {
     if (_rewind(_h, p) != 0) throw StateError('Kan inte spola tillbaka till $p');
   }
 
   /// Senaste logits, direkt i motorns minne (kan läsas och ändras).
+  @override
   Float32List get logits => _logits(_h).asTypedList(info.vocab);
 
   /// log P(token) enligt nuvarande logits.
@@ -107,6 +117,7 @@ class NativeModel {
   }
 
   /// Matar in tokens efter det som redan finns i cachen.
+  @override
   void eval(List<int> tokens) {
     if (tokens.isEmpty) return;
     _fill(tokens);
@@ -117,6 +128,7 @@ class NativeModel {
 
   /// Matar in tokens i ett pass och returnerar logits för varje position:
   /// rad i är fördelningen för tokenen efter tokens[i].
+  @override
   List<Float32List> evalAll(List<int> tokens) {
     final n = tokens.length, v = info.vocab;
     _fill(tokens);

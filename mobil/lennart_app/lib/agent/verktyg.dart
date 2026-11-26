@@ -358,16 +358,11 @@ class Anteckna extends Verktyg {
   bool get behoverMapp => true;
   @override
   Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
-    final text = _str(arg, 'text').replaceAll('\n', ' ').trim();
-    if (text.length > 2000) throw VerktygsFel('Anteckningen är för lång');
     final f = _inuti(miljo, fil);
-    final d = miljo.nu();
-    String two(int n) => n.toString().padLeft(2, '0');
-    final rad = '- ${d.year}-${two(d.month)}-${two(d.day)} ${two(d.hour)}.${two(d.minute)} – $text\n';
+    final (resultat, nytt) = anteckna(await f.exists() ? await f.readAsString() : '', _str(arg, 'text'), miljo.nu());
     await f.parent.create(recursive: true);
-    await f.writeAsString(rad, mode: FileMode.append);
-    final antal = (await f.readAsLines()).where((l) => l.startsWith('- ')).length;
-    return 'Sparade anteckningen ($antal i $fil)';
+    await f.writeAsString(nytt);
+    return resultat;
   }
 }
 
@@ -387,8 +382,6 @@ class DagarTill extends Verktyg {
 // ───────────────────────────────────────────────────────── listor
 /// Att-göra-listan och inköpslistan, som markdown-checklistor i arbetsmappen.
 class AttGora extends Verktyg {
-  static const filer = {'att-gora': 'att-gora.md', 'inkop': 'inkopslista.md'};
-  static const namnPa = {'att-gora': 'att-göra-listan', 'inkop': 'inköpslistan'};
   @override
   String get namn => 'att_gora';
   @override
@@ -408,53 +401,12 @@ class AttGora extends Verktyg {
 
   @override
   Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
-    final lista = filer.containsKey(arg['lista']) ? arg['lista'] as String : 'att-gora';
-    final f = _inuti(miljo, filer[lista]!);
-    final listnamn = namnPa[lista]!;
-    final rader = await f.exists() ? (await f.readAsLines()).where((l) => l.trim().isNotEmpty).toList() : <String>[];
-    final punkter = [
-      for (final r in rader)
-        if (RegExp(r'^- \[[ xX]\] ').hasMatch(r)) r,
-    ];
-    Future<void> spara(List<String> ny) async {
+    final f = _inuti(miljo, listfil(arg));
+    final (resultat, nytt) = listAtgard(await f.exists() ? await f.readAsString() : '', arg);
+    if (nytt != null) {
       await f.parent.create(recursive: true);
-      await f.writeAsString(ny.isEmpty ? '' : '${ny.join('\n')}\n');
+      await f.writeAsString(nytt);
     }
-
-    String text(String rad) => rad.substring(6).trim();
-    bool klar(String rad) => rad[3] != ' ';
-    switch ((arg['atgard'] ?? 'visa').toString()) {
-      case 'lagg_till':
-        final t = _str(arg, 'text').trim();
-        final saker = (lista == 'inkop' ? t.split(RegExp(r'\s*,\s*|\s+och\s+|\n')) : t.split(RegExp(r'\s*;\s*|\n')))
-            .map((e) => e.trim())
-            .where((e) => e.isNotEmpty)
-            .toList();
-        if (saker.isEmpty) throw VerktygsFel('Inget att lägga till');
-        if (punkter.length + saker.length > 500) throw VerktygsFel('Listan är full');
-        await spara([...punkter, for (final x in saker) '- [ ] ${x.length > 300 ? x.substring(0, 300) : x}']);
-        return saker.length == 1
-            ? 'Lade till "${saker.first}" på $listnamn'
-            : 'Lade till ${saker.length} saker på $listnamn: ${saker.join(', ')}';
-      case 'visa':
-        if (punkter.isEmpty) return 'Listan är tom ($listnamn)';
-        return [for (var i = 0; i < punkter.length; i++) '${i + 1}. [${klar(punkter[i]) ? 'x' : ' '}] ${text(punkter[i])}'].join('\n');
-      case 'klar':
-        final q = _str(arg, 'text').trim().toLowerCase();
-        final nr = int.tryParse(q);
-        var i = nr != null ? nr - 1 : punkter.indexWhere((p) => !klar(p) && text(p).toLowerCase() == q);
-        if (nr == null && i < 0) i = punkter.indexWhere((p) => !klar(p) && text(p).toLowerCase().contains(q));
-        if (i < 0 || i >= punkter.length) throw VerktygsFel('Hittade inget på $listnamn som matchar "$q"');
-        final ny = [...punkter];
-        ny[i] = '- [x] ${text(punkter[i])}';
-        await spara(ny);
-        final kvar = ny.where((p) => !klar(p)).length;
-        return 'Bockade av "${text(punkter[i])}". $kvar kvar på $listnamn';
-      case 'rensa':
-        final kvar = punkter.where((p) => !klar(p)).toList();
-        await spara(kvar);
-        return 'Tog bort ${punkter.length - kvar.length} avbockade från $listnamn';
-    }
-    throw VerktygsFel('Okänd åtgärd – välj lagg_till, visa, klar eller rensa');
+    return resultat;
   }
 }
