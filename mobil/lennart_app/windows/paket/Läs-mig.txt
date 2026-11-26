@@ -1,0 +1,60 @@
+﻿LENNART FÖR WINDOWS
+===================
+
+Svensk AI som körs helt på din dator. Inget skickas till internet.
+
+
+SÅ INSTALLERAR DU
+-----------------
+1. Packa upp "Lennart-för-Windows.zip" dit du vill ha programmet, till
+   exempel i Dokument (högerklicka > Extrahera alla). Du får en mapp som
+   heter Lennart.
+
+2. Packa upp modell-filerna (Lennart-3.3.zip, Lennart-3.2.zip, Lennart-3.1.zip,
+   Lennart-3.zip) till SAMMA ställe som i steg 1. De lägger sig automatiskt
+   i Lennart\modeller. Du kan hoppa över dem du inte vill ha.
+
+3. Starta Lennart.exe i mappen Lennart.
+
+   Första gången kan Windows visa "Windows skyddade datorn". Det beror på
+   att programmet inte är signerat av ett företag. Klicka på "Mer info" och
+   sedan "Kör ändå".
+
+Tips: högerklicka på Lennart.exe > Visa fler alternativ > Skicka till >
+Skrivbord (skapa genväg).
+
+
+VAD SOM FINNS MED
+-----------------
+Lennart, Lennart 2, Lennart 3, 3.1, 3.2, 3.3 och 3.4. Välj modell och hur
+mycket Lennart ska tänka (Snabb, Medel, Djup, Djup+) i rutan längst ner.
+
+Kortkommandon: Enter skickar, Shift+Enter ny rad, Ctrl+N nytt samtal,
+Esc stoppar svaret.
+
+
+AGENTLÄGE (förhandsvisning)
+---------------------------
+Under + > Agent och verktyg kan du slå på agentläget och välja en
+arbetsmapp. Verktygen (klocka, räknare, lista, läsa, söka och skriva filer)
+fungerar bara inuti den mappen, och att skriva filer kräver alltid ditt
+godkännande. Dagens modeller använder inte verktygen själva än – det tränas
+in i Lennart 4. Du kan köra dem direkt med kommandon:
+
+  /klocka            datum och tid
+  /räkna 12*7        räknare
+  /lista             filer i arbetsmappen
+  /läs fil.txt       läs en textfil
+  /sök ord           sök i arbetsmappen
+  /skriv fil.txt     (ny rad) text – skriv en fil
+
+
+OM NÅGOT KRÅNGLAR
+-----------------
+* "Hittade inga modeller": mappen modeller måste ligga bredvid Lennart.exe.
+* Programmet startar inte: kör "Lennart.exe --sjalvtest" i en kommandotolk
+  i mappen. Då skapas sjalvtest.txt med vad som gick fel.
+* Fler modeller: + > Importera modell väljer en .lennart-fil, eller lägg
+  .lmod-, .tok.json- och .modell.json-filerna i mappen modeller.
+
+Dina samtal sparas i %APPDATA%\AI Control Center\Lennart.

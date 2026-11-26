@@ -161,6 +161,35 @@ Se `forskning/RAPPORT.md`. Det viktigaste för Lennart 4:
    i texten, "det står inte i texten"-exempel och vanlig data inblandad.
 4. **Ekodekodning och blockad matmul** finns redan i motorn och följer med till Lennart 4.
 
+
+## Agentförmåga (verktyg)
+
+Appen har nu en färdig och testad agentgrund (`mobil/lennart_app/lib/agent/`): verktyg, behörigheter och en
+agentslinga. Det som saknas är en modell som kan använda den. Lennart 4 tränas på exakt samma format, utan
+nya specialtecken:
+
+```
+<|user|>Hur mycket är 12 gånger 7?
+<|assistant|><verktyg namn="raknare">{"uttryck": "12*7"}</verktyg><|end|>
+<|user|><resultat namn="raknare">84</resultat>
+<|assistant|>12 gånger 7 är 84.<|end|>
+```
+
+Träningsdata (fas 3, ~20 000 samtal, skrivna av lärarmodellen och kontrollerade genom att verktygen faktiskt körs):
+
+| Typ | Exempel | Varför |
+|---|---|---|
+| Räkna | procent, moms, enheter, datumskillnader | Små modeller räknar fel – räknaren gör inte det |
+| Klocka | "vilken veckodag är det?", "hur länge till jul?" | Modellen vet inte vad klockan är |
+| Filer | lista → läsa → sammanfatta, söka i anteckningar | Grunden för att arbeta i en mapp |
+| Skriva | skapa en att-göra-lista, spara en sammanfattning | Lära sig be om lov och respektera ett nej |
+| Fel | fil saknas, ogiltigt uttryck, nekat anrop | Hantera fel lugnt i stället för att hitta på |
+| Inget verktyg | vanliga frågor | Inte använda verktyg i onödan |
+
+Modellfilen markeras med `"verktyg": true` i sin beskrivning. Då ger appen modellen verktygslistan och slår
+på agentslingan. Senare verktyg, som alltid kräver uttryckligt godkännande: söka i det lokala uppslagsverket,
+köra ett godkänt kommando och läsa en webbsida.
+
 ## Utvärdering
 - Valideringsförlust på samma webb- och samtalsdata som 3.x, med tokenizer-oberoende mått (bits per byte),
   eftersom tokenizern byts.
