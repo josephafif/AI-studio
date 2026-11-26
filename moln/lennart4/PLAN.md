@@ -151,8 +151,14 @@ Se `forskning/RAPPORT.md`. Det viktigaste för Lennart 4:
    viktigaste ~100 000 artiklarnas inledningar (~50 MB).
 2. **Osäkerhet som egen förmåga.** Modellens egen poäng förutsäger rätt/fel (AUROC 0,85). Lennart 4 tränas
    dessutom på "det vet jag inte"-svar för frågor där läraren ser att modellen gissar.
-3. **Självskiss inbyggd från början.** Extra förlust på mittlagret (pilotens variant C), så att första halvan
-   av modellen kan skissa ord som hela modellen kontrollerar. Det ger ekodekodning även i nivån Snabb.
+3. **Modern arkitektur + självskiss: bekräftat i piloten.** RoPE, RMSNorm, SwiGLU och QK-norm nådde
+   Lennart 3-arkitekturens nivå med ~57 % av datan (1,7× effektivare). Med en extra förlust (vikt 0,3) på
+   mittlagret gissar första halvan samma ord som hela modellen i 84,5 % av fallen, utan kvalitetsförlust.
+   Det gör självskiss möjlig: ~1,4× snabbare svar enligt kalkylen. Kostar ~10 % mer träningstid i
+   Lennart 4-storlek. Pilotens kod: `forskning/arkitekturpilot/pilot.py`.
+5. **Läsning tränas med varierade frågor.** En snabb finjustering på mallfrågor lärde Lennart 3.4 svarets
+   form men inte förståelsen. Läsövningarna i Lennart 4 ska ha omformulerade frågor (av läraren), svar mitt
+   i texten, "det står inte i texten"-exempel och vanlig data inblandad.
 4. **Ekodekodning och blockad matmul** finns redan i motorn och följer med till Lennart 4.
 
 ## Utvärdering

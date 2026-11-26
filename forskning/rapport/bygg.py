@@ -15,9 +15,23 @@ def load(p, default=None):
         return default
 
 
+def diag():
+    rows = [["Lennart 3.4", 37, 0], ["Lennart 3.4 läsare", 62, 44]]
+    import re
+    try:
+        txt = open("/tmp/claude-0/-home-user-AI-studio/55d46a4b-692d-5c0b-807c-b2f788c77fe7/scratchpad/utv2.log").read()
+        m = re.search(r"läsare v2: rätt artikel (\d+)%.*bakåt (\d+)/(\d+)", txt)
+        if m:
+            rows.append(["Lennart 3.4 läsare v2", int(m.group(1)), round(100 * int(m.group(2)) / int(m.group(3)))])
+    except OSError:
+        pass
+    return rows
+
+
 def main():
     lens = load("logitlins/resultat_lennart34.json", {"lager": []})
     las = load("kunskapsbank/las_resultat.json", {})
+    las.update(load("kunskapsbank/las_resultat_v2.json", {}) or {})
     pilots = {v: load(f"arkitekturpilot/resultat_{v}.json") for v in ("lennart3", "modern", "modern+skiss")}
     data = {
         "eko": {"niva": ["Snabb", "Medel", "Djup"], "utan": [19.4, 51.8, 102.2], "med": [21.6, 39.8, 74.0]},
@@ -36,7 +50,7 @@ def main():
         "las_exempel": [],
         "pilot": {v: [(round(r["tokens"] / 1e6, 2), round(r["bits_per_byte"], 3), round(100 * r["mittlager_samstammighet"], 1),
                        round(r["tokens_per_s"])) for r in p["steg"]] for v, p in pilots.items() if p},
-        "diag": [["Lennart 3.4", 37, 0], ["Lennart 3.4 läsare", 62, 44]],
+        "diag": diag(),
         "pilot_params": {v: round(p["params_utan_inbaddning"] / 1e6, 2) for v, p in pilots.items() if p},
     }
     if las:

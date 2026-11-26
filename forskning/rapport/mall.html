@@ -437,7 +437,7 @@ table("lins-tbl", ["Lager", "Direkt", "Med brygga"], DATA.lins.lager.map((l, i) 
 /* 05–06 */
 if (lasBase) {
   const keys = ["utan_text", "1_traff", "3_traffar"], cats = ["Utan text", "1 träff", "3 träffar"];
-  const ser = lasNames.map((n, i) => ({ name: n, color: [C1, C2][i], values: keys.map(k => 100 * las[n][k]) }));
+  const ser = lasNames.map((n, i) => ({ name: n, color: [C1, C2, C3][i], values: keys.map(k => 100 * las[n][k]) }));
   legend("las-legend", ser); columns("las", { cats, series: ser, unit: " %", max: 100, decimals: 0 });
   table("las-tbl", ["Modell", ...cats], lasNames.map(n => [n, ...keys.map(k => fmt(100 * las[n][k]) + " %")]));
   const exBox = document.getElementById("las-ex"); exBox.replaceChildren();
@@ -453,7 +453,7 @@ if (lasBase) {
   });
 }
 if (DATA.diag) {
-  const ds = DATA.diag.map((d, i) => ({ name: d[0], color: [C1, C2][i], values: [d[1], d[2]] }));
+  const ds = DATA.diag.map((d, i) => ({ name: d[0], color: [C1, C2, C3][i], values: [d[1], d[2]] }));
   legend("diag-legend", ds); columns("diag", { cats: ["Alla frågor", "Baklängesfrågor"], series: ds, unit: " %", max: 100, decimals: 0 });
 }
 /* 07 */
@@ -462,7 +462,7 @@ const pser = Object.keys(pilot).map((v, i) => ({ name: names[v], color: [C1, C2,
 if (pser.length) {
   legend("pilot-legend", pser);
   const all = pser.flatMap(s => s.points.map(p => p[1]));
-  lines("pilot", { x: { ticks: [0, 2, 4, 6, 8, 10] }, series: pser, ymin: Math.floor(Math.min(...all) * 10) / 10, ymax: Math.ceil(Math.min(2.0, Math.max(...all)) * 10) / 10,
+  lines("pilot", { x: { ticks: [0, 2, 4, 6, 8, 10] }, series: pser, ymin: 1.0, ymax: 2.0,
     xlabel: "miljoner tokens", unit: " bpb", decimals: 3, xfmt: v => fmt(v, v % 1 ? 1 : 0) });
   const mser = Object.keys(pilot).map((v, i) => ({ name: names[v], color: [C1, C2, C3][i], points: pilot[v].map(r => [r[0], r[2]]) }));
   legend("mitt-legend", mser);
