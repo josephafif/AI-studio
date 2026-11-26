@@ -322,7 +322,10 @@ def main():
     if a.fas == "sft":
         alla = las_samtal(a, cache)
         random.Random(5).shuffle(alla)
-        val_samtal, alla = alla[:200], alla[200:]
+        n_val = min(200, len(alla) // 10)
+        val_samtal, alla = alla[:n_val], alla[n_val:]
+        if not alla:
+            raise SystemExit("Inga samtal att träna på")
         strommar, val_sv, val_en = {}, [], []
         if a.lokal_text:
             val_sv = val_en = [Path(f).read_text(errors="ignore") for f in sorted(glob.glob(a.lokal_text, recursive=True))[:3]]
