@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../agent/agent.dart';
+import '../agent/miljo.dart';
 import '../agent/verktyg.dart';
 import '../core/catalog.dart';
 import '../core/chats.dart';
@@ -118,11 +119,12 @@ class _ChatScreenState extends State<ChatScreen> {
   int _agentSteps = 0;
   static const _maxAgentSteps = 6;
 
-  Agent _agent() => Agent(
+  /// [fromUser]: kommandon du själv skriver körs direkt – godkännandet skyddar mot att Lennart gör saker på eget initiativ.
+  Future<Agent> _agent({bool fromUser = false}) async => Agent(
     verktyg: standardVerktyg(),
-    miljo: AgentMiljo(arbetsmapp: Prefs.arbetsmapp == null ? null : Directory(Prefs.arbetsmapp!)),
+    miljo: AgentMiljo(arbetsmapp: await arbetsmapp()),
     generera: (_) async => '',
-    godkann: _approve,
+    godkann: fromUser ? (_, __) async => true : _approve,
   );
 
   /// Frågar användaren innan ett verktyg som ändrar något körs.
@@ -162,9 +164,9 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   /// Kör ett verktyg och lägger resultatet i samtalet. [thenContinue] låter modellen svara vidare.
-  Future<void> _runTool(VerktygsAnrop a, {required bool thenContinue}) async {
+  Future<void> _runTool(VerktygsAnrop a, {required bool thenContinue, bool fromUser = false}) async {
     setState(() => _busy = true);
-    final r = await _agent().korAnrop(a);
+    final r = await (await _agent(fromUser: fromUser)).korAnrop(a);
     if (!mounted) return;
     setState(() {
       _chat.messages.add(Message(true, resultatText(a.namn, r.resultat, fel: r.fel || r.nekad), kind: 'resultat'));
@@ -182,6 +184,9 @@ class _ChatScreenState extends State<ChatScreen> {
     VerktygsAnrop call(String namn, Map<String, dynamic> arg) => VerktygsAnrop(namn, arg, anropsText(namn, arg), '');
     final a = switch (first) {
       '/klocka' || '/tid' => call('klocka', {}),
+      '/dagar' || '/dagartill' => call('dagar_till', {'datum': rest.isEmpty ? 'jul' : rest}),
+      '/anteckna' || '/notera' => call('anteckna', {'text': rest}),
+      '/anteckningar' => call('las_fil', {'fil': 'anteckningar.md'}),
       '/räkna' || '/rakna' => call('raknare', {'uttryck': rest}),
       '/lista' => call('lista_mapp', {'mapp': rest}),
       '/läs' || '/las' => call('las_fil', {'fil': rest}),
@@ -197,15 +202,16 @@ class _ChatScreenState extends State<ChatScreen> {
         () => _chat.messages.add(
           Message(
             false,
-            'Kommandon i agentläget:\n/klocka – datum och tid\n/räkna 12*7 – räknare\n/lista [mapp] – filer i arbetsmappen\n'
-            '/läs fil.txt – läs en textfil\n/sök ord – sök i arbetsmappen\n/skriv fil.txt (ny rad) text – skriv en fil, efter ditt godkännande',
+            'Kommandon i agentläget:\n/klocka – datum och tid\n/dagar jul – dagar kvar till ett datum eller en högtid\n/räkna 12*7 – räknare\n'
+            '/anteckna köp mjölk – spara en anteckning\n/anteckningar – visa dina anteckningar\n/sök ord – sök i anteckningarna\n'
+            '/lista – filer i arbetsmappen\n/läs fil.txt – läs en fil\n/skriv fil.txt (ny rad) text – skriv en fil',
             meta: 'agentläge',
           ),
         ),
       );
       return;
     }
-    _runTool(a, thenContinue: false);
+    _runTool(a, thenContinue: false, fromUser: true);
   }
 
   /// Skriver ett nytt svar på det sista användarmeddelandet.
@@ -758,7 +764,7 @@ class _ToolCall extends StatelessWidget {
                       style: TextStyle(color: c.muted),
                     ),
                     TextSpan(
-                      text: a?.namn ?? 'verktyg',
+                      text: _visningsnamn[a?.namn] ?? a?.namn ?? 'verktyg',
                       style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
                     ),
                     if (a != null && a.argument.isNotEmpty)
@@ -779,6 +785,18 @@ class _ToolCall extends StatelessWidget {
   }
 }
 
+/// Verktygens namn som de visas i samtalet.
+const _visningsnamn = {
+  'klocka': 'Klocka',
+  'dagar_till': 'Dagar kvar',
+  'raknare': 'Räknare',
+  'anteckna': 'Anteckning',
+  'lista_mapp': 'Filer',
+  'las_fil': 'Läste filen',
+  'sok_i_filer': 'Sökning',
+  'skriv_fil': 'Skrev filen',
+};
+
 /// Ett verktygs svar, som ett utfällbart kort.
 class _ToolResult extends StatefulWidget {
   final Message message;
@@ -793,7 +811,7 @@ class _ToolResultState extends State<_ToolResult> {
   Widget build(BuildContext context) {
     final c = context.c;
     final m = RegExp(r'^<resultat namn="([^"]+)"( fel="ja")?>(.*)</resultat>$', dotAll: true).firstMatch(widget.message.text);
-    final namn = m?.group(1) ?? 'verktyg';
+    final namn = _visningsnamn[m?.group(1)] ?? m?.group(1) ?? 'Verktyg';
     final fel = m?.group(2) != null;
     final body = (m?.group(3) ?? widget.message.text).trim();
     final lines = body.split('\n');

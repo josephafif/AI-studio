@@ -38,10 +38,11 @@ class GenSettings {
   final Effort effort;
   const GenSettings({this.temperature = 0.7, this.maxTokens = 200, this.topK = 40, this.effort = Effort.medel});
   GenSettings copyWith({double? temperature, int? maxTokens, int? topK, Effort? effort}) => GenSettings(
-      temperature: temperature ?? this.temperature,
-      maxTokens: maxTokens ?? this.maxTokens,
-      topK: topK ?? this.topK,
-      effort: effort ?? this.effort);
+    temperature: temperature ?? this.temperature,
+    maxTokens: maxTokens ?? this.maxTokens,
+    topK: topK ?? this.topK,
+    effort: effort ?? this.effort,
+  );
 }
 
 sealed class GenEvent {}
@@ -156,8 +157,16 @@ class LennartEngine {
         case 'chosen':
           out.add(GenChosen(m['i'] as int, m['text'] as String));
         case 'done':
-          out.add(GenDone(m['tokens'] as int, (m['seconds'] as num).toDouble(), m['prompt'] as int, m['drafts'] as int,
-              passes: (m['passes'] as int?) ?? 0, score: (m['score'] as num?)?.toDouble()));
+          out.add(
+            GenDone(
+              m['tokens'] as int,
+              (m['seconds'] as num).toDouble(),
+              m['prompt'] as int,
+              m['drafts'] as int,
+              passes: (m['passes'] as int?) ?? 0,
+              score: (m['score'] as num?)?.toDouble(),
+            ),
+          );
           sub.cancel();
           out.close();
         case 'genError':
@@ -168,7 +177,9 @@ class LennartEngine {
     });
     _cmd!.send({
       'cmd': 'generate',
-      'turns': [for (final t in turns) [t.fromUser, t.text]],
+      'turns': [
+        for (final t in turns) [t.fromUser, t.text],
+      ],
       'temperature': s.temperature,
       'maxTokens': s.maxTokens,
       'topK': s.topK,
@@ -263,9 +274,22 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
         model.logits.setAll(0, cur);
         final t = c == 0 ? math.min(temperature, 0.35) : math.max(temperature, 0.5);
         final i = written, sg = seg;
-        final d = _Draft.write(model, tok, rng, prompt, sources, limit - answer.length, t, topK, banned, stop, echo,
-            prefix: answer, sentence: !rest,
-            onPiece: (p) => toUi.send({'type': 'draft', 'i': i, 'n': budgetDrafts, 'seg': sg, 'text': p}));
+        final d = _Draft.write(
+          model,
+          tok,
+          rng,
+          prompt,
+          sources,
+          limit - answer.length,
+          t,
+          topK,
+          banned,
+          stop,
+          echo,
+          prefix: answer,
+          sentence: !rest,
+          onPiece: (p) => toUi.send({'type': 'draft', 'i': i, 'n': budgetDrafts, 'seg': sg, 'text': p}),
+        );
         written++;
         total += d.tokens.length;
         cands.add(d);
@@ -281,8 +305,8 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
       var bs = double.negativeInfinity;
       for (var j = 0; j < cands.length; j++) {
         final x = cands[j];
-        final sc = x.sentenceMean + 1.0 * cons[j] - 2.0 * _repetition([...answer, ...x.tokens]) -
-            (x.tokens.length < 3 && !x.ended ? 0.5 : 0.0);
+        final sc =
+            x.sentenceMean + 1.0 * cons[j] - 2.0 * _repetition([...answer, ...x.tokens]) - (x.tokens.length < 3 && !x.ended ? 0.5 : 0.0);
         if (sc > bs) {
           bs = sc;
           bi = j;
@@ -309,8 +333,20 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
     whole._lpSum = answerLp;
     chosenScore = whole.score;
   } else if (drafts <= 1) {
-    final d = _Draft.write(model, tok, rng, prompt, sources, limit, temperature, topK, banned, stop, echo,
-        onPiece: (p) => toUi.send({'type': 'token', 'text': p}));
+    final d = _Draft.write(
+      model,
+      tok,
+      rng,
+      prompt,
+      sources,
+      limit,
+      temperature,
+      topK,
+      banned,
+      stop,
+      echo,
+      onPiece: (p) => toUi.send({'type': 'token', 'text': p}),
+    );
     total = d.tokens.length;
     written = 1;
     chosenScore = d.score;
@@ -324,9 +360,21 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
       }
       // Första utkastet är försiktigt (låg temperatur), resten mer varierade.
       final t = i == 0 ? (temperature < 0.35 ? temperature : 0.35) : (temperature < 0.5 ? 0.5 : temperature);
-      final d = _Draft.write(model, tok, rng, prompt, sources, limit, t, topK, banned, stop, echo,
-          pruneBelow: best?.score,
-          onPiece: (p) => toUi.send({'type': 'draft', 'i': i, 'n': drafts, 'text': p}));
+      final d = _Draft.write(
+        model,
+        tok,
+        rng,
+        prompt,
+        sources,
+        limit,
+        t,
+        topK,
+        banned,
+        stop,
+        echo,
+        pruneBelow: best?.score,
+        onPiece: (p) => toUi.send({'type': 'draft', 'i': i, 'n': drafts, 'text': p}),
+      );
       total += d.tokens.length;
       written++;
       sources.add([...prompt, ...d.tokens]);
@@ -343,8 +391,14 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
   }
   final secs = (sw.elapsedMicroseconds - genStart) / 1e6;
   toUi.send({
-    'type': 'done', 'tokens': total, 'seconds': secs, 'prompt': prompt.length, 'drafts': written,
-    'passes': model.passes - passesStart, 'echoAccepted': echo.accepted, 'score': chosenScore,
+    'type': 'done',
+    'tokens': total,
+    'seconds': secs,
+    'prompt': prompt.length,
+    'drafts': written,
+    'passes': model.passes - passesStart,
+    'echoAccepted': echo.accepted,
+    'score': chosenScore,
   });
 }
 
@@ -407,9 +461,23 @@ class _Draft {
   /// utkast) föreslås fortsättningen därifrån och kontrolleras i ett pass. Ett förslag godtas med
   /// sannolikheten p(förslag); vid avslag dras en ny token ur p utan förslaget. Det ger exakt samma
   /// fördelning som vanlig sampling, men färre pass när utkasten upprepar varandra.
-  static _Draft write(NativeModel model, BpeTokenizer tok, math.Random rng, List<int> prompt, List<List<int>> sources,
-      int limit, double temperature, int topK, Set<int> banned, Pointer<Int32> stop, _EchoStats echo,
-      {double? pruneBelow, List<int> prefix = const [], bool sentence = false, required void Function(String) onPiece}) {
+  static _Draft write(
+    NativeModel model,
+    BpeTokenizer tok,
+    math.Random rng,
+    List<int> prompt,
+    List<List<int>> sources,
+    int limit,
+    double temperature,
+    int topK,
+    Set<int> banned,
+    Pointer<Int32> stop,
+    _EchoStats echo, {
+    double? pruneBelow,
+    List<int> prefix = const [],
+    bool sentence = false,
+    required void Function(String) onPiece,
+  }) {
     final d = _Draft();
     final decoder = StreamDecoder(tok);
     final ctx = model.info.context;
@@ -503,17 +571,22 @@ class _Draft {
 /// Hur mycket varje text liknar de andra (medel-Jaccard över ord) – "majoritetsrösten" för fritext.
 List<double> _consensus(List<String> texts) {
   final re = RegExp(r'[\wåäöÅÄÖéü]+');
-  final sets = [for (final t in texts) {for (final m in re.allMatches(t.toLowerCase())) if (m[0]!.length > 2) m[0]!}];
+  final sets = [
+    for (final t in texts)
+      {
+        for (final m in re.allMatches(t.toLowerCase()))
+          if (m[0]!.length > 2) m[0]!,
+      },
+  ];
   return [
     for (var i = 0; i < sets.length; i++)
       sets.length < 2
           ? 0.0
           : [
-                for (var j = 0; j < sets.length; j++)
-                  if (j != i)
-                    sets[i].union(sets[j]).isEmpty ? 0.0 : sets[i].intersection(sets[j]).length / sets[i].union(sets[j]).length
-              ].fold<double>(0, (a, b) => a + b) /
-              (sets.length - 1)
+                  for (var j = 0; j < sets.length; j++)
+                    if (j != i) sets[i].union(sets[j]).isEmpty ? 0.0 : sets[i].intersection(sets[j]).length / sets[i].union(sets[j]).length,
+                ].fold<double>(0, (a, b) => a + b) /
+                (sets.length - 1),
   ];
 }
 

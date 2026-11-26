@@ -39,7 +39,7 @@ abstract class Verktyg {
 }
 
 /// Alla inbyggda verktyg.
-List<Verktyg> standardVerktyg() => [Klocka(), Raknare(), ListaMapp(), LasFil(), SokIFiler(), SkrivFil()];
+List<Verktyg> standardVerktyg() => [Klocka(), DagarTill(), Raknare(), Anteckna(), ListaMapp(), LasFil(), SokIFiler(), SkrivFil()];
 
 String _str(Map<String, dynamic> a, String k) {
   final v = a[k];
@@ -332,5 +332,76 @@ class SkrivFil extends Verktyg {
     final fanns = await f.exists();
     await f.writeAsString(innehall);
     return '${fanns ? 'Skrev över' : 'Skapade'} ${_relativ(miljo, f)} (${_storlek(innehall.length)})';
+  }
+}
+
+// ───────────────────────────────────────────────────────── anteckningar
+/// Lägger till en rad i anteckningar.md i arbetsmappen, med datum och tid.
+class Anteckna extends Verktyg {
+  static const fil = 'anteckningar.md';
+  @override
+  String get namn => 'anteckna';
+  @override
+  String get beskrivning => 'Sparar en anteckning (med datum) i anteckningar.md.';
+  @override
+  Map<String, String> get parametrar => {'text': 'det som ska antecknas'};
+  @override
+  bool get andrar => true;
+  @override
+  bool get behoverMapp => true;
+  @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
+    final text = _str(arg, 'text').replaceAll('\n', ' ').trim();
+    if (text.length > 2000) throw VerktygsFel('Anteckningen är för lång');
+    final f = _inuti(miljo, fil);
+    final d = miljo.nu();
+    String two(int n) => n.toString().padLeft(2, '0');
+    final rad = '- ${d.year}-${two(d.month)}-${two(d.day)} ${two(d.hour)}.${two(d.minute)} – $text\n';
+    await f.parent.create(recursive: true);
+    await f.writeAsString(rad, mode: FileMode.append);
+    final antal = (await f.readAsLines()).where((l) => l.startsWith('- ')).length;
+    return 'Sparade anteckningen ($antal i $fil)';
+  }
+}
+
+// ───────────────────────────────────────────────────────── dagar till
+/// Räknar dagar till ett datum eller en högtid.
+class DagarTill extends Verktyg {
+  @override
+  String get namn => 'dagar_till';
+  @override
+  String get beskrivning => 'Räknar dagar till ett datum (ÅÅÅÅ-MM-DD) eller till jul, nyår, midsommar eller nationaldagen.';
+  @override
+  Map<String, String> get parametrar => {'datum': 'ÅÅÅÅ-MM-DD, eller jul, nyår, midsommar, nationaldagen'};
+  @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
+    final idag = DateTime(miljo.nu().year, miljo.nu().month, miljo.nu().day);
+    final q = _str(arg, 'datum').toLowerCase().trim();
+    DateTime nasta(DateTime Function(int ar) f) => !f(idag.year).isBefore(idag) ? f(idag.year) : f(idag.year + 1);
+    // Midsommarafton: fredagen mellan 19 och 25 juni.
+    DateTime midsommar(int ar) => [for (var d = 19; d <= 25; d++) DateTime(ar, 6, d)].firstWhere((x) => x.weekday == DateTime.friday);
+    final (mal, namn) = switch (q) {
+      'jul' || 'julafton' => (nasta((y) => DateTime(y, 12, 24)), 'julafton'),
+      'nyår' || 'nyar' || 'nyårsdagen' => (nasta((y) => DateTime(y, 1, 1)), 'nyårsdagen'),
+      'nyårsafton' => (nasta((y) => DateTime(y, 12, 31)), 'nyårsafton'),
+      'midsommar' || 'midsommarafton' => (nasta(midsommar), 'midsommarafton'),
+      'nationaldagen' => (nasta((y) => DateTime(y, 6, 6)), 'nationaldagen'),
+      _ => (_datum(q), null),
+    };
+    final dagar = mal.difference(idag).inDays;
+    final dag = Klocka._dagar[mal.weekday - 1];
+    final datum = '$dag ${mal.day} ${Klocka._manader[mal.month - 1]} ${mal.year}';
+    final vad = namn == null ? datum : '$namn ($datum)';
+    if (dagar == 0) return 'Det är $vad i dag!';
+    if (dagar > 0) return '$dagar ${dagar == 1 ? 'dag' : 'dagar'} kvar till $vad';
+    return '$vad var för ${-dagar} ${dagar == -1 ? 'dag' : 'dagar'} sedan';
+  }
+
+  static DateTime _datum(String q) {
+    final m = RegExp(r'^(\d{4})-(\d{1,2})-(\d{1,2})$').firstMatch(q);
+    if (m == null) throw VerktygsFel('Skriv datumet som ÅÅÅÅ-MM-DD, eller jul, nyår, midsommar, nationaldagen');
+    final d = DateTime(int.parse(m[1]!), int.parse(m[2]!), int.parse(m[3]!));
+    if (d.month != int.parse(m[2]!) || d.day != int.parse(m[3]!)) throw VerktygsFel('Det datumet finns inte');
+    return d;
   }
 }

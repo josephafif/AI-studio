@@ -13,14 +13,19 @@ class Draft {
   bool picked; // Djup+: utkastet valdes som mening i svaret
   Draft(this.text, {this.score, this.pruned = false, this.segment = -1, this.picked = false});
   Map<String, dynamic> toJson() => {
-        't': text,
-        if (score != null) 's': score,
-        if (pruned) 'p': true,
-        if (segment >= 0) 'g': segment,
-        if (picked) 'v': true,
-      };
-  factory Draft.fromJson(Map<String, dynamic> j) => Draft(j['t'] as String,
-      score: (j['s'] as num?)?.toDouble(), pruned: j['p'] == true, segment: (j['g'] as int?) ?? -1, picked: j['v'] == true);
+    't': text,
+    if (score != null) 's': score,
+    if (pruned) 'p': true,
+    if (segment >= 0) 'g': segment,
+    if (picked) 'v': true,
+  };
+  factory Draft.fromJson(Map<String, dynamic> j) => Draft(
+    j['t'] as String,
+    score: (j['s'] as num?)?.toDouble(),
+    pruned: j['p'] == true,
+    segment: (j['g'] as int?) ?? -1,
+    picked: j['v'] == true,
+  );
 }
 
 class Message {
@@ -34,28 +39,39 @@ class Message {
   bool uncertain;
   String? kind; // null = vanligt meddelande, 'anrop' = verktygsanrop, 'resultat' = verktygets svar
   bool reveal = false; // skriv fram texten med en animation (inte sparat)
-  Message(this.fromUser, this.text,
-      {this.meta, this.error = false, List<Draft>? drafts, this.chosen, this.thoughtSeconds, this.uncertain = false, this.kind})
-      : drafts = drafts ?? [];
+  Message(
+    this.fromUser,
+    this.text, {
+    this.meta,
+    this.error = false,
+    List<Draft>? drafts,
+    this.chosen,
+    this.thoughtSeconds,
+    this.uncertain = false,
+    this.kind,
+  }) : drafts = drafts ?? [];
   Map<String, dynamic> toJson() => {
-        'u': fromUser,
-        't': text,
-        if (meta != null) 'm': meta,
-        if (error) 'e': true,
-        if (drafts.isNotEmpty) 'd': [for (final d in drafts) d.toJson()],
-        if (chosen != null) 'c': chosen,
-        if (thoughtSeconds != null) 'th': thoughtSeconds,
-        if (uncertain) 'o': true,
-        if (kind != null) 'k': kind,
-      };
-  factory Message.fromJson(Map<String, dynamic> j) => Message(j['u'] as bool, j['t'] as String,
-      meta: j['m'] as String?,
-      error: j['e'] == true,
-      drafts: [for (final d in (j['d'] as List?) ?? []) Draft.fromJson(d as Map<String, dynamic>)],
-      chosen: j['c'] as int?,
-      thoughtSeconds: (j['th'] as num?)?.toDouble(),
-      uncertain: j['o'] == true,
-      kind: j['k'] as String?);
+    'u': fromUser,
+    't': text,
+    if (meta != null) 'm': meta,
+    if (error) 'e': true,
+    if (drafts.isNotEmpty) 'd': [for (final d in drafts) d.toJson()],
+    if (chosen != null) 'c': chosen,
+    if (thoughtSeconds != null) 'th': thoughtSeconds,
+    if (uncertain) 'o': true,
+    if (kind != null) 'k': kind,
+  };
+  factory Message.fromJson(Map<String, dynamic> j) => Message(
+    j['u'] as bool,
+    j['t'] as String,
+    meta: j['m'] as String?,
+    error: j['e'] == true,
+    drafts: [for (final d in (j['d'] as List?) ?? []) Draft.fromJson(d as Map<String, dynamic>)],
+    chosen: j['c'] as int?,
+    thoughtSeconds: (j['th'] as num?)?.toDouble(),
+    uncertain: j['o'] == true,
+    kind: j['k'] as String?,
+  );
 }
 
 class Conversation {
@@ -70,12 +86,19 @@ class Conversation {
       Conversation(DateTime.now().microsecondsSinceEpoch.toString(), 'Nytt samtal', modelId, DateTime.now(), []);
 
   Map<String, dynamic> toJson() => {
-        'id': id, 'title': title, 'model': modelId, 'updated': updated.toIso8601String(),
-        'messages': [for (final m in messages) m.toJson()],
-      };
+    'id': id,
+    'title': title,
+    'model': modelId,
+    'updated': updated.toIso8601String(),
+    'messages': [for (final m in messages) m.toJson()],
+  };
   factory Conversation.fromJson(Map<String, dynamic> j) => Conversation(
-      j['id'] as String, j['title'] as String, j['model'] as String, DateTime.parse(j['updated'] as String),
-      [for (final m in j['messages'] as List) Message.fromJson(m as Map<String, dynamic>)]);
+    j['id'] as String,
+    j['title'] as String,
+    j['model'] as String,
+    DateTime.parse(j['updated'] as String),
+    [for (final m in j['messages'] as List) Message.fromJson(m as Map<String, dynamic>)],
+  );
 }
 
 class ChatStore {
@@ -89,7 +112,9 @@ class ChatStore {
         final list = jsonDecode(await file.readAsString()) as List;
         items.addAll([for (final c in list) Conversation.fromJson(c as Map<String, dynamic>)]);
         items.sort((a, b) => b.updated.compareTo(a.updated));
-      } catch (_) {/* trasig fil – börja om */}
+      } catch (_) {
+        /* trasig fil – börja om */
+      }
     }
   }
 

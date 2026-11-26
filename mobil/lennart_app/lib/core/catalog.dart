@@ -18,19 +18,19 @@ class ModelInfo {
   final Map<String, dynamic> json;
 
   ModelInfo.fromJson(Map<String, dynamic> j, {this.builtin = true})
-      : id = j['id'] as String,
-        name = j['name'] as String,
-        description = (j['description'] as String?) ?? '',
-        quant = j['quant'] as String,
-        params = j['params'] as int,
-        steps = j['steps'] as int,
-        context = j['context'] as int,
-        vocab = j['vocab'] as int,
-        maxTokens = j['max_tokens'] as int,
-        topK = j['top_k'] as int,
-        temperature = (j['temperature'] as num).toDouble(),
-        hue = ((j['hue'] as num?) ?? 152).toDouble(),
-        json = j;
+    : id = j['id'] as String,
+      name = j['name'] as String,
+      description = (j['description'] as String?) ?? '',
+      quant = j['quant'] as String,
+      params = j['params'] as int,
+      steps = j['steps'] as int,
+      context = j['context'] as int,
+      vocab = j['vocab'] as int,
+      maxTokens = j['max_tokens'] as int,
+      topK = j['top_k'] as int,
+      temperature = (j['temperature'] as num).toDouble(),
+      hue = ((j['hue'] as num?) ?? 152).toDouble(),
+      json = j;
 
   Color get color => HSLColor.fromAHSL(1, hue % 360, 0.85, 0.62).toColor();
 
@@ -73,7 +73,9 @@ class Catalog {
           final info = ModelInfo.fromJson(m as Map<String, dynamic>);
           if (await File('${d.path}/${info.id}.lmod').exists()) out[info.id] = info;
         }
-      } catch (_) {/* trasig fil – hoppa över */}
+      } catch (_) {
+        /* trasig fil – hoppa över */
+      }
     }
     return out.values.toList();
   }
@@ -133,9 +135,11 @@ class Catalog {
   /// Datorn: Windows filväljare – filen ligger kvar där den är.
   static Future<String?> pickFile() async {
     if (isDesktop) {
-      final f = await openFile(acceptedTypeGroups: const [
-        XTypeGroup(label: 'Lennart-modell', extensions: ['lennart']),
-      ]);
+      final f = await openFile(
+        acceptedTypeGroups: const [
+          XTypeGroup(label: 'Lennart-modell', extensions: ['lennart']),
+        ],
+      );
       return f?.path;
     }
     return _channel.invokeMethod<String>('pickFile');
@@ -147,11 +151,8 @@ class Catalog {
 
   /// Filer som ska finnas på disken, med storleken i appens tillgångar.
   List<(String asset, String dest)> _files() => [
-        for (final m in _builtin) ...[
-          ('assets/models/${m.id}.lmod', modelPath(m)),
-          ('assets/models/${m.id}.tok.json', tokenizerPath(m)),
-        ]
-      ];
+    for (final m in _builtin) ...[('assets/models/${m.id}.lmod', modelPath(m)), ('assets/models/${m.id}.tok.json', tokenizerPath(m))],
+  ];
 
   Future<bool> needsSetup() async {
     if (bundled != null) return false;

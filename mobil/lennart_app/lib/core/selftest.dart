@@ -33,8 +33,9 @@ Future<void> runSelfTest(List<String> args) async {
       for (final effort in [Effort.snabb, Effort.djupPlus]) {
         final buf = StringBuffer();
         GenDone? done;
-        await for (final e in engine.generate([ChatTurn(true, 'Hej! Vem är du?')],
-            GenSettings(temperature: effort == Effort.snabb ? 0 : 0.7, maxTokens: 40, topK: 40, effort: effort))) {
+        await for (final e in engine.generate([
+          ChatTurn(true, 'Hej! Vem är du?'),
+        ], GenSettings(temperature: effort == Effort.snabb ? 0 : 0.7, maxTokens: 40, topK: 40, effort: effort))) {
           switch (e) {
             case GenToken(:final text):
               buf.write(text);
@@ -52,14 +53,21 @@ Future<void> runSelfTest(List<String> args) async {
         }
         final svar = buf.toString().trim();
         if (svar.isEmpty || done == null) ok = false;
-        line('[${m.name} · ${effort.label} · inläst ${loadMs} ms · ${done?.tokens} tokens · '
-            '${done?.tokensPerSecond.toStringAsFixed(1)} tok/s] $svar');
+        line(
+          '[${m.name} · ${effort.label} · inläst ${loadMs} ms · ${done?.tokens} tokens · '
+          '${done?.tokensPerSecond.toStringAsFixed(1)} tok/s] $svar',
+        );
       }
     }
     // Agentens verktyg på riktig Windows (sökvägar, filer, räknare)
     final tmp = await Directory.systemTemp.createTemp('lennart_sjalvtest');
     await File('${tmp.path}${Platform.pathSeparator}anteckning.txt').writeAsString('Köp kaffe.\nRing banken.');
-    final agent = Agent(verktyg: standardVerktyg(), miljo: AgentMiljo(arbetsmapp: tmp), generera: (_) async => '', godkann: (_, __) async => true);
+    final agent = Agent(
+      verktyg: standardVerktyg(),
+      miljo: AgentMiljo(arbetsmapp: tmp),
+      generera: (_) async => '',
+      godkann: (_, __) async => true,
+    );
     for (final call in [
       VerktygsAnrop('raknare', {'uttryck': '12*7'}, '', ''),
       VerktygsAnrop('sok_i_filer', {'text': 'banken'}, '', ''),

@@ -126,6 +126,50 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   }, skip: !enabled);
 
+  testWidgets('telefon agent', (tester) async {
+    debugDisableShadows = false;
+    await _loadFonts();
+    tester.view.physicalSize = const Size(412 * 2.5, 900 * 2.5);
+    tester.view.devicePixelRatio = 2.5;
+    Prefs.agent = true;
+    final mapp = Directory.systemTemp.createTempSync('lennart_telefon');
+    Prefs.arbetsmapp = mapp.path;
+    final catalog = Catalog.preview([_m('lennart-3-4', 'Lennart 3.4', 298407936, 300)]);
+    await tester.pumpWidget(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: buildTheme(Brightness.dark),
+      home: ChatScreen(catalog: catalog, store: ChatStore(), engine: _FakeEngine()),
+    ));
+    Future<void> send(String t) async {
+      await tester.enterText(find.byType(TextField), t);
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      // Verktygen gör riktig filhantering – låt den bli klar innan nästa kommando.
+      for (var i = 0; i < 60; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 30)));
+        await tester.pump(const Duration(milliseconds: 30));
+        if (i > 3 && find.byIcon(Icons.arrow_upward_rounded).evaluate().isNotEmpty) break;
+      }
+      await tester.pump(const Duration(milliseconds: 300));
+    }
+
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await send('/anteckna Köp kaffe och ring banken');
+    await send('/anteckna Byt lösenord på mejlen');
+    await send('/dagar jul');
+    await send('/räkna 1299*0,8');
+    await send('/anteckningar');
+    await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/t-agent-mork.png'));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
+    mapp.deleteSync(recursive: true);
+    Prefs.agent = false;
+    Prefs.arbetsmapp = null;
+    debugDisableShadows = true;
+  }, skip: !enabled);
+
   for (final dark in [true, false]) {
     testWidgets('dator ${dark ? 'mörk' : 'ljus'}', (tester) async {
       debugDisableShadows = false;
@@ -134,6 +178,7 @@ void main() {
       tester.view.devicePixelRatio = 1.25;
       Prefs.effort = Effort.snabb;
       Prefs.agent = true;
+      Prefs.arbetsmapp = Directory.systemTemp.createTempSync('lennart_preview').path;
       final catalog = Catalog.preview([
         _m('lennart', 'Lennart', 995544, 152),
         _m('lennart-2', 'Lennart 2', 8130624, 192),
@@ -166,7 +211,10 @@ void main() {
       await tester.enterText(find.byType(TextField), 'Vad är 12 gånger 7?');
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      await wait(60);
+      for (var i = 0; i < 6; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 60)));
+        await wait(10);
+      }
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/d3-agent-$mode.png'));
       await tester.tap(find.byIcon(Icons.add_rounded));
       await wait(8);

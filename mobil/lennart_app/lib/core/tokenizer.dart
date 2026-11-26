@@ -24,8 +24,12 @@ class BpeTokenizer {
   factory BpeTokenizer.fromJson(String source) {
     final j = jsonDecode(source) as Map<String, dynamic>;
     final tokens = [for (final t in j['tokens'] as List) base64Decode(t as String)];
-    final tok = BpeTokenizer._(RegExp(j['pattern'] as String, unicode: true),
-        (j['byte_to_id'] as List).cast<int>(), tokens, j['escape_specials'] == true);
+    final tok = BpeTokenizer._(
+      RegExp(j['pattern'] as String, unicode: true),
+      (j['byte_to_id'] as List).cast<int>(),
+      tokens,
+      j['escape_specials'] == true,
+    );
     final merges = j['merges'] as List;
     for (var i = 0; i < merges.length; i++) {
       final m = (merges[i] as List).cast<int>();
@@ -102,8 +106,7 @@ class BpeTokenizer {
 
   Uint8List bytesOf(int id) => id >= 0 && id < _tokens.length ? _tokens[id] : Uint8List(0);
 
-  String decode(List<int> ids) =>
-      utf8.decode([for (final i in ids) ...bytesOf(i)], allowMalformed: true);
+  String decode(List<int> ids) => utf8.decode([for (final i in ids) ...bytesOf(i)], allowMalformed: true);
 }
 
 /// Avkodar token för token och väntar när ett tecken är delat över flera tokens.
@@ -123,7 +126,13 @@ class StreamDecoder {
     }
     if (i >= 0) {
       final b = _pending[i];
-      final need = b >= 0xF0 ? 4 : b >= 0xE0 ? 3 : b >= 0xC0 ? 2 : 1;
+      final need = b >= 0xF0
+          ? 4
+          : b >= 0xE0
+          ? 3
+          : b >= 0xC0
+          ? 2
+          : 1;
       if (need > 1 && _pending.length - i < need) end = i;
     }
     if (end == 0) return '';

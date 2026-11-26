@@ -42,7 +42,10 @@ godkännande. Dagens modeller använder inte verktygen själva än – det trän
 in i Lennart 4. Du kan köra dem direkt med kommandon:
 
   /klocka            datum och tid
+  /dagar jul         dagar kvar till ett datum eller en högtid
   /räkna 12*7        räknare
+  /anteckna text     spara en anteckning (anteckningar.md)
+  /anteckningar      visa anteckningarna
   /lista             filer i arbetsmappen
   /läs fil.txt       läs en textfil
   /sök ord           sök i arbetsmappen

@@ -68,15 +68,19 @@ class _StartupState extends State<_Startup> {
       await store.open();
       if (await catalog.needsSetup()) {
         setState(() => _setup = true);
-        await catalog.setup((label, done) => setState(() {
-              _label = label;
-              _progress = done;
-            }));
+        await catalog.setup(
+          (label, done) => setState(() {
+            _label = label;
+            _progress = done;
+          }),
+        );
       }
       if (catalog.models.isEmpty) {
-        throw StateError(Catalog.isDesktop
-            ? 'Hittade inga modeller. Mappen "modeller" ska ligga bredvid Lennart.exe – packa upp hela zip-filen igen.'
-            : 'Hittade inga modeller i appen.');
+        throw StateError(
+          Catalog.isDesktop
+              ? 'Hittade inga modeller. Mappen "modeller" ska ligga bredvid Lennart.exe – packa upp hela zip-filen igen.'
+              : 'Hittade inga modeller i appen.',
+        );
       }
       setState(() {
         _catalog = catalog;
@@ -92,32 +96,47 @@ class _StartupState extends State<_Startup> {
     if (_catalog != null) return ChatScreen(catalog: _catalog!, store: _store!);
     final c = context.c;
     return Scaffold(
-      body: Stack(children: [
-        const Positioned.fill(child: AsciiRain(color: Palette.green)),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              const AsciiSphere(size: 240, color: Palette.green, thinking: true),
-              ScrambleText('lennart_', style: mono.copyWith(fontSize: 34, fontWeight: FontWeight.w800, color: c.text)),
-              const SizedBox(height: 18),
-              if (_error != null)
-                Text(_error!, textAlign: TextAlign.center, style: const TextStyle(color: Palette.danger))
-              else if (_setup) ...[
-                BrailleSpinner(color: c.accent, text: 'förbereder $_label'),
-                const SizedBox(height: 12),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(value: _progress, minHeight: 6, backgroundColor: c.stroke, color: c.accent),
-                ),
-                const SizedBox(height: 10),
-                Text('// bara första gången – modellerna packas upp till telefonen',
-                    textAlign: TextAlign.center, style: mono.copyWith(color: c.muted, fontSize: 11)),
-              ],
-            ]),
+      body: Stack(
+        children: [
+          const Positioned.fill(child: AsciiRain(color: Palette.green)),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const AsciiSphere(size: 240, color: Palette.green, thinking: true),
+                  ScrambleText(
+                    'lennart_',
+                    style: mono.copyWith(fontSize: 34, fontWeight: FontWeight.w800, color: c.text),
+                  ),
+                  const SizedBox(height: 18),
+                  if (_error != null)
+                    Text(
+                      _error!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Palette.danger),
+                    )
+                  else if (_setup) ...[
+                    BrailleSpinner(color: c.accent, text: 'förbereder $_label'),
+                    const SizedBox(height: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(value: _progress, minHeight: 6, backgroundColor: c.stroke, color: c.accent),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '// bara första gången – modellerna packas upp till telefonen',
+                      textAlign: TextAlign.center,
+                      style: mono.copyWith(color: c.muted, fontSize: 11),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
-        ),
-      ]),
+        ],
+      ),
     );
   }
 }

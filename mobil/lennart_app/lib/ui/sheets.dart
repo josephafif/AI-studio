@@ -344,29 +344,36 @@ Future<void> agentSettings(BuildContext context) => _present<void>(
                     _Row(
                       leading: Icon(Icons.folder_open_rounded, color: c.text),
                       title: 'Arbetsmapp',
-                      subtitle: mapp ?? 'Ingen vald. Filverktygen får bara arbeta i mappen du väljer.',
+                      subtitle: mapp ?? 'Lennart-anteckningar i Dokument. Tryck för att välja en annan mapp.',
                       onTap: () async {
                         final d = await getDirectoryPath(confirmButtonText: 'Välj mapp');
                         if (d != null) setState(() => Prefs.arbetsmapp = d);
                       },
+                    )
+                  else
+                    _Row(
+                      leading: Icon(Icons.sticky_note_2_outlined, color: c.text),
+                      title: 'Anteckningar',
+                      subtitle: 'Sparas i appen. Filverktygen arbetar bara där.',
+                      onTap: () {},
                     ),
                   _section(ctx, 'Verktyg'),
                   for (final v in standardVerktyg())
-                    if (Catalog.isDesktop || !v.behoverMapp)
-                      _Row(
-                        leading: Icon(
-                          v.andrar ? Icons.lock_outline_rounded : Icons.build_outlined,
-                          color: v.andrar ? Palette.danger : c.text,
-                          size: 20,
-                        ),
-                        title: kommandoFor(v.namn),
-                        subtitle: v.beskrivning,
-                        onTap: () {},
+                    _Row(
+                      leading: Icon(
+                        v.andrar ? Icons.lock_outline_rounded : Icons.build_outlined,
+                        color: v.andrar ? Palette.danger : c.text,
+                        size: 20,
                       ),
+                      title: kommandoFor(v.namn),
+                      subtitle: v.beskrivning,
+                      onTap: () {},
+                    ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(14, 6, 14, 4),
                     child: Text(
-                      'Verktyg som ändrar något kräver alltid ditt godkännande. Inga verktyg kör program eller går ut på internet.',
+                      'Kommandon du skriver körs direkt. När Lennart själv vill använda ett verktyg som ändrar något (låset) '
+                      'frågar appen dig först. Inga verktyg kör program eller går ut på internet.',
                       style: TextStyle(color: c.muted, fontSize: 12),
                     ),
                   ),
@@ -383,6 +390,8 @@ Future<void> agentSettings(BuildContext context) => _present<void>(
 /// Kommandot som kör ett verktyg direkt från inmatningsfältet.
 String kommandoFor(String verktyg) => switch (verktyg) {
   'klocka' => '/klocka',
+  'dagar_till' => '/dagar',
+  'anteckna' => '/anteckna',
   'raknare' => '/räkna',
   'lista_mapp' => '/lista',
   'las_fil' => '/läs',

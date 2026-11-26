@@ -76,6 +76,24 @@ void main() {
         ute.deleteSync(recursive: true);
       }
     });
+    test('anteckna lägger till rader med datum', () async {
+      expect(await Anteckna().kor({'text': 'Köp mjölk'}, miljo()), 'Sparade anteckningen (1 i anteckningar.md)');
+      expect(await Anteckna().kor({'text': 'Ring banken'}, miljo()), 'Sparade anteckningen (2 i anteckningar.md)');
+      final text = File('${mapp.path}/anteckningar.md').readAsStringSync();
+      expect(text, '- 2026-11-26 09.05 – Köp mjölk\n- 2026-11-26 09.05 – Ring banken\n');
+      expect(await SokIFiler().kor({'text': 'mjölk'}, miljo()), contains('anteckningar.md:1'));
+    });
+    test('dagar till datum och högtider', () async {
+      Future<String> dagar(String d) => DagarTill().kor({'datum': d}, miljo()); // idag = torsdag 26 nov 2026
+      expect(await dagar('jul'), '28 dagar kvar till julafton (torsdag 24 december 2026)');
+      expect(await dagar('nyår'), '36 dagar kvar till nyårsdagen (fredag 1 januari 2027)');
+      expect(await dagar('midsommar'), '211 dagar kvar till midsommarafton (fredag 25 juni 2027)');
+      expect(await dagar('2026-11-27'), '1 dag kvar till fredag 27 november 2026');
+      expect(await dagar('2026-11-26'), 'Det är torsdag 26 november 2026 i dag!');
+      expect(await dagar('2026-11-20'), 'fredag 20 november 2026 var för 6 dagar sedan');
+      expect(() => dagar('2026-02-30'), throwsA(isA<VerktygsFel>()));
+      expect(() => dagar('snart'), throwsA(isA<VerktygsFel>()));
+    });
     test('utan arbetsmapp', () async {
       expect(() => LasFil().kor({'fil': 'a.txt'}, AgentMiljo()), throwsA(isA<VerktygsFel>()));
     });
