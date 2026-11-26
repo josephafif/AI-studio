@@ -1,10 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../agent/agent.dart';
+import '../agent/verktyg.dart';
 import '../core/catalog.dart';
 import '../core/chats.dart';
 import '../core/engine.dart';
@@ -29,7 +32,21 @@ class _ChatScreenState extends State<ChatScreen> {
   late final LennartEngine _engine = widget.engine ?? LennartEngine();
   final _input = TextEditingController();
   final _scroll = ScrollController();
-  final _focus = FocusNode();
+  late final _focus = FocusNode(onKeyEvent: _onComposerKey);
+
+  /// Datorn: Enter skickar, Shift+Enter ger ny rad.
+  KeyEventResult _onComposerKey(FocusNode node, KeyEvent e) {
+    if (!Catalog.isDesktop || e is! KeyDownEvent) return KeyEventResult.ignored;
+    if ((e.logicalKey == LogicalKeyboardKey.enter || e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
+        !HardwareKeyboard.instance.isShiftPressed) {
+      _send();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
+  }
+
+  /// Bred skärm (dator, surfplatta på tvären): fast sidopanel och dialoger i stället för ark.
+  bool get _wide => MediaQuery.sizeOf(context).width >= 860;
   late ModelInfo _model = widget.catalog.models.where((m) => m.id == Prefs.modelId).firstOrNull ?? widget.catalog.latest;
   late GenSettings _settings = _defaults(_model);
   late Conversation _chat = Conversation.empty(_model.id);
@@ -85,11 +102,110 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty || _busy || _loading) return;
     HapticFeedback.lightImpact();
     _input.clear();
+    _agentSteps = 0;
     setState(() {
       _chat.modelId = _model.id;
       _chat.messages.add(Message(true, text));
     });
+    if (Prefs.agent && text.startsWith('/')) {
+      _command(text);
+      return;
+    }
     _generate();
+  }
+
+  // ───────────────────────────── agentläge
+  int _agentSteps = 0;
+  static const _maxAgentSteps = 6;
+
+  Agent _agent() => Agent(
+    verktyg: standardVerktyg(),
+    miljo: AgentMiljo(arbetsmapp: Prefs.arbetsmapp == null ? null : Directory(Prefs.arbetsmapp!)),
+    generera: (_) async => '',
+    godkann: _approve,
+  );
+
+  /// Frågar användaren innan ett verktyg som ändrar något körs.
+  Future<bool> _approve(VerktygsAnrop a, Verktyg v) async {
+    if (!mounted) return false;
+    final c = context.c;
+    final preview = const JsonEncoder.withIndent('  ').convert(a.argument);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: c.surface,
+        title: Text('Tillåta ${v.namn}?', style: TextStyle(color: c.text)),
+        content: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460, maxHeight: 320),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(v.beskrivning, style: TextStyle(color: c.muted)),
+                const SizedBox(height: 10),
+                Text(
+                  preview.length > 1500 ? '${preview.substring(0, 1500)} …' : preview,
+                  style: mono.copyWith(color: c.text, fontSize: 12.5),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Neka')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Tillåt')),
+        ],
+      ),
+    );
+    return ok == true;
+  }
+
+  /// Kör ett verktyg och lägger resultatet i samtalet. [thenContinue] låter modellen svara vidare.
+  Future<void> _runTool(VerktygsAnrop a, {required bool thenContinue}) async {
+    setState(() => _busy = true);
+    final r = await _agent().korAnrop(a);
+    if (!mounted) return;
+    setState(() {
+      _chat.messages.add(Message(true, resultatText(a.namn, r.resultat, fel: r.fel || r.nekad), kind: 'resultat'));
+      _busy = false;
+    });
+    _scrollDown();
+    widget.store.save(_chat);
+    if (thenContinue && !r.nekad) _generate();
+  }
+
+  /// Kommandon som kör verktygen direkt: /klocka, /räkna 12*7, /lista, /läs fil, /sök text, /skriv fil + text.
+  void _command(String text) {
+    final first = text.split(RegExp(r'\s+')).first.toLowerCase();
+    final rest = text.substring(first.length).trim();
+    VerktygsAnrop call(String namn, Map<String, dynamic> arg) => VerktygsAnrop(namn, arg, anropsText(namn, arg), '');
+    final a = switch (first) {
+      '/klocka' || '/tid' => call('klocka', {}),
+      '/räkna' || '/rakna' => call('raknare', {'uttryck': rest}),
+      '/lista' => call('lista_mapp', {'mapp': rest}),
+      '/läs' || '/las' => call('las_fil', {'fil': rest}),
+      '/sök' || '/sok' => call('sok_i_filer', {'text': rest}),
+      '/skriv' => () {
+        final lines = rest.split('\n');
+        return call('skriv_fil', {'fil': lines.first.trim(), 'innehall': lines.skip(1).join('\n')});
+      }(),
+      _ => null,
+    };
+    if (a == null) {
+      setState(
+        () => _chat.messages.add(
+          Message(
+            false,
+            'Kommandon i agentläget:\n/klocka – datum och tid\n/räkna 12*7 – räknare\n/lista [mapp] – filer i arbetsmappen\n'
+            '/läs fil.txt – läs en textfil\n/sök ord – sök i arbetsmappen\n/skriv fil.txt (ny rad) text – skriv en fil, efter ditt godkännande',
+            meta: 'agentläge',
+          ),
+        ),
+      );
+      return;
+    }
+    _runTool(a, thenContinue: false);
   }
 
   /// Skriver ett nytt svar på det sista användarmeddelandet.
@@ -104,8 +220,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final reply = Message(false, '');
     final turns = [
       for (final m in _chat.messages)
-        if (!m.error && m.text.isNotEmpty) ChatTurn(m.fromUser, m.text),
+        if (!m.error && m.text.isNotEmpty && !(m.fromUser && m.kind == null && m.text.startsWith('/') && Prefs.agent))
+          ChatTurn(m.fromUser, m.text),
     ];
+    // En modell som är tränad på verktyg (Lennart 4) får veta vilka som finns.
+    if (Prefs.agent && _model.json['verktyg'] == true) turns.insert(0, ChatTurn(true, verktygsBeskrivning(standardVerktyg())));
     final effort = _settings.effort;
     setState(() {
       _chat.messages.add(reply);
@@ -164,6 +283,13 @@ class _ChatScreenState extends State<ChatScreen> {
             _busy = false;
           });
           widget.store.save(_chat);
+          // Agentläge: om modellen svarade med ett verktygsanrop körs det, och modellen får fortsätta.
+          final call = Prefs.agent ? hittaAnrop(reply.text) : null;
+          if (call != null && _agentSteps < _maxAgentSteps) {
+            _agentSteps++;
+            setState(() => reply.kind = 'anrop');
+            _runTool(call, thenContinue: true);
+          }
         case GenError(:final message):
           setState(() {
             reply
@@ -185,8 +311,8 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() => _chat = Conversation.empty(_model.id));
   }
 
-  Future<void> _openChat(Conversation c) async {
-    Navigator.pop(context);
+  Future<void> _openChat(Conversation c, {bool fromDrawer = true}) async {
+    if (fromDrawer) Navigator.pop(context);
     if (_busy) return;
     setState(() => _chat = c);
     final m = widget.catalog.models.where((x) => x.id == c.modelId).firstOrNull;
@@ -223,6 +349,10 @@ class _ChatScreenState extends State<ChatScreen> {
         if (!mounted) return;
         final s = await editSettings(context, _settings, _model);
         if (s != null) setState(() => _settings = s);
+      case PlusAction.agent:
+        if (!mounted) return;
+        await agentSettings(context);
+        setState(() {});
       case PlusAction.newChat:
         _newChat();
       case null:
@@ -269,9 +399,12 @@ class _ChatScreenState extends State<ChatScreen> {
       Navigator.pop(context);
       _toast('Kunde inte installera: $e');
     } finally {
-      try {
-        await File(path).delete();
-      } catch (_) {}
+      // Telefonen kopierar filen till cachen – ta bort kopian. På datorn är det användarens egen fil.
+      if (!Catalog.isDesktop) {
+        try {
+          await File(path).delete();
+        } catch (_) {}
+      }
     }
   }
 
@@ -296,43 +429,91 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
     final empty = _chat.messages.isEmpty;
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      drawer: _HistoryDrawer(
-        store: widget.store,
-        catalog: widget.catalog,
-        onOpen: _openChat,
-        onNew: () {
-          Navigator.pop(context);
-          _newChat();
-        },
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(end: empty ? 1.0 : 0.45),
-              duration: const Duration(milliseconds: 600),
-              builder: (_, v, __) => AsciiRain(color: _color, intensity: v),
-            ),
+    final wide = _wide;
+    final main = Stack(
+      children: [
+        Positioned.fill(
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(end: empty ? 1.0 : 0.45),
+            duration: const Duration(milliseconds: 600),
+            builder: (_, v, __) => AsciiRain(color: _color, intensity: v),
           ),
-          SafeArea(
-            child: Column(
-              children: [
-                _topBar(),
-                Expanded(
-                  child: AnimatedSwitcher(duration: const Duration(milliseconds: 350), child: empty ? _empty() : _messages()),
+        ),
+        SafeArea(
+          child: Column(
+            children: [
+              _topBar(wide: wide),
+              Expanded(
+                child: AnimatedSwitcher(duration: const Duration(milliseconds: 350), child: empty ? _empty() : _messages()),
+              ),
+              Center(
+                child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 820), child: _composer()),
+              ),
+              if (wide)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'Enter skickar · Shift+Enter ny rad · Ctrl+N nytt samtal · Esc stoppar',
+                    style: TextStyle(color: c.muted, fontSize: 11.5),
+                  ),
                 ),
-                _composer(),
+            ],
+          ),
+        ),
+      ],
+    );
+    final shortcuts = <ShortcutActivator, VoidCallback>{
+      const SingleActivator(LogicalKeyboardKey.keyN, control: true): _newChat,
+      const SingleActivator(LogicalKeyboardKey.escape): () {
+        if (_busy) _stop();
+      },
+    };
+    if (wide) {
+      return CallbackShortcuts(
+        bindings: shortcuts,
+        child: Focus(
+          autofocus: true,
+          child: Scaffold(
+            body: Row(
+              children: [
+                SizedBox(
+                  width: 284,
+                  child: _HistoryDrawer(
+                    docked: true,
+                    store: widget.store,
+                    catalog: widget.catalog,
+                    currentId: _chat.id,
+                    onOpen: (c) => _openChat(c, fromDrawer: false),
+                    onNew: _newChat,
+                  ),
+                ),
+                VerticalDivider(width: 1, thickness: 1, color: c.stroke),
+                Expanded(child: main),
               ],
             ),
           ),
-        ],
+        ),
+      );
+    }
+    return CallbackShortcuts(
+      bindings: shortcuts,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        drawer: _HistoryDrawer(
+          store: widget.store,
+          catalog: widget.catalog,
+          onOpen: _openChat,
+          onNew: () {
+            Navigator.pop(context);
+            _newChat();
+          },
+        ),
+        body: main,
       ),
     );
   }
 
-  Widget _topBar() {
+  Widget _topBar({bool wide = false}) {
     final c = context.c;
     final title = _chat.messages.isEmpty
         ? ''
@@ -343,12 +524,15 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
       child: Row(
         children: [
-          Builder(
-            builder: (ctx) => IconButton(
-              icon: Icon(Icons.notes_rounded, color: c.text, size: 26),
-              onPressed: () => Scaffold.of(ctx).openDrawer(),
+          if (wide)
+            const SizedBox(width: 48)
+          else
+            Builder(
+              builder: (ctx) => IconButton(
+                icon: Icon(Icons.notes_rounded, color: c.text, size: 26),
+                onPressed: () => Scaffold.of(ctx).openDrawer(),
+              ),
             ),
-          ),
           Expanded(
             child: AnimatedOpacity(
               duration: const Duration(milliseconds: 250),
@@ -363,6 +547,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           IconButton(
+            tooltip: 'Nytt samtal (Ctrl+N)',
             icon: Icon(Icons.edit_square, color: c.text, size: 22),
             onPressed: _busy ? null : _newChat,
           ),
@@ -391,7 +576,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return LayoutBuilder(
       key: ValueKey('empty-${_model.id}'),
       builder: (_, box) {
-        final size = math.min(box.maxWidth * 0.78, box.maxHeight * 0.58).clamp(140.0, 320.0);
+        final size = math.min(box.maxWidth * 0.78, box.maxHeight * 0.58).clamp(140.0, 380.0);
         return Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -414,14 +599,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _messages() {
     final model = widget.catalog.models.where((x) => x.id == _chat.modelId).firstOrNull ?? _model;
+    final w = MediaQuery.sizeOf(context).width - (_wide ? 285 : 0);
+    final side = w > 860 ? (w - 820) / 2 + 16 : 16.0; // samma bredd som inmatningsfältet
     return ListView.builder(
       key: ValueKey('list-${_chat.id}'),
       controller: _scroll,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: EdgeInsets.fromLTRB(side, 8, side, 16),
       itemCount: _chat.messages.length,
       itemBuilder: (_, i) {
         final m = _chat.messages[i];
         final last = i == _chat.messages.length - 1;
+        if (m.kind == 'resultat') return _ToolResult(message: m);
+        if (m.kind == 'anrop') return _ToolCall(message: m, color: model.color);
         if (m.fromUser) return _UserBubble(message: m);
         return _Answer(
           message: m,
@@ -536,6 +725,119 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: c.muted),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Lennart anropar ett verktyg.
+class _ToolCall extends StatelessWidget {
+  final Message message;
+  final Color color;
+  const _ToolCall({required this.message, required this.color});
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final a = hittaAnrop(message.text);
+    return _FadeIn(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Icon(Icons.handyman_outlined, size: 16, color: c.muted),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'Använder ',
+                      style: TextStyle(color: c.muted),
+                    ),
+                    TextSpan(
+                      text: a?.namn ?? 'verktyg',
+                      style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
+                    ),
+                    if (a != null && a.argument.isNotEmpty)
+                      TextSpan(
+                        text: '  ${jsonEncode(a.argument)}',
+                        style: mono.copyWith(color: c.muted, fontSize: 12),
+                      ),
+                  ],
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Ett verktygs svar, som ett utfällbart kort.
+class _ToolResult extends StatefulWidget {
+  final Message message;
+  const _ToolResult({required this.message});
+  @override
+  State<_ToolResult> createState() => _ToolResultState();
+}
+
+class _ToolResultState extends State<_ToolResult> {
+  bool _open = false;
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    final m = RegExp(r'^<resultat namn="([^"]+)"( fel="ja")?>(.*)</resultat>$', dotAll: true).firstMatch(widget.message.text);
+    final namn = m?.group(1) ?? 'verktyg';
+    final fel = m?.group(2) != null;
+    final body = (m?.group(3) ?? widget.message.text).trim();
+    final lines = body.split('\n');
+    final short = lines.length <= 6 && body.length < 400;
+    return _FadeIn(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(14, 10, 14, 10),
+          decoration: BoxDecoration(
+            color: c.bubble.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: fel ? Palette.danger.withValues(alpha: 0.5) : c.stroke),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    fel ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded,
+                    size: 16,
+                    color: fel ? Palette.danger : c.accent,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      namn,
+                      style: mono.copyWith(color: c.text, fontWeight: FontWeight.w700, fontSize: 12.5),
+                    ),
+                  ),
+                  if (!short)
+                    InkWell(
+                      onTap: () => setState(() => _open = !_open),
+                      child: Text(_open ? 'Visa mindre' : 'Visa allt', style: TextStyle(color: c.accent, fontSize: 12.5)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              SelectableText(
+                short || _open ? body : '${lines.take(6).join('\n')}\n…',
+                style: mono.copyWith(color: fel ? Palette.danger : c.text, fontSize: 13, height: 1.45),
+              ),
             ],
           ),
         ),
@@ -929,8 +1231,14 @@ List<Widget> _segments(BuildContext context, Message m) {
                     SizedBox(
                       width: 18,
                       child: d.picked
-                          ? Padding(padding: const EdgeInsets.only(top: 2), child: Icon(Icons.check_rounded, size: 14, color: c.accent))
-                          : Text('·', style: TextStyle(color: c.muted, fontWeight: FontWeight.w700, fontSize: 13)),
+                          ? Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Icon(Icons.check_rounded, size: 14, color: c.accent),
+                            )
+                          : Text(
+                              '·',
+                              style: TextStyle(color: c.muted, fontWeight: FontWeight.w700, fontSize: 13),
+                            ),
                     ),
                     Expanded(
                       child: Text(
@@ -1005,7 +1313,16 @@ class _HistoryDrawer extends StatefulWidget {
   final Catalog catalog;
   final void Function(Conversation) onOpen;
   final VoidCallback onNew;
-  const _HistoryDrawer({required this.store, required this.catalog, required this.onOpen, required this.onNew});
+  final bool docked; // datorn: fast sidopanel i stället för utdragbar meny
+  final String? currentId;
+  const _HistoryDrawer({
+    required this.store,
+    required this.catalog,
+    required this.onOpen,
+    required this.onNew,
+    this.docked = false,
+    this.currentId,
+  });
   @override
   State<_HistoryDrawer> createState() => _HistoryDrawerState();
 }
@@ -1015,84 +1332,96 @@ class _HistoryDrawerState extends State<_HistoryDrawer> {
   Widget build(BuildContext context) {
     final c = context.c;
     final items = widget.store.items;
-    return Drawer(
-      backgroundColor: c.surface,
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
-              child: Row(
-                children: [
-                  ModelIcon(size: 34, color: widget.catalog.latest.color, label: 'L'),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Lennart',
-                    style: serif.copyWith(color: c.text, fontSize: 24, fontWeight: FontWeight.w600),
+    final content = SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
+            child: Row(
+              children: [
+                ModelIcon(size: 34, color: widget.catalog.latest.color, label: 'L'),
+                const SizedBox(width: 12),
+                Text(
+                  'Lennart',
+                  style: serif.copyWith(color: c.text, fontSize: 24, fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.edit_square, color: c.text, size: 22),
+            title: Text(
+              'Nytt samtal',
+              style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
+            ),
+            onTap: widget.onNew,
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 14, 18, 6),
+            child: Text(
+              'Senaste',
+              style: TextStyle(color: c.muted, fontSize: 13, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Expanded(
+            child: items.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Text('Dina samtal sparas här.', style: Theme.of(context).textTheme.bodySmall),
+                  )
+                : ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (_, i) {
+                      final conv = items[i];
+                      final m = widget.catalog.models.where((x) => x.id == conv.modelId).firstOrNull;
+                      return Dismissible(
+                        key: ValueKey(conv.id),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          color: Palette.danger.withValues(alpha: 0.2),
+                          child: const Icon(Icons.delete_outline_rounded, color: Palette.danger),
+                        ),
+                        onDismissed: (_) => setState(() => widget.store.delete(conv)),
+                        child: ListTile(
+                          dense: true,
+                          selected: conv.id == widget.currentId,
+                          selectedTileColor: c.bubble,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          trailing: widget.docked
+                              ? IconButton(
+                                  tooltip: 'Ta bort samtalet',
+                                  icon: Icon(Icons.delete_outline_rounded, size: 18, color: c.muted),
+                                  onPressed: () => setState(() => widget.store.delete(conv)),
+                                )
+                              : null,
+                          title: Text(
+                            conv.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(color: c.text, fontSize: 15),
+                          ),
+                          subtitle: Text(m?.name ?? conv.modelId, style: TextStyle(color: c.muted, fontSize: 12)),
+                          onTap: () => widget.onOpen(conv),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              ),
+          ),
+          const Padding(padding: EdgeInsets.fromLTRB(14, 0, 14, 8), child: AppearancePicker()),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(18, 4, 18, 14),
+            child: Text(
+              Catalog.isDesktop ? 'Allt körs lokalt på datorn.' : 'Allt körs lokalt på telefonen.',
+              style: Theme.of(context).textTheme.bodySmall,
             ),
-            ListTile(
-              leading: Icon(Icons.edit_square, color: c.text, size: 22),
-              title: Text(
-                'Nytt samtal',
-                style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
-              ),
-              onTap: widget.onNew,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 14, 18, 6),
-              child: Text(
-                'Senaste',
-                style: TextStyle(color: c.muted, fontSize: 13, fontWeight: FontWeight.w600),
-              ),
-            ),
-            Expanded(
-              child: items.isEmpty
-                  ? Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Text('Dina samtal sparas här.', style: Theme.of(context).textTheme.bodySmall),
-                    )
-                  : ListView.builder(
-                      itemCount: items.length,
-                      itemBuilder: (_, i) {
-                        final conv = items[i];
-                        final m = widget.catalog.models.where((x) => x.id == conv.modelId).firstOrNull;
-                        return Dismissible(
-                          key: ValueKey(conv.id),
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 20),
-                            color: Palette.danger.withValues(alpha: 0.2),
-                            child: const Icon(Icons.delete_outline_rounded, color: Palette.danger),
-                          ),
-                          onDismissed: (_) => setState(() => widget.store.delete(conv)),
-                          child: ListTile(
-                            dense: true,
-                            title: Text(
-                              conv.title,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(color: c.text, fontSize: 15),
-                            ),
-                            subtitle: Text(m?.name ?? conv.modelId, style: TextStyle(color: c.muted, fontSize: 12)),
-                            onTap: () => widget.onOpen(conv),
-                          ),
-                        );
-                      },
-                    ),
-            ),
-            const Padding(padding: EdgeInsets.fromLTRB(14, 0, 14, 8), child: AppearancePicker()),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(18, 4, 18, 14),
-              child: Text('Allt körs lokalt på telefonen.', style: Theme.of(context).textTheme.bodySmall),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+    if (widget.docked) return Material(color: c.surface, child: content);
+    return Drawer(backgroundColor: c.surface, child: content);
   }
 }

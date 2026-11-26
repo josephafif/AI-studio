@@ -1,14 +1,21 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import 'core/catalog.dart';
 import 'core/chats.dart';
 import 'core/prefs.dart';
+import 'core/selftest.dart';
 import 'ui/ascii.dart';
 import 'ui/chat_screen.dart';
 import 'ui/theme.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (args.contains('--sjalvtest')) {
+    await runSelfTest(args);
+    exit(0);
+  }
   await appearance.load();
   await Prefs.load();
   runApp(const LennartApp());
@@ -65,6 +72,11 @@ class _StartupState extends State<_Startup> {
               _label = label;
               _progress = done;
             }));
+      }
+      if (catalog.models.isEmpty) {
+        throw StateError(Catalog.isDesktop
+            ? 'Hittade inga modeller. Mappen "modeller" ska ligga bredvid Lennart.exe – packa upp hela zip-filen igen.'
+            : 'Hittade inga modeller i appen.');
       }
       setState(() {
         _catalog = catalog;

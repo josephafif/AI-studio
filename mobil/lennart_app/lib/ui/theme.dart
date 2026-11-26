@@ -40,11 +40,11 @@ extension AppColorsX on BuildContext {
 }
 
 /// Rubriker i Claude-stil: en serif med karaktär (Noto Serif på Android).
-const serif = TextStyle(fontFamily: 'serif', fontFamilyFallback: ['Noto Serif', 'DejaVu Serif', 'Georgia']);
+const serif = TextStyle(fontFamily: 'serif', fontFamilyFallback: ['Noto Serif', 'Georgia', 'Cambria', 'DejaVu Serif']);
 
 const mono = TextStyle(
   fontFamily: 'monospace',
-  fontFamilyFallback: ['RobotoMono', 'DejaVu Sans Mono', 'Droid Sans Mono', 'Courier New'],
+  fontFamilyFallback: ['RobotoMono', 'Cascadia Mono', 'Consolas', 'DejaVu Sans Mono', 'Droid Sans Mono', 'Courier New'],
 );
 
 ThemeData buildTheme(Brightness b) {

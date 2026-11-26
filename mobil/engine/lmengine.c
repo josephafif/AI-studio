@@ -7,20 +7,25 @@
  *   - Lennart 3-formatet (Lennart 3, 3.1): utan bias, GELU med tanh
  * Vikterna kan vara float32 eller int8 med en skalfaktor per rad. Beräkningen parallelliseras med OpenMP.
  */
-#include <fcntl.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#define EXPORT __declspec(dllexport)
+#else
+#include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#define EXPORT __attribute__((visibility("default")))
+#endif
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-
-#define EXPORT __attribute__((visibility("default")))
 #define ALIGN 64
 
 typedef struct {
@@ -71,9 +76,48 @@ static Mat take_mat(LM *m, size_t *off, int rows, int cols) {
     return w;
 }
 
+/* ---------------------------------------------------------------- filmappning (Linux/Android och Windows) */
+static void *map_file(const char *path, size_t *size) {
+#ifdef _WIN32
+    /* Sökvägen kommer som UTF-8 (Dart) – Windows vill ha UTF-16 för å, ä, ö i mappnamn. */
+    wchar_t wpath[MAX_PATH * 2];
+    if (!MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, MAX_PATH * 2)) return NULL;
+    HANDLE f = CreateFileW(wpath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (f == INVALID_HANDLE_VALUE) return NULL;
+    LARGE_INTEGER sz;
+    if (!GetFileSizeEx(f, &sz)) { CloseHandle(f); return NULL; }
+    HANDLE mapping = CreateFileMappingW(f, NULL, PAGE_READONLY, 0, 0, NULL);
+    CloseHandle(f);
+    if (!mapping) return NULL;
+    void *p = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+    CloseHandle(mapping); /* vyn håller mappningen vid liv */
+    *size = (size_t)sz.QuadPart;
+    return p;
+#else
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) return NULL;
+    struct stat st;
+    fstat(fd, &st);
+    void *p = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+    close(fd);
+    if (p == MAP_FAILED) return NULL;
+    *size = (size_t)st.st_size;
+    return p;
+#endif
+}
+
+static void unmap_file(void *p, size_t size) {
+#ifdef _WIN32
+    (void)size;
+    UnmapViewOfFile(p);
+#else
+    munmap(p, size);
+#endif
+}
+
 EXPORT void lm_free(LM *m) {
     if (!m) return;
-    if (m->map) munmap(m->map, m->map_size);
+    if (m->map) unmap_file(m->map, m->map_size);
     free(m->L); free(m->kcache); free(m->vcache);
     free(m->x); free(m->h); free(m->qkv); free(m->att); free(m->ff); free(m->logits); free(m->scores);
     free(m);
@@ -85,21 +129,17 @@ EXPORT LM *lm_load(const char *path, int nthreads, char *err, int errlen) {
 #else
     (void)nthreads;
 #endif
-    int fd = open(path, O_RDONLY);
-    if (fd < 0) { snprintf(err, errlen, "kan inte öppna %s", path); return NULL; }
-    struct stat st;
-    fstat(fd, &st);
-    void *map = mmap(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-    close(fd);
-    if (map == MAP_FAILED) { snprintf(err, errlen, "mmap misslyckades"); return NULL; }
-    if (st.st_size < 64 || memcmp(map, "LMOD0001", 8) != 0) {
-        munmap(map, st.st_size);
+    size_t fsize = 0;
+    void *map = map_file(path, &fsize);
+    if (!map) { snprintf(err, errlen, "kan inte öppna %s", path); return NULL; }
+    if (fsize < 64 || memcmp(map, "LMOD0001", 8) != 0) {
+        unmap_file(map, fsize);
         snprintf(err, errlen, "inte en .lmod-fil");
         return NULL;
     }
     LM *m = calloc(1, sizeof(LM));
     m->map = map;
-    m->map_size = st.st_size;
+    m->map_size = fsize;
     const int32_t *hd = (const int32_t *)((const char *)map + 8);
     /* hd[0]=version, vocab, d, layers, heads, ctx, has_bias, gelu_tanh, quant */
     m->vocab = hd[1]; m->d = hd[2]; m->layers = hd[3]; m->heads = hd[4]; m->ctx = hd[5];
@@ -122,7 +162,7 @@ EXPORT LM *lm_load(const char *path, int nthreads, char *err, int errlen) {
         y->out = take_mat(m, &off, d, 4 * d); if (m->has_bias) y->out_b = take_f(m, &off, d);
     }
     m->lnf_w = take_f(m, &off, d); m->lnf_b = take_f(m, &off, d);
-    if (off > (size_t)st.st_size) { lm_free(m); snprintf(err, errlen, "filen är för kort"); return NULL; }
+    if (off > fsize) { lm_free(m); snprintf(err, errlen, "filen är för kort"); return NULL; }
     size_t T = m->ctx;
     m->kcache = calloc((size_t)m->layers * T * d, sizeof(float));
     m->vcache = calloc((size_t)m->layers * T * d, sizeof(float));

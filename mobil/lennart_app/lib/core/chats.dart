@@ -32,9 +32,10 @@ class Message {
   int? chosen;
   double? thoughtSeconds;
   bool uncertain;
+  String? kind; // null = vanligt meddelande, 'anrop' = verktygsanrop, 'resultat' = verktygets svar
   bool reveal = false; // skriv fram texten med en animation (inte sparat)
   Message(this.fromUser, this.text,
-      {this.meta, this.error = false, List<Draft>? drafts, this.chosen, this.thoughtSeconds, this.uncertain = false})
+      {this.meta, this.error = false, List<Draft>? drafts, this.chosen, this.thoughtSeconds, this.uncertain = false, this.kind})
       : drafts = drafts ?? [];
   Map<String, dynamic> toJson() => {
         'u': fromUser,
@@ -45,6 +46,7 @@ class Message {
         if (chosen != null) 'c': chosen,
         if (thoughtSeconds != null) 'th': thoughtSeconds,
         if (uncertain) 'o': true,
+        if (kind != null) 'k': kind,
       };
   factory Message.fromJson(Map<String, dynamic> j) => Message(j['u'] as bool, j['t'] as String,
       meta: j['m'] as String?,
@@ -52,7 +54,8 @@ class Message {
       drafts: [for (final d in (j['d'] as List?) ?? []) Draft.fromJson(d as Map<String, dynamic>)],
       chosen: j['c'] as int?,
       thoughtSeconds: (j['th'] as num?)?.toDouble(),
-      uncertain: j['o'] == true);
+      uncertain: j['o'] == true,
+      kind: j['k'] as String?);
 }
 
 class Conversation {

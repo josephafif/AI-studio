@@ -31,6 +31,20 @@ class Prefs {
     _save();
   }
 
+  /// Agentläge: Lennart får använda verktyg (förhandsvisning – kräver en modell tränad på verktyg).
+  static bool get agent => _data['agent'] == true;
+  static set agent(bool v) {
+    _data['agent'] = v;
+    _save();
+  }
+
+  /// Mappen som agentens filverktyg får arbeta i.
+  static String? get arbetsmapp => _data['arbetsmapp'] as String?;
+  static set arbetsmapp(String? v) {
+    _data['arbetsmapp'] = v;
+    _save();
+  }
+
   static String? get modelId => _data['model'] as String?;
   static set modelId(String? id) {
     _data['model'] = id;

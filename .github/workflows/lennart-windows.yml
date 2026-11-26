@@ -1,5 +1,8 @@
-# Bygger Lennart för Windows (Flutter kan bara bygga Windows-program på Windows).
-# Modellerna läggs till efteråt – de är för stora för git.
+# Bygger Lennart för Windows och testar den på riktig Windows.
+#
+# Flutter kan bara bygga Windows-program på Windows, därför görs det här. Modellerna (1,5 GB) är för
+# stora för git – de läggs i mappen "modeller" bredvid Lennart.exe när paketet sätts ihop.
+# Självtestet använder de små modellerna i exempel/ (Lennart och Lennart 2).
 name: Lennart för Windows
 
 on:
@@ -9,20 +12,86 @@ on:
     paths:
       - "mobil/lennart_app/**"
       - "mobil/engine/**"
+      - "tools/samla_modeller.py"
       - ".github/workflows/lennart-windows.yml"
 
 jobs:
   windows:
     runs-on: windows-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Test
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.50.1
+          cache: true
+
+      - name: Platshållare för modelltillgångar (på datorn ligger modellerna bredvid programmet)
+        shell: pwsh
+        working-directory: mobil/lennart_app
+        run: |
+          New-Item -ItemType Directory -Force assets/models | Out-Null
+          if (-not (Test-Path assets/models/manifest.json)) { '{"models": []}' | Set-Content -Encoding utf8 assets/models/manifest.json }
+
+      - name: Bygg Lennart.exe
+        working-directory: mobil/lennart_app
+        run: flutter build windows --release
+
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: mingw-w64-x86_64-gcc
+
+      - name: Bygg motorn (lmengine.dll, statiskt länkad med OpenMP)
+        shell: msys2 {0}
+        run: |
+          gcc -O3 -march=x86-64-v2 -mtune=generic -fopenmp -shared -static -Wall -o lmengine.dll mobil/engine/lmengine.c -lm
+          objdump -p lmengine.dll | grep "DLL Name"
+
+      - name: Lägg motorn och Microsofts C++-bibliotek bredvid Lennart.exe
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force out | Out-Null
-          "hej från windows $(Get-Date)" | Out-File out/hej.txt
-          Get-Command gcc, cl, cmake -ErrorAction SilentlyContinue | Format-Table Name, Source
+          $rel = "mobil/lennart_app/build/windows/x64/runner/Release"
+          Copy-Item lmengine.dll $rel/
+          foreach ($dll in "msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll") {
+            Copy-Item "C:\Windows\System32\$dll" $rel/
+          }
+          Get-ChildItem $rel | Format-Table Name, Length
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Testmodeller (Lennart och Lennart 2 ur exempel/)
+        shell: pwsh
+        run: |
+          python -m pip install --quiet numpy
+          python -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
+          python tools/exportera_mobil.py --ut testmodeller --panel exempel/Lennart-tranad.aicc-modell.zip --panel exempel/Lennart-2-tranad.aicc-modell.zip
+          python tools/samla_modeller.py testmodeller-samlad testmodeller
+
+      - name: Självtest på Windows (laddar modellerna, svarar, kör agentverktygen)
+        shell: pwsh
+        run: |
+          $rel = "mobil/lennart_app/build/windows/x64/runner/Release"
+          $env:LENNART_MODELLER = (Resolve-Path testmodeller-samlad).Path
+          $out = Join-Path (Get-Location) "sjalvtest.txt"
+          $p = Start-Process -FilePath "$rel/Lennart.exe" -ArgumentList "--sjalvtest", "`"$out`"" -PassThru
+          if (-not $p.WaitForExit(300000)) { $p.Kill(); throw "Självtestet tog för lång tid" }
+          if (-not (Test-Path $out)) { throw "Självtestet skrev ingen resultatfil (avslutningskod $($p.ExitCode))" }
+          Get-Content $out
+          if (-not (Select-String -Path $out -Pattern "RESULTAT: OK" -Quiet)) { throw "Självtestet misslyckades" }
+
       - uses: actions/upload-artifact@v4
         with:
-          name: test
-          path: out
+          name: Lennart-windows
+          path: mobil/lennart_app/build/windows/x64/runner/Release
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sjalvtest
+          path: sjalvtest.txt
+          if-no-files-found: ignore

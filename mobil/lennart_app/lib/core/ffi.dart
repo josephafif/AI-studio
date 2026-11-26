@@ -35,7 +35,7 @@ class EngineInfo {
 class NativeModel {
   static DynamicLibrary? _lib;
   static DynamicLibrary get lib =>
-      _lib ??= Platform.isAndroid ? DynamicLibrary.open('liblmengine.so') : DynamicLibrary.open('liblmengine.so');
+      _lib ??= DynamicLibrary.open(Platform.isWindows ? 'lmengine.dll' : 'liblmengine.so'); // Windows: bredvid Lennart.exe
 
   static final _load = lib.lookupFunction<_LoadC, _LoadD>('lm_load');
   static final _info = lib.lookupFunction<_InfoC, _InfoD>('lm_info');

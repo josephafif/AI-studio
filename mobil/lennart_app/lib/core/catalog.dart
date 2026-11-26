@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart' show Color, HSLColor;
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -40,19 +41,57 @@ class Catalog {
   static const _channel = MethodChannel('lennart/assets');
   final List<ModelInfo> models;
   final List<ModelInfo> _builtin;
-  final Directory dir;
-  Catalog._(this._builtin, this.models, this.dir);
+  final Directory dir; // egna (importerade) modeller, i appens lagring
+  final Directory? bundled; // dator: förinstallerade modeller i mappen "modeller" bredvid Lennart.exe
+  Catalog._(this._builtin, this.models, this.dir, [this.bundled]);
 
   /// Bara för förhandsvisning och tester: en katalog med givna modeller och inga filer.
   Catalog.preview(List<ModelInfo> models) : this._(models, [...models], Directory.systemTemp);
 
+  static bool get isDesktop => Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+
+  /// Mappen med förinstallerade modeller på datorn: <programmapp>/modeller (eller LENNART_MODELLER).
+  static Directory desktopModelsDir() {
+    final env = Platform.environment['LENNART_MODELLER'];
+    if (env != null && env.isNotEmpty) return Directory(env);
+    return Directory('${File(Platform.resolvedExecutable).parent.path}${Platform.pathSeparator}modeller');
+  }
+
+  /// Läser alla modellbeskrivningar i [d]: en fil per modell (<id>.modell.json) och/eller manifest.json.
+  /// Så kan extra modeller läggas till genom att packa upp dem i samma mapp.
+  static Future<List<ModelInfo>> scanModels(Directory d) async {
+    final out = <String, ModelInfo>{};
+    if (!await d.exists()) return [];
+    await for (final f in d.list()) {
+      if (f is! File) continue;
+      final name = f.uri.pathSegments.last;
+      if (!(name.endsWith('.modell.json') || name == 'manifest.json')) continue;
+      try {
+        final j = jsonDecode(await f.readAsString());
+        final list = j is Map && j['models'] is List ? j['models'] as List : [j];
+        for (final m in list) {
+          final info = ModelInfo.fromJson(m as Map<String, dynamic>);
+          if (await File('${d.path}/${info.id}.lmod').exists()) out[info.id] = info;
+        }
+      } catch (_) {/* trasig fil – hoppa över */}
+    }
+    return out.values.toList();
+  }
+
   File get _userManifest => File('${dir.path}/egna-modeller.json');
 
   static Future<Catalog> open() async {
-    final manifest = jsonDecode(await rootBundle.loadString('assets/models/manifest.json')) as Map<String, dynamic>;
-    final builtin = [for (final m in manifest['models'] as List) ModelInfo.fromJson(m as Map<String, dynamic>)];
     final dir = Directory('${(await getApplicationSupportDirectory()).path}/models');
     await dir.create(recursive: true);
+    if (isDesktop) {
+      // Datorn: modellerna ligger färdiga bredvid programmet och läses direkt därifrån (ingen uppackning).
+      final bundled = desktopModelsDir();
+      final cat = Catalog._(await scanModels(bundled), [], dir, bundled);
+      await cat._refresh();
+      return cat;
+    }
+    final manifest = jsonDecode(await rootBundle.loadString('assets/models/manifest.json')) as Map<String, dynamic>;
+    final builtin = [for (final m in manifest['models'] as List) ModelInfo.fromJson(m as Map<String, dynamic>)];
     final cat = Catalog._(builtin, [], dir);
     await cat._refresh();
     return cat;
@@ -74,7 +113,10 @@ class Catalog {
       ..sort((a, b) => a.params != b.params ? a.params.compareTo(b.params) : a.steps.compareTo(b.steps));
   }
 
-  ModelInfo get latest => models.last;
+  ModelInfo get latest {
+    if (models.isEmpty) throw StateError('Hittade inga modeller. Ligger mappen "modeller" bredvid Lennart.exe?');
+    return models.last;
+  }
 
   /// Installerar ett modellpaket (.lennart) och returnerar modellen.
   Future<ModelInfo> importPackage(String path) async {
@@ -87,11 +129,21 @@ class Catalog {
     return models.firstWhere((m) => m.id == res.entry['id']);
   }
 
-  /// Väljer en fil med telefonens filväljare (kopieras till appens cache). null om användaren avbryter.
-  static Future<String?> pickFile() => _channel.invokeMethod<String>('pickFile');
+  /// Väljer ett modellpaket. Telefonen: systemets filväljare (filen kopieras till appens cache).
+  /// Datorn: Windows filväljare – filen ligger kvar där den är.
+  static Future<String?> pickFile() async {
+    if (isDesktop) {
+      final f = await openFile(acceptedTypeGroups: const [
+        XTypeGroup(label: 'Lennart-modell', extensions: ['lennart']),
+      ]);
+      return f?.path;
+    }
+    return _channel.invokeMethod<String>('pickFile');
+  }
 
-  String modelPath(ModelInfo m) => '${dir.path}/${m.id}.lmod';
-  String tokenizerPath(ModelInfo m) => '${dir.path}/${m.id}.tok.json';
+  Directory _dirFor(ModelInfo m) => m.builtin && bundled != null ? bundled! : dir;
+  String modelPath(ModelInfo m) => '${_dirFor(m).path}/${m.id}.lmod';
+  String tokenizerPath(ModelInfo m) => '${_dirFor(m).path}/${m.id}.tok.json';
 
   /// Filer som ska finnas på disken, med storleken i appens tillgångar.
   List<(String asset, String dest)> _files() => [
@@ -102,6 +154,7 @@ class Catalog {
       ];
 
   Future<bool> needsSetup() async {
+    if (bundled != null) return false;
     final marker = File('${dir.path}/.klar-${_builtin.map((m) => '${m.id}-${m.steps}').join('_')}');
     return !await marker.exists();
   }
