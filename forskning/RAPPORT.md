@@ -46,6 +46,11 @@ En liten modell formulerar sig för olika varje gång. Det fungerar bäst *inom*
 
 Ekodekodningen är inbyggd i appens motor (`engine.dart`). Där räcker 125 pass till 215 tokens på Djup.
 
+**Varför det kan spela roll utanför Lennart:** stora AI-tjänster låter ofta modellen skriva många svar
+till samma fråga och välja eller rösta fram ett. Det är vanligt för resonerande modeller och gör dem
+dyra. Där ekar svaren varandra på samma sätt, och tekniken ändrar inte vad modellen säger. Det är inte
+testat i stor skala, men principen är densamma: ju mer modellen tänker, desto mer kan återanvändas.
+
 ## 2. Tankeskalning – blir en liten modell smartare av att tänka? (`tankeskalning/`)
 
 68 faktafrågor med facit (geografi, historia, naturvetenskap, cybersäkerhet) × 2 omgångar.

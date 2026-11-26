@@ -29,6 +29,69 @@
    "mittlager_samstammighet": 0.464111328125,
    "sekunder": 1140.4239609241486,
    "tokens_per_s": 2693.7350540325274
+  },
+  {
+   "steg": 1000,
+   "tokens": 4096000,
+   "val_loss": 2.831674814224243,
+   "bits_per_byte": 1.1942973081008024,
+   "mittlager_samstammighet": 0.453857421875,
+   "sekunder": 1538.1711661815643,
+   "tokens_per_s": 2662.902601514838
+  },
+  {
+   "steg": 1250,
+   "tokens": 5120000,
+   "val_loss": 2.717628320058187,
+   "bits_per_byte": 1.1461966503922763,
+   "mittlager_samstammighet": 0.46484375,
+   "sekunder": 1917.2152571678162,
+   "tokens_per_s": 2670.539982851722
+  },
+  {
+   "steg": 1500,
+   "tokens": 6144000,
+   "val_loss": 2.598178227742513,
+   "bits_per_byte": 1.0958169517812675,
+   "mittlager_samstammighet": 0.454345703125,
+   "sekunder": 2297.8403601646423,
+   "tokens_per_s": 2673.8149901587494
+  },
+  {
+   "steg": 1750,
+   "tokens": 7168000,
+   "val_loss": 2.5367221434911094,
+   "bits_per_byte": 1.0698970136516572,
+   "mittlager_samstammighet": 0.44970703125,
+   "sekunder": 2676.0003526210785,
+   "tokens_per_s": 2678.624460187053
+  },
+  {
+   "steg": 2000,
+   "tokens": 8192000,
+   "val_loss": 2.468172828356425,
+   "bits_per_byte": 1.0409854090682986,
+   "mittlager_samstammighet": 0.4574381510416667,
+   "sekunder": 3049.479208946228,
+   "tokens_per_s": 2686.360338502131
+  },
+  {
+   "steg": 2250,
+   "tokens": 9216000,
+   "val_loss": 2.4396615823109946,
+   "bits_per_byte": 1.0289604038552669,
+   "mittlager_samstammighet": 0.4501139322916667,
+   "sekunder": 3428.6971731185913,
+   "tokens_per_s": 2687.9014198904983
+  },
+  {
+   "steg": 2500,
+   "tokens": 10240000,
+   "val_loss": 2.418263554573059,
+   "bits_per_byte": 1.0199354950635828,
+   "mittlager_samstammighet": 0.4576822916666667,
+   "sekunder": 3806.5856058597565,
+   "tokens_per_s": 2690.074796751403
   }
  ],
  "bpt": 3.4206249852374992
