@@ -74,6 +74,21 @@ bland utkasten, men modellen ser inte vilket det är. Att *komma på* svaret är
 *känna igen* det är. Därför ger tänkandet bättre svar på öppna frågor (färre förvirrade svar, se
 lösenordsexemplet), men inte fler rätt på faktafrågor.
 
+### Djup+ (tillagt efter natten)
+
+Ny nivå som väljer per mening i stället för hela svar (`tankeskalning/djupplus.py`). Svaret byggs
+mening för mening, och för varje mening skrivs upp till 5 kandidater från samma början. Kandidaten väljs
+efter konsensus med de andra plus modellens säkerhet, med straff för upprepning. Tre likadana kandidater
+räcker. Totalt högst 20 utkast.
+
+| | Snabb | Djup | Konsensus (6) | **Djup+** | Orakel (6) |
+|---|---|---|---|---|---|
+| Rätt | 30,9 % | 29,4 % | 33,1 % | **36,0 %** | 55,1 % |
+
+I snitt 10,8 utkast (median 9) och ungefär samma beräkning som Djup. Parvis mot Djup var Djup+ rätt
+på 15 frågor där Djup var fel, och Djup på 6 där Djup+ var fel (p ≈ 0,08). Det är det bästa resultatet
+av alla urval, men inte statistiskt säkert. Finns i appen från version 1.4.
+
 ## 3. Osäkerhet – Lennart vet när han gissar
 
 Samma poäng som inte kan välja *mellan* utkast skiljer mycket väl *mellan frågor*: AUROC 0,85

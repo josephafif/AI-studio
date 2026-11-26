@@ -114,11 +114,11 @@ class _EffortBars extends StatelessWidget {
         width: 36,
         height: 36,
         child: Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
-          for (var i = 0; i < 3; i++)
+          for (var i = 0; i < 4; i++)
             Container(
-              width: 5,
-              height: 9.0 + i * 6,
-              margin: const EdgeInsets.symmetric(horizontal: 1.5, vertical: 7),
+              width: 4.5,
+              height: 7.0 + i * 5,
+              margin: const EdgeInsets.symmetric(horizontal: 1.3, vertical: 7),
               decoration: BoxDecoration(
                 color: i <= level ? color : context.c.stroke,
                 borderRadius: BorderRadius.circular(2),

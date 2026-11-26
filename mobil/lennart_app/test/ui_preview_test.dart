@@ -23,6 +23,31 @@ class _FakeEngine extends LennartEngine {
 
   @override
   Stream<GenEvent> generate(List<ChatTurn> turns, GenSettings s) async* {
+    if (s.effort.sentenceWise) {
+      const meningar = [
+        ['Ett starkt lösenord är långt och unikt för varje tjänst.', 'Ett starkt lösenord är långt från din lokala enhet.',
+          'Ett starkt lösenord är långt och unikt för varje tjänst.', 'Ett starkt lösenord är långt och unikt för varje tjänst.'],
+        [' Använd gärna en lösenfras av flera slumpmässiga ord.', ' En lösenfras av flera slumpmässiga ord är lätt att minnas.',
+          ' Byt lösenord varje månad.', ' En lösenfras av flera slumpmässiga ord är lätt att minnas.', ' Ha samma lösenord överallt.'],
+        [' Låt en lösenordshanterare hålla koll.', ' Låt en lösenordshanterare hålla koll.', ' Låt en lösenordshanterare hålla koll.'],
+      ];
+      const valda = [0, 1, 0];
+      var i = 0;
+      for (var g = 0; g < meningar.length; g++) {
+        final start = i;
+        for (final m in meningar[g]) {
+          for (final w in m.split(' ')) {
+            await Future<void>.delayed(const Duration(milliseconds: 25));
+            yield GenDraft(i, 20, '$w ', segment: g);
+          }
+          yield GenDraftEnd(i, -0.3, false);
+          i++;
+        }
+        yield GenSegment(g, start + valda[g], meningar[g][valda[g]]);
+      }
+      yield GenDone(140, 9.1, 20, i, score: -0.2);
+      return;
+    }
     const drafts = [
       'Ett starkt lösenord är långt, gärna minst 14 tecken, och unikt för varje tjänst.',
       'Ett starkt lösenord är långt från din lokala enhet och skapar en grupp av',
@@ -137,6 +162,36 @@ void main() {
         await tester.pump(const Duration(milliseconds: 50));
       }
       await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/5-utkast-$mode.png'));
+
+      // Djup+: välj nivån i modellväljaren och fråga igen
+      await tester.tap(find.byIcon(Icons.keyboard_arrow_down_rounded));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.tap(find.text('Djup+'));
+      await tester.pump(const Duration(milliseconds: 100));
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/6-djupplus-val-$mode.png'));
+      await tester.tapAt(const Offset(200, 40));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.tap(find.byIcon(Icons.edit_square).first);
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.enterText(find.byType(TextField), 'Hur skapar jag ett starkt lösenord?');
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      for (var i = 0; i < 40; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/7-djupplus-tanker-$mode.png'));
+      for (var i = 0; i < 120; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.tap(find.textContaining('Tänkte i'));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/8-djupplus-svar-$mode.png'));
       await tester.pumpWidget(const SizedBox());
       await tester.pump(const Duration(seconds: 1));
       debugDisableShadows = true;

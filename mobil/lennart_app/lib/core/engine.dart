@@ -20,7 +20,11 @@ import 'tokenizer.dart';
 enum Effort {
   snabb('Snabb', 'Svarar direkt med första utkastet', 1),
   medel('Medel', 'Skriver 3 utkast och väljer det bästa', 3),
-  djup('Djup', 'Skriver upp till 6 utkast, sållar bort svaga tidigt', 6);
+  djup('Djup', 'Skriver upp till 6 utkast, sållar bort svaga tidigt', 6),
+  djupPlus('Djup+', 'Bygger svaret mening för mening ur upp till 20 utkast', 20);
+
+  /// Djup+ väljer per mening i stället för hela svar.
+  bool get sentenceWise => this == Effort.djupPlus;
 
   final String label, description;
   final int drafts;
@@ -51,8 +55,16 @@ class GenToken extends GenEvent {
 /// En bit av ett utkast medan Lennart tänker.
 class GenDraft extends GenEvent {
   final int index, total;
+  final int segment; // mening (bara Djup+), annars -1
   final String text;
-  GenDraft(this.index, this.total, this.text);
+  GenDraft(this.index, this.total, this.text, {this.segment = -1});
+}
+
+/// Djup+: en mening är vald (utkast [index]) och läggs till i svaret.
+class GenSegment extends GenEvent {
+  final int segment, index;
+  final String text;
+  GenSegment(this.segment, this.index, this.text);
 }
 
 /// Ett utkast är klart (eller avbrutet för att det såg sämre ut än det bästa).
@@ -136,7 +148,9 @@ class LennartEngine {
         case 'token':
           out.add(GenToken(m['text'] as String));
         case 'draft':
-          out.add(GenDraft(m['i'] as int, m['n'] as int, m['text'] as String));
+          out.add(GenDraft(m['i'] as int, m['n'] as int, m['text'] as String, segment: (m['seg'] as int?) ?? -1));
+        case 'segment':
+          out.add(GenSegment(m['seg'] as int, m['i'] as int, m['text'] as String));
         case 'draftEnd':
           out.add(GenDraftEnd(m['i'] as int, (m['score'] as num).toDouble(), m['pruned'] as bool));
         case 'chosen':
@@ -159,6 +173,7 @@ class LennartEngine {
       'maxTokens': s.maxTokens,
       'topK': s.topK,
       'drafts': s.effort.drafts,
+      'plus': s.effort.sentenceWise,
       'stop': _stop.address,
     });
     yield* out.stream;
@@ -230,7 +245,70 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
   var total = 0, written = 0;
   double? chosenScore;
 
-  if (drafts <= 1) {
+  if (m['plus'] == true) {
+    // Djup+: svaret byggs mening för mening. För varje mening skrivs upp till 5 kandidater från samma
+    // början; den som bäst stämmer med de andra (konsensus) och som modellen är säker på väljs, och
+    // nästa mening fortsätter därifrån. Tre likadana kandidater räcker – då är modellen överens med sig själv.
+    final budgetDrafts = drafts, perSentence = 5, maxSentences = 12;
+    final answer = <int>[];
+    var answerLp = 0.0, ended = false;
+    var cur = Float32List.fromList(saved);
+    for (var seg = 0; seg < maxSentences && stop.value == 0; seg++) {
+      final base = model.pos;
+      final cands = <_Draft>[], ids = <int>[];
+      final rest = written >= budgetDrafts; // budgeten slut: resten av svaret skrivs i ett utkast
+      final k = rest ? 1 : math.min(perSentence, budgetDrafts - written);
+      for (var c = 0; c < k && stop.value == 0; c++) {
+        model.rewind(base);
+        model.logits.setAll(0, cur);
+        final t = c == 0 ? math.min(temperature, 0.35) : math.max(temperature, 0.5);
+        final i = written, sg = seg;
+        final d = _Draft.write(model, tok, rng, prompt, sources, limit - answer.length, t, topK, banned, stop, echo,
+            prefix: answer, sentence: !rest,
+            onPiece: (p) => toUi.send({'type': 'draft', 'i': i, 'n': budgetDrafts, 'seg': sg, 'text': p}));
+        written++;
+        total += d.tokens.length;
+        cands.add(d);
+        ids.add(i);
+        sources.add([...prompt, ...answer, ...d.tokens]);
+        toUi.send({'type': 'draftEnd', 'i': i, 'score': d.sentenceMean, 'pruned': false});
+        final texts = [for (final x in cands) x.text.trim()];
+        if (texts.length >= 3 && texts.where((t) => t == texts.last).length >= 3) break;
+      }
+      if (cands.isEmpty) break;
+      final cons = _consensus([for (final x in cands) x.text]);
+      var bi = 0;
+      var bs = double.negativeInfinity;
+      for (var j = 0; j < cands.length; j++) {
+        final x = cands[j];
+        final sc = x.sentenceMean + 1.0 * cons[j] - 2.0 * _repetition([...answer, ...x.tokens]) -
+            (x.tokens.length < 3 && !x.ended ? 0.5 : 0.0);
+        if (sc > bs) {
+          bs = sc;
+          bi = j;
+        }
+      }
+      final best = cands[bi];
+      toUi.send({'type': 'segment', 'seg': seg, 'i': ids[bi], 'text': best.text});
+      model.rewind(base);
+      if (best.tokens.isNotEmpty) {
+        model.eval(best.tokens); // den valda meningen läses in i ett enda pass
+        cur = Float32List.fromList(model.logits);
+        answer.addAll(best.tokens);
+        answerLp += best._lpSum;
+      }
+      if (best.ended) {
+        ended = true;
+        break;
+      }
+      if (rest || answer.length >= limit || model.pos >= ctx - 2) break;
+    }
+    final whole = _Draft()
+      ..tokens.addAll(answer)
+      ..ended = ended;
+    whole._lpSum = answerLp;
+    chosenScore = whole.score;
+  } else if (drafts <= 1) {
     final d = _Draft.write(model, tok, rng, prompt, sources, limit, temperature, topK, banned, stop, echo,
         onPiece: (p) => toUi.send({'type': 'token', 'text': p}));
     total = d.tokens.length;
@@ -274,11 +352,22 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
 class _Draft {
   final List<int> tokens = [];
   final StringBuffer _text = StringBuffer();
-  double _lpSum = 0;
+  double _lpSum = 0, _endLp = 0;
   bool ended = false, pruned = false;
 
   String get text => _text.toString();
   double get meanLogprob => tokens.isEmpty ? -10 : _lpSum / tokens.length;
+
+  /// Medel-logsannolikhet inklusive avslutet – så att även "svaret är klart" kan jämföras med en mening.
+  double get sentenceMean {
+    final n = tokens.length + (ended ? 1 : 0);
+    return n == 0 ? -10 : (_lpSum + (ended ? _endLp : 0)) / n;
+  }
+
+  void _end(Float32List row, int endId) {
+    ended = true;
+    _endLp = row[endId] - _lse(row);
+  }
 
   /// Andel upprepade tre-tokenföljder – små modeller fastnar gärna i slingor.
   double get repetition {
@@ -320,13 +409,16 @@ class _Draft {
   /// fördelning som vanlig sampling, men färre pass när utkasten upprepar varandra.
   static _Draft write(NativeModel model, BpeTokenizer tok, math.Random rng, List<int> prompt, List<List<int>> sources,
       int limit, double temperature, int topK, Set<int> banned, Pointer<Int32> stop, _EchoStats echo,
-      {double? pruneBelow, required void Function(String) onPiece}) {
+      {double? pruneBelow, List<int> prefix = const [], bool sentence = false, required void Function(String) onPiece}) {
     final d = _Draft();
     final decoder = StreamDecoder(tok);
     final ctx = model.info.context;
     final p0 = model.pos;
     var cur = Float32List.fromList(model.logits);
-    List<int> recent() => d.tokens.length > 64 ? d.tokens.sublist(d.tokens.length - 64) : d.tokens;
+    List<int> recent() {
+      final all = prefix.isEmpty ? d.tokens : [...prefix, ...d.tokens];
+      return all.length > 64 ? all.sublist(all.length - 64) : all;
+    }
 
     // Lägger till en token. Returnerar true om utkastet ska avslutas (sållat).
     bool emit(int x, Float32List row) {
@@ -337,6 +429,8 @@ class _Draft {
         d._text.write(piece);
         onPiece(piece);
       }
+      // Djup+: meningen är slut vid punkt, utrop eller fråga – men inte efter förkortningar (D.C., t.ex., bl.a.).
+      if (sentence && d.tokens.length >= 3 && _sentenceEnd(d._text.toString())) return true;
       // Sålla: ett utkast som efter en bit är klart sämre än det bästa hittills avbryts.
       if (pruneBelow != null && d.tokens.length >= 24 && d.meanLogprob - 2.0 * d.repetition < pruneBelow - 0.6) {
         d.pruned = true;
@@ -348,7 +442,7 @@ class _Draft {
     outer:
     while (d.tokens.length < limit && stop.value == 0) {
       final dist = _Dist.of(cur, temperature, topK, recent(), banned);
-      var prop = _lookup(sources, [...prompt, ...d.tokens], _maxProposal);
+      var prop = _lookup(sources, [...prompt, ...prefix, ...d.tokens], _maxProposal);
       final room = math.min(limit - d.tokens.length, ctx - model.pos - 1);
       if (prop.length > room) prop = room > 0 ? prop.sublist(0, room) : const [];
       int x;
@@ -358,7 +452,7 @@ class _Draft {
         if (rng.nextDouble() < dist.prob(x1)) {
           echo.accepted++;
           if (x1 == tok.endId) {
-            d.ended = true;
+            d._end(cur, tok.endId);
             break;
           }
           if (emit(x1, cur)) break;
@@ -370,7 +464,7 @@ class _Draft {
             if (j < prop.length && rng.nextDouble() < pj.prob(prop[j])) {
               echo.accepted++;
               if (prop[j] == tok.endId) {
-                d.ended = true;
+                d._end(row, tok.endId);
                 break outer;
               }
               if (emit(prop[j], row)) break outer;
@@ -380,7 +474,7 @@ class _Draft {
             final y = pj.sample(rng, without: j < prop.length ? prop[j] : null);
             model.rewind(p0 + d.tokens.length);
             if (y == tok.endId) {
-              d.ended = true;
+              d._end(row, tok.endId);
               break outer;
             }
             if (emit(y, row) || model.pos >= ctx) break outer;
@@ -395,7 +489,7 @@ class _Draft {
         x = dist.sample(rng);
       }
       if (x == tok.endId) {
-        d.ended = true;
+        d._end(cur, tok.endId);
         break;
       }
       if (emit(x, cur) || model.pos >= ctx) break;
@@ -404,6 +498,45 @@ class _Draft {
     }
     return d;
   }
+}
+
+/// Hur mycket varje text liknar de andra (medel-Jaccard över ord) – "majoritetsrösten" för fritext.
+List<double> _consensus(List<String> texts) {
+  final re = RegExp(r'[\wåäöÅÄÖéü]+');
+  final sets = [for (final t in texts) {for (final m in re.allMatches(t.toLowerCase())) if (m[0]!.length > 2) m[0]!}];
+  return [
+    for (var i = 0; i < sets.length; i++)
+      sets.length < 2
+          ? 0.0
+          : [
+                for (var j = 0; j < sets.length; j++)
+                  if (j != i)
+                    sets[i].union(sets[j]).isEmpty ? 0.0 : sets[i].intersection(sets[j]).length / sets[i].union(sets[j]).length
+              ].fold<double>(0, (a, b) => a + b) /
+              (sets.length - 1)
+  ];
+}
+
+/// Slutar texten en mening? "!" och "?" alltid; "." bara om sista ordet inte är en förkortning.
+bool _sentenceEnd(String text) {
+  final t = text.trimRight();
+  if (t.endsWith('!') || t.endsWith('?')) return true;
+  if (!t.endsWith('.')) return false;
+  final words = t.split(RegExp(r'\s+'));
+  final last = words.last.substring(0, words.last.length - 1);
+  if (last.length <= 1 || last.contains('.')) return false; // "D.", "t.ex.", "bl.a."
+  const abbr = {'ca', 'osv', 'resp', 'jfr', 'nr', 'st', 'kl', 'dvs', 'mfl', 'etc', 'tex'};
+  return !abbr.contains(last.toLowerCase());
+}
+
+double _repetition(List<int> t) {
+  if (t.length < 6) return 0;
+  final seen = <int>{};
+  var dup = 0;
+  for (var i = 0; i + 2 < t.length; i++) {
+    if (!seen.add(t[i] * 1000003 * 1000003 + t[i + 1] * 1000003 + t[i + 2])) dup++;
+  }
+  return dup / (t.length - 2);
 }
 
 class _EchoStats {

@@ -9,10 +9,18 @@ class Draft {
   String text;
   double? score;
   bool pruned;
-  Draft(this.text, {this.score, this.pruned = false});
-  Map<String, dynamic> toJson() => {'t': text, if (score != null) 's': score, if (pruned) 'p': true};
-  factory Draft.fromJson(Map<String, dynamic> j) =>
-      Draft(j['t'] as String, score: (j['s'] as num?)?.toDouble(), pruned: j['p'] == true);
+  int segment; // Djup+: vilken mening utkastet gäller (annars -1)
+  bool picked; // Djup+: utkastet valdes som mening i svaret
+  Draft(this.text, {this.score, this.pruned = false, this.segment = -1, this.picked = false});
+  Map<String, dynamic> toJson() => {
+        't': text,
+        if (score != null) 's': score,
+        if (pruned) 'p': true,
+        if (segment >= 0) 'g': segment,
+        if (picked) 'v': true,
+      };
+  factory Draft.fromJson(Map<String, dynamic> j) => Draft(j['t'] as String,
+      score: (j['s'] as num?)?.toDouble(), pruned: j['p'] == true, segment: (j['g'] as int?) ?? -1, picked: j['v'] == true);
 }
 
 class Message {

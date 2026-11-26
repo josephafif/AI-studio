@@ -1,0 +1,4882 @@
+{
+ "traffsakerhet": 0.3602941176470588,
+ "rader": [
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Norge?",
+   "svar": "Huvudstaden i Norge är Oslo.",
+   "ok": true,
+   "utkast": 6,
+   "pass_": 20,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Norge är Oslo.",
+      "Huvudstaden i Norge är Oslo.",
+      "Huvudstaden i Norge är Oslo."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Finland?",
+   "svar": "Huvudstaden i Finland är Helsingfors.",
+   "ok": true,
+   "utkast": 6,
+   "pass_": 20,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Finland är Helsingfors.",
+      "Huvudstaden i Finland är Helsingfors.",
+      "Huvudstaden i Finland är Helsingfors."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Danmark?",
+   "svar": "Huvudstaden i Danmark är Köpenhamn.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 37,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Danmark är Köpenhamn.",
+      "Huvudstaden i Danmark är Aalborg.",
+      "Huvudstaden i Danmark är Aalborg.",
+      "Huvudstaden i Danmark är staden Köpenhamn.",
+      "Huvudstaden i Danmark är Köpenhamn."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Frankrike?",
+   "svar": "Huvudstaden i Frankrike är Paris.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 42,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Frankrike är Paris.",
+      "Huvudstaden i Frankrike är Paris.",
+      "Stamstabens huvudort är den franska staden Paris.",
+      "Städer i Frankrike är regioner med stor folkmängd.",
+      "Huvudstaden i Frankrike är Bretagne."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Tyskland?",
+   "svar": "Huvudstaden i Tyskland är Berlin.",
+   "ok": true,
+   "utkast": 6,
+   "pass_": 20,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Tyskland är Berlin.",
+      "Huvudstaden i Tyskland är Berlin.",
+      "Huvudstaden i Tyskland är Berlin."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Italien?",
+   "svar": "Huvudstaden i Italien är Rom.",
+   "ok": true,
+   "utkast": 7,
+   "pass_": 41,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Italien är Rom.",
+      "Huvudstaden i Italien är Rom.",
+      "Huvudstaden i Italien är Rom, belägen vid Adriatiska havet i den italienska delstaten Oberösterreich.",
+      "Huvudstaden i Italien är Rom."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Spanien?",
+   "svar": "Huvudstaden i Spanien är Madrid.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 56,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Spanien är Madrid, som också kallas för Spaniens huvudstad.",
+      "Huvudstaden i Spanien är Madrid.",
+      "Huvudstaden i Spanien är El Paso, som också kallas El Hierro eller La Hierros.",
+      "Huvudstaden i Spanien är Madrid.",
+      "Huvudstaden i Spanien är Madrid."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Japan?",
+   "svar": "Huvudstaden i Japan är Tokyo.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 44,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Japan är Tokyo.",
+      "Huvudstaden i Japan är Tokyo, Japan.",
+      "Huvudstaden i Japan är Tokyo och landets huvudstad är Tokyo.",
+      "Huvudstaden i Japan är Tokyo.",
+      "Huvudstaden i Japan är Tokyo, japansk metropol."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Island?",
+   "svar": "Huvudstaden i Island är Reykjavik.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 43,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Island är Reykjavik.",
+      "Huvudstaden i landet är Reykjavik.",
+      "Huvudstaden i Island är Reykjavik.",
+      "Huvudstaden i det land som ligger väster om Island är Reykjavik.",
+      "Huvudstaden i landet är Reykjavik."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är huvudstaden i Australien?",
+   "svar": "Huvudstaden i Australien är Sydney.",
+   "ok": false,
+   "utkast": 6,
+   "pass_": 20,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Australien är Sydney.",
+      "Huvudstaden i Australien är Sydney.",
+      "Huvudstaden i Australien är Sydney."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken är Sveriges största sjö?",
+   "svar": "Sveriges största sjö är Vänern.",
+   "ok": true,
+   "utkast": 7,
+   "pass_": 32,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges största sjö är Vänern.",
+      "Sveriges största sjö är Vänern.",
+      "Sveriges största sjö är Vänern som också har en yta på omkring 256 meter.",
+      "Sveriges största sjö är Vänern."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken är Sveriges näst största sjö?",
+   "svar": "Vänern är Sveriges näst största sjö efter Vänern.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 83,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Vänern är Sveriges näst största sjö efter Vänern och kallas ibland för Sveriges tredje största sjö.",
+      "Vänern är Sveriges näst största sjö efter Vänern.",
+      "Vänern är Sveriges näst största sjö med en yta av 42,6 km² och en högsta punkt på 1017 meter över havet.",
+      "Vänersborg är Sveriges näst största sjö och ligger i Västergötland.",
+      "Vänern är Sveriges näst största sjö efter Vänern och kallas ibland för \"Sveriges minsta sjö\"."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket är Sveriges högsta berg?",
+   "svar": "Sveriges högsta berg är Kebnekaise, som är Sveriges högst belägna.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 71,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges högsta berg är Kebnekaise, som är Sveriges högst belägna.",
+      "Sveriges högsta berg är ett av de högsta i världen och kommer från Svenska Lappland.",
+      "Det högsta berget är Alings å, ett glaciärt berg med tillhörande glaciär i Lappland.",
+      "Sveriges högsta berg är Sveriges högsta berg över havet.",
+      "Sveriges högsta berg är SM-berget i Svalbard."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken är Sveriges näst största stad?",
+   "svar": "Sveriges näst största stad är Stockholm, efter Göteborg och Malmö.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 73,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Uppsala är Sveriges näst största stad och har en yta på cirka 3 500 km2.",
+      "Sveriges näst största stad är Stockholm, efter Göteborg och Malmö.",
+      "Uppsala är Sveriges näst största stad med sina 41 292 invånare (år 2020).",
+      "Göteborg är den näst största staden i Sverige och ligger vid Göta älv.",
+      "Uppsala är Sveriges näst största stad och har en yta på 205 km²."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken är Sveriges största ö?",
+   "svar": "Sveriges största ö är en svensk film från 1947 i regi av Bengt Logardt.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 83,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges största ö är en svensk film från 1949 i regi av Arne Skouen.",
+      "Sveriges största ö är en svensk film från 1947 i regi av Bengt Logardt.",
+      "Östersjön är Sveriges största ö.",
+      "Sveriges största ö är en svensk film som hade biopremiär i Sverige den 28 november 1997, regisserad av Jan-Ove Waldner.",
+      "Sveriges största ö är en del av den svenska myndigheten Svenska Filminstitutet."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket är världens högsta berg?",
+   "svar": "Himalaya är den högsta toppen i världen och ligger i Himalaya.",
+   "ok": false,
+   "utkast": 9,
+   "pass_": 86,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "K2 är världens högsta berg och ligger i Sydamerika.",
+      "Numbus är världens högsta berg och finns i alla kontinenter.",
+      "Himalaya är den högsta toppen i världen och ligger i Himalaya.",
+      "Himalayas högsta berg är Everest, som också är världens högsta berg.",
+      "Malaysia är det högsta berget i världen och ligger på den södra sidan av Himalaya."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " berg-expressionen varierar från 1 till 8000 meter över havet.",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket är världens största hav?",
+   "svar": "Australiens största hav är Stilla havet.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 93,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Australiens största hav är Stilla havet.",
+      "En stor värld!",
+      "Det är omöjligt att svara på exakt varifrån de kommer eftersom deras geografiska plats, som sträcker sig från Atlanten till Stilla havet, har en stor inverkan.",
+      "Sahara är den största ön i Stilla havet och ett av de sju haven som är befolkade på Hawaii.",
+      "Det är den största havstäckta planeten som har en yta på över fyra miljoner kilometer, vilket gör det till ett av de mest populära haven i världen."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken är världens största kontinent?",
+   "svar": "Afrika är den största av de tre kontinenterna.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 58,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Afrika är den största av de fem kontinenterna.",
+      "Afrika är den största av de tre kontinenterna.",
+      "Afrika är världens största kontinent.",
+      "Medelhavet är en stor kontinent som sträcker sig från Atlanten till Stilla havet och som har sina största geografiska gränser i Karibiska havet.",
+      "Världens största kontinent är Sydamerika."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "I vilket land ligger Eiffeltornet?",
+   "svar": "Eiffeltornet är en fransk byggnad som ligger i Paris, Frankrike. Det är Frankrikes näst högsta byggnad efter Eiffeltornet i Paris (denna byggnad är dock inte den högsta).",
+   "ok": true,
+   "utkast": 14,
+   "pass_": 250,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Eiffeltornet (franska: Le Touquet) är en byggnad i Paris som invigdes den 15 augusti 1893 och ligger på gränsen mellan Frankrike och Tyskland.",
+      "Trondheim är ett franskt landmärke och en kulturkälla i Frankrike.",
+      "Egypten, (Egyptiska: Tint-Egrit) är ett land som ligger i västra Asien.",
+      "Eiffeltornet är en fransk byggnad som ligger i Paris, Frankrike.",
+      "Eiffeltornet är ett landmärke i Paris som sträcker sig 100 meter från Chiron-Ivry-bågen till Eiffeltornet på andra sidan av Place de l'Ouest (där den också ligger)."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är Frankrikes näst högsta byggnad efter Eiffeltornet i Paris (denna byggnad är dock inte den högsta).",
+      " Det byggdes ursprungligen som ett centrum för konst och kultur men har sedan dess blivit ett symbol för Frankrike.",
+      " Det sträcker sig från Grand de la Cité till La Défense och är det högsta huset i världen.",
+      " Det är uppkallat efter den franske arkitekten Jacques-Louis Tournaux och anses vara ett landmärke i sydvästra Frankrike.",
+      " Det är Frankrikes högsta byggnad och världens femte högsta byggnad."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " Den största delen av tornet som reser sig över Eiffeltornet var tidigare det högsta tornet på Paris-börsen (en plats där man kan",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket hav ligger öster om Sverige?",
+   "svar": "Det är ett hav som ligger väster om Kanada.",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 95,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är ett hav som ligger väster om Kanada.",
+      "Det är ett hav som ligger i Atlanten, ungefär mitt emellan Sverige och Frankrike.",
+      "Det är ett hav i Atlanten.",
+      "Västergötland är Sveriges största sjö och den enda i sitt slag som inte är en del av Medelhavet.",
+      "I Sverige är det drygt nio miljoner kvadratmeter."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är det enda av de tre stora haven i världen, tillsammans med Atlanten och Stilla havet.",
+      " Det är en plats där människor bor och arbetar tillsammans, ofta med hjälp av fartyg eller flygplan.",
+      "",
+      "",
+      ""
+     ],
+     "vald": 2
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad heter Sveriges största flygplats?",
+   "svar": "Sveriges största flygplats, eller Swedavia som den också kallas, är en av Sveriges största flygplatser. Den ligger i anslutning till Arlanda och trafikeras av flygbolaget Ryanair.",
+   "ok": true,
+   "utkast": 15,
+   "pass_": 211,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges största flygplats, eller Swedavia som den också kallas, är en av Sveriges största flygplatser.",
+      "Sveriges största flygplats, eller Swedavia som den också kallas, är en internationell flygplats.",
+      "Sveriges största flygplats, Luftfartsverket, är en av Sveriges tio flygplatser.",
+      "Sveriges största flygplats heter Arlanda International Airport och ligger i anslutning till flygplatsen i Stockholm.",
+      "Sveriges största flygplats, eller Swedavia Airport, var Sveriges näst största med en kapacitet på 6 500 passagerare."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Den ligger i anslutning till Arlanda och trafikeras av flygbolaget Ryanair.",
+      " Den ligger i anslutning till Arlanda flygplats och öppnades 1998 och är belägen vid Alby flygplats cirka 1,5 kilometer från Stockholm City och cirka 1,6 kilometer från Stockholm Arlanda Airport.",
+      " Den ligger på Lidingö i Stockholms län och invigdes 1986.",
+      " Den ligger i anslutning till E4 och invigdes år 2000.",
+      " Den ligger i Göteborg och är statligt ägd av Svenska staten medan Swedavia ägs av privata företag."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Flygplatsen har cirka 260 000 passagerare och var år 2018 Sveriges tredje största flygplats efter Stockholm Arlanda Airport.",
+      " Flygplatsen är även känd för att vara det flygbolag som flyger för Swedavia.",
+      "",
+      "",
+      ""
+     ],
+     "vald": 2
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Hur många landskap har Sverige?",
+   "svar": "Sverige har 290 landskap.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 27,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sverige har cirka 1,2 miljoner invånare.",
+      "Sverige har 24 landskap.",
+      "Sverige har 290 landskap.",
+      "Sverige har 24 landskap.",
+      "Sverige har åtta landskap."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket år blev Gustav Vasa kung?",
+   "svar": "Det vet man inte mycket om. Kungaåret kallas för Gustav Vasas födelsedag eller Gustaf VI Adolfs födelsedag.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 134,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Gustav Vasas regering var en av de längsta och mest betydelsefulla politiska händelserna i Sveriges historia.",
+      "Gustav Vasas regeringstid var ett inbördeskrig som drabbade östra Finland från 1504 till 1616.",
+      "Gustav Vasa blev kung i Sverige den 1 september 1523.",
+      "Det vet man inte mycket om.",
+      "Gustav Vasas kung var en tid som präglades av politisk oro och instabilitet mellan Sverige och Ryssland."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Kungaåret kallas för Gustav Vasas födelsedag eller Gustaf VI Adolfs födelsedag.",
+      "Kung Gustav I (Gustav Vasas ätt) har varit kung i Sverige sedan år 1420.",
+      "",
+      " Kungadömet är det äldsta kända svenska riket som har en gemensam historia och där kungarna inte är födda på samma datum, vilket gör att de kan ha varit tidigare i livet."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket år började andra världskriget?",
+   "svar": "Andra världskriget började i slutet av andra världskriget.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 77,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Första världskriget började den 30 september 1939 i Tyskland.",
+      "Andra världskriget började i slutet av andra världskriget.",
+      "Kriget startade den 7 maj 1940 och slutade i strid med Tyskland den 10 maj.",
+      "Kriget började i USA:s armé under inbördeskriget och slutade med att landet delades upp i två stridande klasser, den ena med tyska och den andra med amerikanska trupper.",
+      "Första världskriget började den 7 september krig i Europa."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket år tog andra världskriget slut?",
+   "svar": "Kriget i Europa började den 7 september 1939 när Nazityskland invaderade Polen och Polen-Litauen. Detta var det första världskriget som slutade med att all världens länder blev krigförande.",
+   "ok": false,
+   "utkast": 12,
+   "pass_": 95,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Kriget i Europa började den 7 september 1939 när Nazityskland invaderade Polen och Polen-Litauen.",
+      "Lettland blev aldrig en del av den tyska krigsmakten och det var i detta krig som första världskriget bröt ut.",
+      "Det andra världskriget startade i september 1939.",
+      "Kriget började den 6 juli 1939 när tyskarna intog Stalingrad.",
+      "Tredje världskriget bröt ut den 1 september 1939 när Finland deltog i vinterkriget."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Detta var det första världskriget som slutade med att all världens länder blev krigförande.",
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket år föll Berlinmuren?",
+   "svar": "Berlinmuren föll den 30 maj 2021, efter att ha varit en del av Berlins mur. Det var det andra stora året i rad som muren föll och det första sedan Berlinmurens fall.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 206,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Berlinmuren föll den 30 maj 2021, efter att ha varit en del av Berlins mur.",
+      "Berlinmuren föll den 11 april 1940 och utgjorde ett av de mest omfattande östtyska militärverken under andra världskriget.",
+      "Berlinmuren föll den 9 maj 1836 och i en brand som spred sig till Berlin.",
+      "Berlinmuren föll den 30 maj 2011, i samband med stora demonstrationer och protester mot att en tysk militärbas på ön Mönchengladbach stängts av i Berlin.",
+      "Den tyska murens fall kan ha varit år 1631, då den första stora stadsbranden i Berlin ägde rum."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det var det andra stora året i rad som muren föll och det första sedan Berlinmurens fall.",
+      " Det var en minnesförlust för de som har levt under nazitiden och dess mur, som idag är skyddad som UNESCO:s Världsarvslista.",
+      " Den tyska regeringen stängde Berlinmuren i maj 2021 och avslutade processen för att avsluta den.",
+      "",
+      " Det var i samband med det tyska anfallet mot Ryssland som Berlinmuren föll."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket år gick Sverige med i EU?",
+   "svar": "Sverige gick med i EU år 2004. Det året var ett av de år då flest personer i Sverige var födda utomlands.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 146,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sverige gick med i EU år 2004.",
+      "Sverige var ett av de första länderna i Europa att ansluta sig till unionen.",
+      "Sverige har gått med i EU:s ramprogram för att minska utsläppen av växthusgaser.",
+      "Sverige gick med i EU år 2006.",
+      "Sverige gick med i EU 1921."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det året var ett av de år då flest personer i Sverige var födda utomlands.",
+      " Anledningen till att Sverige inte gick med var att man ville ha en större flexibilitet och kontroll över sin ekonomiska situation än vad som gäller för andra länder.",
+      " Efter ett antal misslyckade och mycket svåra debatter i riksdagen under åren 1995-1998 blev det Europeiska rådets möte den 19–22 maj 1999 med anledning av att Sverige blev medlem i EU år 2001.",
+      "",
+      " Det är en av de mest betydelsefulla milstolparna i Sveriges historia."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket år landade människan på månen?",
+   "svar": "Ah, en gåta! Svaret på din fråga är månen. Det ligger i den norra delen av vårt solsystem och den ligger ungefär 480 mil från jorden. Detta gör att vi kan observera dess omloppsbana runt solen med blotta ögat.",
+   "ok": false,
+   "utkast": 21,
+   "pass_": 289,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ah, den himmelska staden.",
+      "Ah, en gåta!",
+      "Det finns inga bevis som stöder denna teori, men det finns tecken på att mänskliga vulkaner kan nå månen genom en rad vetenskapliga observationer.",
+      "Det är inte troligt att människan landade på månen.",
+      "Det finns inga bevis för att stödja existensen av ett enda år på månen."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Svaret på din fråga är månen.",
+      " Hur mycket mer än en gång har inte funnits.",
+      " Svaret på din fråga är \"Månen\".",
+      " Svaret på din fråga är månen.",
+      " En härlig syn att se."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " När du tittar in i den finns det ett område som kallas för \"Månen\".",
+      " Det ligger i den norra delen av vårt solsystem och den ligger ungefär 480 mil från jorden.",
+      " Det är ett ständigt pågående arbete av olika skäl, både fysiska och tekniska.",
+      " Det ligger högt uppe i vårt solsystem och är hem till alla stora underverk som finns på himlen, men den saknar några av dem som inte kallas något annat.",
+      " Detta beror troligen på att den har många år i rymden och har många liv som väntar sig för att utforskas."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      " Detta gör att vi kan observera dess omloppsbana runt solen med blotta ögat.",
+      " Ett fenomen som brukar kallas \"måne\" eller \"jordens måne\".",
+      " Dess måne är nästan ett varv runt soluppgången vilket tyder på att det finns liv på andra sidan.",
+      " Den landade också när vi flyttade från vår måne till vår stjärna, för ungefär 65 miljoner år sedan.",
+      " Under ditt äventyr med denna resa skulle du ha stannat på månens sida eftersom jorden är rund men inte platt."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 4,
+     "kandidater": [
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vem var den första människan på månen?",
+   "svar": "Det är fascinerande att se den första människan på månen. Det verkar som om du hänvisar till en händelse eller person i ditt förflutna, men det finns ingen sådan person på månen.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 195,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är en myt att människor på månen kunde vara kända för sina förmågor att kommunicera och kommunicera.",
+      "Det är fascinerande att se den första människan på månen.",
+      "Det är omöjligt att identifiera en specifik person som var den första människan på månen.",
+      "Det är inte en enkel gåta att bestämma den första människan på månen.",
+      "Chimaira, den första människan på månen var Nemesis från Aristocratshipiden i stjärnbilden Jungfrun."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det verkar som om du hänvisar till en händelse eller person i ditt förflutna, men det finns ingen sådan person på månen.",
+      " En anmärkningsvärd person för denna tid var Neil Armstrongseter, en före detta astronaut som arbetade vid NASA under andra världskriget.",
+      " Det var i det forntida Egypten och började när farao Djingis Khan, som anses vara den första människan på månen, föddes.",
+      " Denna varelse var inte särskilt intelligent, men han kunde kommunicera med alla andra människor runt om i världen - en unik gåva från universum som kallas Neonljus.",
+      ""
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vem skrev Pippi Långstrump?",
+   "svar": "Pippi Långstrump skrevs av Astrid Lindgren, en av Sveriges mest kända barnboksförfattare.",
+   "ok": true,
+   "utkast": 7,
+   "pass_": 78,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Pippi Långstrump skrevs av Astrid Lindgren, en av Sveriges mest kända barnboksförfattare.",
+      "Pippi Långstrump skrevs av Astrid Lindgren och tecknades av Carl-Axel Wennerberg.",
+      "Pippi Långstrump skrevs av Astrid Lindgren, en av Sveriges mest kända barnboksförfattare.",
+      "Pippi Långstrump skrevs av Astrid Lindgren, en av Sveriges mest kända barnboksförfattare."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vem skrev Röda rummet?",
+   "svar": "Röda Rummet är en svensk stumfilm från 1928 i regi av Gustaf Edgren.",
+   "ok": false,
+   "utkast": 9,
+   "pass_": 161,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Röda rummet (engelska: The White House) är en amerikansk romantisk dramafilm från 1940 i regi av William Powell, med manus av John M.",
+      "Röda rummet (originaltitel: The Dogmen) är en amerikansk drama-thriller från 2009 i regi av Michael Curtiz.",
+      "Röda rummet (originaltitel: The Sympathy) är en amerikansk dramakomedifilm från 2010, i regi av Jon Cooper med Tom Hanks och Kevin Rourke.",
+      "Röda Rummet är en svensk stumfilm från 1928 i regi av Gustaf Edgren.",
+      "Röda rummet är en roman av den svenske författaren Hjalmar Söderberg om ett samhälle i förändring."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      " Filmen var baserad på romanen Röda rummet från 1929 av Olof Molander och Hugo Bolander med premiär den 28 februari 1929.",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vem grundade Nobelpriset?",
+   "svar": "Nobelprisen är ett pris som delas ut av Nobelstiftelsen till svenska forskare med anknytning till kemi. Priset delas ut årligen, sedan 1965, och består av en prissumma på 10 000 kronor.",
+   "ok": false,
+   "utkast": 14,
+   "pass_": 228,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Nobelprisen är ett pris som delas ut av Nobelstiftelsen till svenska forskare med anknytning till kemi.",
+      "Nobelpriset i fysik (i kategorin \"för banbrytande bidrag till vetenskapen\") är ett av världens mest prestigefyllda priser och delas ut en gång per år sedan 1946.",
+      "Nobelpriskonferensen var en internationell konferens och nationell symbol.",
+      "Nobelprisen är en utmärkelse som delas ut av amerikanska, brittiska och japanska företag.",
+      "Det är en internationell utmärkelse som sedan år 2000 årligen delas ut till personer som \"fört ett viktigt och viktigt samhällsgrundande arbete för att främja hållbar utveckling\"."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Priset instiftades år 2001 och har sedan dess delats ut årligen.",
+      " Priset delas ut årligen, sedan 1965, och består av en prissumma på 10 000 kronor.",
+      " Priset instiftades den 2 december 2013 och fick 2017 års Nobelpris i kemi för sin \"upptäcktsresa inom området för bildning i bioteknik\".",
+      " Nobelpriset i kemi utdelas årligen av Nobelförsamlingen vid dess årliga ceremoni, den 3 december.",
+      " Priset ges till en forskare som ”i sin forskning har visat den relevans som ligger i att utveckla nya eller förbättra befintliga metoder för produktion av organisk kemi”."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      " Priserna delas ut i samband med Nobelgalans olika aktiviteter.",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vem uppfann dynamiten?",
+   "svar": "Den moderna dynamiten uppfanns av den amerikanske fysikern och uppfinnaren John Dalton (1861–1936).",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 181,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den moderna dynamiten uppfanns av den amerikanske fysikern och uppfinnaren John Dalton (1861–1936).",
+      "Den franska fysikern och nobelpristagaren i fysik, René Gouges, myntade termen dynamite (som ofta förkortas som \"Flyktning\") för att beteckna rörelsen av partiklar i ett elektriskt fält.",
+      "Det finns inga bevis för att en händelse är förutbestämd av någon.",
+      "Grafit är ett magnetiskt fenomen som har fått sitt namn efter den amerikanske fysikern Henry Cunard.",
+      "För att göra detta, måste man först bestämma den grundläggande strukturen och egenskaperna hos en förening."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Han skapade den första moderna formen av en elektron, men det var först runt 1900 som man kunde använda denna i sina egna projekt.",
+      " Han formulerade ett system baserat på grundläggande principer som kallas kvantmekanik.",
+      " Daltons upptäckt var ett led i det arbete han hade för att utöka de grundläggande principerna inom kvantmekaniken.",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vem målade Mona Lisa?",
+   "svar": "Mona Lisa är en oljemålning av den italienske renässanskonstnären Tizian. Den målades omkring 1520 och ingår sedan 1823 i National Gallery of Arts and Sciences.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 200,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Mona Lisa är en oljemålning av den italienske renässanskonstnären Tizian.",
+      "Mona Lisa är en oljemålning av den italienske barockkonstnären Giacomo Puccini.",
+      "Mona Lisa är en målning av den svenska konstnären Edvard Persson.",
+      "Mona Lisa är en oljemålning av den italienske renässanskonstnären Tizian.",
+      "Mona Lisa är en målning av Johannes Vermeer från omkring 1625."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Den målades omkring 1520 och ingår sedan 1823 i National Gallery of Arts and Sciences.",
+      " Den målades omkring 1540–1543 och ingår sedan 1990 i National Gallery of Fine Arts samlingar i Washington D.",
+      " Den målades 1508–1510 och ingår sedan 1803 i National Gallerys samlingar i London.",
+      " Den målades 1536 och ingår sedan 1761 i Gemäldegalerie Alte Meister i Wien.",
+      " Målningen beställdes 1651 av Johannes Vermeer för att pryda ett tempel i Rom."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vem grundade IKEA?",
+   "svar": "Ekeby är ett svenskt företag som grundades av Ingvar Kamprad 1947. Företaget har sitt huvudkontor i Stockholm.",
+   "ok": true,
+   "utkast": 14,
+   "pass_": 170,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ekeby är ett svenskt företag som grundades av Ingvar Kamprad 1947.",
+      " IKEA är en svensk tillverkare av hushållsapparater, hushållsmaskiner och barnmöbler.",
+      "Ekeby är ett svenskt familjeföretag som har sitt ursprung i den svenska affärsmannen Hans Eriksson (1895–1981) och dennes maka Elise (född Johansson 1923).",
+      "Ebba Wallerstedt, född 11 juni 1914, död 13 november 1998, var en svensk keramiker och formgivare, känd för sina barnrumsinredningar.",
+      "Epicom, Inc."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      " Företaget har sitt huvudkontor i Stockholm.",
+      ""
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " Heminredning, möbler och hushållsartiklar säljs via IKEA-ägda koncernen Ikea Sverige AB.",
+      " Företagets namn kommer av det fornnordiska ordet för \"kämpe\", som betyder lång, smal, vågig, platt, eller rund.",
+      " Det ägs sedan 2001 av en stiftelse, Stiftelsen IKEA Sverige.",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken svensk popgrupp vann Eurovision 1974?",
+   "svar": "Eurovision Song Contest 1974 sändes från Globen i Stockholm. Den svenska gruppen var känd för sin hitlåt \"Mama Mia\" som blev en stor internationell framgång. Låten gick vidare till final och slutade på sjätte plats med 53 poäng.",
+   "ok": false,
+   "utkast": 18,
+   "pass_": 225,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Eurovision Song Contest 1974 sändes den 26 maj 1975 från Rix FM Festival i Malmö, Sverige.",
+      "Eurovision Song Contest 1974 sändes den 10 maj 1974 från Malmö Arena, och är därmed Sveriges uttagning till Eurovision Song Contest 1975.",
+      "Eurovision Song Contest 1974 sändes från Globen i Stockholm.",
+      "Eurovision Song Contest 1974 sändes från Göteborg i Sverige.",
+      "Eurovision Song Contest 1974 sändes i Sveriges Radio och är Sveriges uttagning till Eurovision Song Contest 1975."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Den svenska gruppen var känd för sin hitlåt \"Mama Mia\" som blev en stor internationell framgång.",
+      " I tävlingen tävlade man med låten \"I'll Find the Way to Believe\" framförd av den amerikanska sångerskan Toni Braxton och texten skrevs av Toni Braxton, Richie Edwards och Chad Smith.",
+      " Den svenska gruppen var en sammansättning av musiker från olika länder.",
+      " Programledare var Bo Lindsjö, som även spelade huvudrollen.",
+      ""
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Låten gick vidare till final och slutade på sjätte plats med 53 poäng.",
+      "",
+      "",
+      " Eurovisionen avslutades på kvällen den 7 maj 1975 efter att låten hade spelats i över två veckor.",
+      " Gruppen fick inte någon större uppmärksamhet då den inte vann något pris, men de vann heller inget pris."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad heter Sveriges valuta?",
+   "svar": "Sveriges krona är Sveriges officiella valuta, som används i många länder. Valutan kallas ofta för euro och har en gemensam valuta sedan flera år tillbaka.",
+   "ok": true,
+   "utkast": 15,
+   "pass_": 224,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges krona är Sveriges officiella valuta, som används i många länder.",
+      "Sveriges valuta, även kallad valutan, är en svensk valutas officiella benämning på den svenska kronan.",
+      "Sveriges valuta, valutan euro (Euron) eller euroområdet (EUR) är ett svenskt valutasystem, som består av statslösa betalningar i euro, dollar och andra valutor.",
+      "Valutan kallas för euro, en förkortning av engelskans euro.",
+      "Sveriges krona består av en valör och ett valutaslag, som är fastlagt i valörer vid valörernas utgång."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Valutan kallas ofta för euro och har en gemensam valuta sedan flera år tillbaka.",
+      " Den svenska valutan kallas ofta för den svenska kronor eller svenska öre.",
+      " Den baseras på den svenska växelkursen till euro, och har en något högre växelkurs än euron.",
+      " Den svenska kronans värde utgörs av sedlar och mynt, medan den tyska är värd.",
+      " Den svenska kronan har ett valsystem medmansvalkretsar, där varje val sker en gång per mandatperiod."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " En euro är den lägsta summan som kan sättas in och delas med andra valutor.",
+      " Den nuvarande svenska valutan heter euro och den gamla vanliga svenska kronor.",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket datum är Sveriges nationaldag?",
+   "svar": "Sveriges nationaldag är en svensk högtidsdag som firas den 7 september varje år.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 85,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges nationaldag är en svensk lag som firar Sveriges nationaldag den 6 juni.",
+      "Sveriges nationaldag är enligt beslut den 14 juni varje år sedan den senaste istiden, med undantag för midsommar.",
+      "Sveriges nationaldag är en svensk tradition som firas den 11 juni varje år, förutom i Finland.",
+      "Sveriges nationaldag är en svensk nationell högtid som sedan starten är en viktig tradition för många svenskar, särskilt barn.",
+      "Sveriges nationaldag är en svensk högtidsdag som firas den 7 september varje år."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad heter Sveriges kung?",
+   "svar": "Sveriges kung heter Carl XVI Gustaf.",
+   "ok": true,
+   "utkast": 6,
+   "pass_": 20,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges kung heter Carl XVI Gustaf.",
+      "Sveriges kung heter Carl XVI Gustaf.",
+      "Sveriges kung heter Carl XVI Gustaf."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad heter den svenska högtiden den 24 december?",
+   "svar": "Den 24 december är en svensk högtid som firas till minne av att Sverige blev svenskt 1658.",
+   "ok": false,
+   "utkast": 9,
+   "pass_": 109,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den 24 december är en svensk högtid som firas till minne av att Sverige under andra världskriget blev neutralt.",
+      "Den 24 december är en officiell tid för att fira Sveriges nationaldag som börjar den 23 december i Sverige.",
+      "Den 24 december är en svensk högtid som firas till minne av att Sverige blev svenskt 1658.",
+      "Den 24 december heter den svenska högtiden.",
+      "Den 24 december är en svensk högtid som firas till minne av att Sverige, genom freden i Roskilde 1658, blev en del av Danmark."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Det året var även den andra svenska vinterdagen, vilken firades till och med den 29 januari.",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket nummer ringer man i Sverige vid en nödsituation?",
+   "svar": "I nödsituationer ringer man i Sverige vid en nödsituation.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 59,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det ringer i Sverige vid en nödsituation.",
+      "I nödsituationer ringer man i Sverige vid en nödsituation.",
+      "Svaret är ett tal.",
+      "\"Nej, det är inte ett nummer som ringer i Sverige vid en nödsituation.",
+      "I nödsituationer ringer man i Sverige vid en nödsituation."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket djur kallas skogens konung?",
+   "svar": "Skogens konung",
+   "ok": false,
+   "utkast": 5,
+   "pass_": 37,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Skogens konung är ett populärt djur i många kulturer, särskilt under den moderna eran.",
+      "Skogens herre är en bok av Charles Dickens.",
+      "Skogens konung",
+      "Skogens konung",
+      "Skogens konung."
+     ],
+     "vald": 2
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är den kemiska beteckningen för vatten?",
+   "svar": "Den kemiska beteckningen för vatten är:",
+   "ok": false,
+   "utkast": 5,
+   "pass_": 87,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den kemiska beteckningen för vatten är:",
+      "Den kemiska beteckningen för vatten är C7H12O, men den används ofta som beteckning på salter med högre molekulvikt än vatten.",
+      "Den kemiska beteckningen för en förening är det som anger den specifika koncentrationen av föreningen i ett givet prov.",
+      "Den kemiska beteckningen för vatten är C5H8(OH)2.",
+      "Den kemiska beteckningen för vatten är (H2O) och det finns två typer av vatten:"
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad är den kemiska beteckningen för guld?",
+   "svar": "Guld är en legering av silver (Ag) och koppar (Cu). Den kemiska beteckningen för guld är 4-penten.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 159,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Guld är en ädelmetall som består av fyra olika klasser, vilket gör det lätt att skilja mellan dem.",
+      "Guld är en legering av silver (Ag) och koppar (Cu).",
+      "Guld är en tung metall som bildas genom överföring av elektroner mellan två icke-metalliska arter.",
+      "Guld (Artemisinium leucum) är en ädelgas som innehåller 18 procent mer guld än någon annan typ av metall.",
+      "Guld är en mycket sällsynt ädelgas som finns i både naturliga (Variegatum) och syntetiska (S-Chemistricter)."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är den vanligaste metallen i naturen, särskilt guld.",
+      " Den kemiska formeln är CuS.",
+      " Den har ett kvadratiskt, kovalent eller halvmetalliskt utseende.",
+      " Den kemiska beteckningen för guld är 4-penten.",
+      " Det är den mest värdefulla metallen i vårt klimat."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket grundämne har den kemiska beteckningen Fe?",
+   "svar": "Det är en ädelgas med den kemiska beteckningen FeCl2. Det har fått sitt namn från det latinska namnet på det grekiska ordet för ädelgas, Fe(s).",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 182,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är en ädelgas med den kemiska beteckningen FeCl2.",
+      "Det kemiska namnet Fe är en variant av det latinska namnet på Fe, som betyder \"den blå färgen\".",
+      "Det är en atom med den kemiska beteckningen Fe.",
+      "Fosalt är en kemisk förening som består av tre kolatomer i två atomkärnor.",
+      "Det grundämnen som innehåller Fe är magnesium, ett ämne med det kemiska namnet magnesiumkarbonat."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det har fått sitt namn från det latinska namnet på det grekiska ordet för ädelgas, Fe(s).",
+      " Andra namn på samma grundämne som andra metaller är kalium, radium och svavel.",
+      " Detta grundämne har symbolen O, som står för Fe, vilket innebär att det innehåller en atom av samma typ som kalium (K+) i sig själv.",
+      " Det är ett väldigt kraftfullt ämne som används för att tillverka olika typer av bränsle, inklusive bensin, vatten och andra föreningar.",
+      " Det finns flera olika sorters av detta grundämne i naturen, inklusive järn, magnesium och mangan."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken planet är närmast solen?",
+   "svar": "Venus är den närmaste solen och har en skenbar magnitud på ca 5,20.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 83,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Venus är den närmaste solen och har en skenbar magnitud på ca 5,20.",
+      "Venetian är den närmaste solen och har en yta på ungefär 11 miljoner km2.",
+      "Maui är den närmaste solen, men en tropisk storm kan förstöra hela planeten.",
+      "Koordinater för en planet i rymden är 0,45.",
+      "Solsystemet är ett av de mest avlägsna och fascinerande planeterna i solsystemet."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken är den största planeten i solsystemet?",
+   "svar": "Den största planeten i solsystemet är solen.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 62,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den största planeten i solsystemet är solen, som har en yta på ungefär 5 miljoner km2 och en atmosfär av cirka 9 miljarder km2.",
+      "Sydpolen och planeten Mars",
+      "Den största planeten i solsystemet är solen.",
+      "Den största planeten i solsystemet är solen (Megagud).",
+      "Solar Eden är den största planeten i solsystemet."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken planet kallas den röda planeten?",
+   "svar": "Det är en planet som kallas för den röda planeten.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 78,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är en planet som kallas för den röda planeten.",
+      "Det är en planet i stjärnbilden Oxen.",
+      "Sydön är den röda planeten på grund av sitt namn, som kommer från det latinska ordet för \"jordplanet\".",
+      "Det röda planet kallas den röda planeten eller \"röda planeten\" och är en planet i solsystemet som tillhör solsystemet.",
+      "Gliese 5 är den blå planeten i stjärnbilden Jungfrun."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Hur många ben har en spindel?",
+   "svar": "En spindel är ungefär lika stor som en häst och har ungefär lika många ben. Eftersom det finns ungefär 60 arter av spindlar i ett samhälle, kan vi beräkna antalet ben för alla typer: Ben per spindel = (antal ben) * (antal ben) - Det finns 60 olika slags ben, alltså totalt",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 201,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "En spindel är ungefär 10 meter lång och har en massa på ungefär 30 kg.",
+      "En man har åtta ben.",
+      "En spindel är ungefär 7,1-9 cm lång.",
+      "I en spindel är varje ben tio meter lång och har ett huvud som inte når upp till några andra.",
+      "En spindel är ungefär lika stor som en häst och har ungefär lika många ben."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Enligt olika studier kan den faktiska längden på ett huvud vara densamma som längden på en svans.",
+      " Eftersom det finns ungefär 60 arter av spindlar i ett samhälle, kan vi beräkna antalet ben för alla typer: Ben per spindel = (antal ben) * (antal ben) - Det finns 60 olika slags ben, alltså totalt",
+      " Det finns inget mer anmärkningsvärt än ett ben på grund av dess ben-till-ben rörelse-rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse rörelse",
+      " De kan vara upp till 30 fot långa, men de kan också kallas för vampyror (efter sin engelska benämning) eller vampyrer (efter sin svenska term)."
+     ],
+     "vald": 2
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Hur många ben har en insekt?",
+   "svar": "En insekt har fem ben. Här är resonemanget: 1. Frågan säger att en insekt har fem ben, vilket betyder att den har 5 ben 2. Men eftersom det finns två fåglar som delar på ett ben kan vi anta att de alla har samma ben 3. Därför har varje individ med fem ben totalt",
+   "ok": false,
+   "utkast": 21,
+   "pass_": 275,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "En insekt har ben, och en icke-binär kulle.",
+      "En insekt har ungefär 25 ben.",
+      "Det finns tre ben i en insekt, och det är alltså totalt 64 ben.",
+      "En insekt har sex ben.",
+      "En insekt har fem ben."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Här är resonemanget: 1.",
+      " Här är anledningen: 1.",
+      " En insekts ben är alltid ett av de fyra benen, som står för \"den andra\".",
+      " För att bestämma det totala antalet ben kan vi använda följande formel: Antal ben = Totalt ben.",
+      " En person kan ha upp till 30 benet, och en djur kan ha upp till 20 benet."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Frågan säger att en insekt har fem ben, vilket betyder att den har 5 ben 2.",
+      " I början finns det fem ben i en trädgren, och sedan blir det fem 2.",
+      " Vi vet att det finns totalt 10 ben i en planta.",
+      " Vi vet att det finns fem växter.",
+      " Låt oss överväga två arter, Beta och Aegithalos."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      " Men eftersom det finns två fåglar som delar på ett ben kan vi anta att de alla har samma ben 3.",
+      " Sedan kan vi beräkna antalet vingar som den har fått 3.",
+      " Eftersom varje ben har ett huvud (rot) har alla benen samma längd 5.",
+      " Eftersom det finns (5 - 3 = 8) ben på en insekt, kan vi dra slutsatsen att det finns ett totalt antal ben som inte ingår i",
+      " Därför har insektens totala ben fem ben 3."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 4,
+     "kandidater": [
+      " Därför har varje individ med fem ben totalt"
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vid hur många grader Celsius kokar vatten?",
+   "svar": "För att lösa detta problem använder vi den endimensionella värmeekvationen: T = t2T1T2, där T är temperaturen i Kelvin (14.3°C) och T är temperaturskillnaden mellan de två första termerna. Vi får veta att vattenets temperatur är 12 ° C (12",
+   "ok": false,
+   "utkast": 15,
+   "pass_": 208,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "För att lösa detta problem använder vi den endimensionella värmeekvationen: T = t2T1T2, där T är temperaturen i Kelvin (14.",
+      "Kokaren har en konstant temperatur på cirka 30°C.",
+      "Det är svårt att bestämma exakt hur mycket kokvatten en specifik person konsumerar.",
+      "Att kokar vatten kan bestämmas med hjälp av termodynamiska tabeller.",
+      "Vätskan i vattnet beror på temperaturen."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "3°C) och T är temperaturskillnaden mellan de två första termerna.",
+      "3°C och 14.",
+      "3 °C), T är temperaturen i Kelvin (12.",
+      "3°C) och T= temperaturen i vattnet (100 °F).",
+      "3 °C) och T= Temperaturen på grund av det ursprungliga förhållandet."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Vi får veta att vattenets temperatur är 12 ° C (12",
+      " Vi får vattenets ursprungliga temperatur som 0°C och det första",
+      " Med tanke på att vi har fått veta att vatten kokar vid",
+      " Vi kan skriva denna ekvation som följande: T=2T1",
+      " Vi får därför båda sidor av ekvationen som följande: Temperatur < 2"
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas processen där växter omvandlar solljus till energi?",
+   "svar": "Fotosyntesen är en process där växter omvandlar solljus till energi genom olika mekanismer.Energin från solen omvandlas till elektricitet, vilket gör att växterna kan producera ljus och värme.Detta kallas fotochemisk nedbrytning.Denna process kallas photosyntesis.",
+   "ok": true,
+   "utkast": 21,
+   "pass_": 330,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den mest kända processen som växter omvandlar solljus till energi är den process där växter omvandlar solljus till energi.",
+      "Den processen kallas den fotoaktiva processen.",
+      "Fotosyntesen är en process där växter omvandlar solljus till energi genom olika mekanismer.",
+      "Solenergi är en kraftfull energikälla som ger energi i form av värme, ljus och andra fysiska enheter.",
+      "Den här processen kallas den energiöverföring, som uppstår när växter omvandlar solljus till energi."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "Energin från solen omvandlas till elektricitet, vilket gör att växterna kan producera ljus och värme.",
+      "Energin i fotosyntesen kommer från växtens fotosfär, som innehåller en blandning av vattenmolekyler och syre, vilket bildar ett komplex med andra organismer.",
+      "Den här processen gör det möjligt för växterna att ta upp energin i jorden, omvandla den till elektricitet och överföra den sedan tillbaka till jordklotets inre.",
+      "",
+      "Enzymet som används för fotosyntesen kallas fotokemiskt medium (fotosyntesprocessen) under fotosyntes."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "Detta kallas fotochemisk nedbrytning.",
+      "Detta kallas fotosyntes eller aeropsyntes.",
+      "Det här sker på grund av solljuset absorberas av växten, det ger energi.",
+      "Detta kallas fotovoltaisk tid (ETH) eller soldystiden på grund av den höga effekt som det ger när man",
+      "Detta kallas photosyntesis eftersom energin som släpps ut kommer från solens ljusabsorption av vattenmolekyler och värmeenergi."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      "Denna process kallas photosyntesis.",
+      "När solljuset reflekteras tillbaka kommer det in som energi i växterna och den ackumuleras inom jorden",
+      "När temperaturen ökar så börjar bladen producera värme.",
+      "Kemikalien har tre huvudsteg: fotodegradering (fotodynamisk nedbryt",
+      "När ljusenergi absorberas av ljuset omvandlas energin (den kinetiska energin) till elektrisk energi som används"
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 4,
+     "kandidater": [
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket organ pumpar runt blodet i kroppen?",
+   "svar": "Det är en del av den naturliga processen att pumpa blod från hjärtat, vilket gör det möjligt för blodet att passera genom kroppen.",
+   "ok": true,
+   "utkast": 9,
+   "pass_": 104,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är en del av den naturliga processen att pumpa blod från hjärtat, vilket gör det möjligt för blodet att passera genom kroppen.",
+      "Det är inte en enskild organ.",
+      "Det är en betydande händelse i cellmembranen som initierar andning.",
+      "Det är en betydande del av den mänskliga kroppen som pumpar runt blod.",
+      "Det finns en molekyl som kallas glioblastas (GFA) och det är involverat i olika biologiska processer, inklusive hjärt-kärlsjukdomar."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Det spelar en avgörande roll för regleringen och funktionen av våra kroppar.",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Hur många dagar har ett skottår?",
+   "svar": "Ett skottår har 365 dagar och ett skottår har 366.",
+   "ok": true,
+   "utkast": 6,
+   "pass_": 35,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett skottår har 365 dagar och ett skottår har 366.",
+      "Ett skottår har 365 dagar och ett skottår har 366.",
+      "Ett skottår har 365 dagar och ett skottår har 366."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilket är världens största djur?",
+   "svar": "Världens största djur är en del av den stora ekosystemet som sträcker sig över hela världen.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 81,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Världens största djur är en del av den stora ekosystemet som sträcker sig över hela världen.",
+      "Världens största djur är inte nödvändigtvis jordens största däggdjur.",
+      "Världens största djur är en varelse som har utvecklats från de stora skogarna i Europa och Asien, särskilt i Nordamerika.",
+      "Afrika ligger i Afrika, men det finns många andra stora djur som till exempel lejon och elefanter.",
+      "Världens största djur är bufflarna, som har land i världen."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken gas behöver vi andas in för att överleva?",
+   "svar": "Natriumklorid (NaCl) är en stark syra, vilket innebär att den helt dissocierar i vatten. Den kemiska formeln för denna gas är: NaCl(aq) + NaC2O3(q) → NaCl(q).",
+   "ok": false,
+   "utkast": 14,
+   "pass_": 241,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "En gas som innehåller en blandning av vätegas och syre gas kommer att behöva andas in för att överleva.",
+      "Natriumklorid (NaCl) är en stark syra, vilket innebär att den helt dissocierar i vatten.",
+      "En gas som behövs för att andas in kan vara vatten, salt eller olja.",
+      "För att bestämma vilken gas som behövs för att överleva måste vi förstå den balanserade kemiska ekvationen och de faktorer som påverkar detta svar.",
+      "Den gas som behövs för att andas in i en kropp är vätegas."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Den balanserade kemiska ekvationen för reaktionen mellan natriumnitrat (NaNO3) och natriumklorid (NaCl) är: Na2NO3 + NaCl → NaCl+NaCl",
+      " Den bildas genom att lägga natriumjoner till salt och sedan vattenmolekyl för att bilda vatten-vätska.",
+      " Den huvudsakliga skillnaden mellan natrium och salt i gasfasen ligger i närvaron av ett externt syrat-jon på grund av skillnaden i yta.",
+      " Den kemiska formeln för denna gas är: NaCl(aq) + NaC2O3(q) → NaCl(q).",
+      " Den kräver inte något överskott av luft för att komma in i kroppen, och det kan lösas upp med hjälp av ren alkohol eller ättiksyra."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " I ren form kan natriumklorid beskrivas som ett fast ämne med",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad heter vår galax?",
+   "svar": "Aurora är en av de 88 moderna stjärnbilderna som erkänns av den Internationella Astronomiska Unionen. Den har fått sitt namn efter den italienske astronomen Giovanni Battista Sforza.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 128,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Vår galax är en del av den stora klotformiga stjärnhopen Astrometeo.",
+      "Vår galax heter vår galax.",
+      "Venus är ett universum i stjärnbilden Kusken, en del av HR-serien.",
+      "Vår galax, även känd som LG eller Gemix är en mörk och mörk stjärna i huvudserien av spektralklass F3 V.",
+      "Aurora är en av de 88 moderna stjärnbilderna som erkänns av den Internationella Astronomiska Unionen."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Den har det traditionella namnet Aurore, vilket betyder \"den lysande stjärnan\".",
+      " Den har fått sitt namn efter den italienske astronomen Giovanni Battista Sforza.",
+      "",
+      "",
+      ""
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vilken färg får man om man blandar blått och gult?",
+   "svar": "Det finns inga färgämnen i blandningen av gult och blått.",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 122,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är en färg som kan ge olika färger.",
+      "Om du blandar gula och röda färger kan det bli en färg som är mer röd, till exempel rött eller gult.",
+      "Det beror på att den första halvan är orange, medan den andra hälften är brun.",
+      "Du ska välja en röd färg.",
+      "Det finns inga färgämnen i blandningen av gult och blått."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Om du blandar rött och grönt, blir färgen röd, eftersom det anses vara en färg.",
+      "",
+      " För att vara säker på att det inte är någon färg, prova först med lite vatten eller något annat färgämne tills du ser den blandade färgen.",
+      " Man måste blanda ihop färger för att få en viss nyans."
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad står VPN för?",
+   "svar": "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server. Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans.",
+   "ok": true,
+   "utkast": 9,
+   "pass_": 120,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server.",
+      "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server.",
+      "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans.",
+      " Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans.",
+      " Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas bedrägerier där man luras att lämna ut uppgifter via falska mejl?",
+   "svar": "Bedragarna använder ofta falska e-postadresser och kortuppgifter, men de kan också utnyttja konton som är krypterade med hjälp av en falsk säkerhetsprogram.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 113,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Bedragarna använder ofta falska e-postadresser och kortuppgifter, men de kan också utnyttja konton som är krypterade med hjälp av en falsk säkerhetsprogram.",
+      "Varning!",
+      "Förmodligen är det vanligaste bedrägeriupplägget att man lämnar ut uppgifter via falska mejl, men det finns fler utmaningar och risker som kan uppstå när du skickar konfidentiella eller känsliga uppgifter.",
+      "Bedrägeri med inloggningsuppgifter leder till att din personliga information raderas.",
+      "Incidenter med kort kod är bedrägeri där någon utger sig för att vara du, medan den andra personen försöker dölja det."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas skadlig kod som krypterar filer och kräver en lösensumma?",
+   "svar": "Skadlig kod som krypterar filer och kräver en lösensumma kallas skadlig kod. Det är särskilt användbart på osäkra system, till exempel vid buffertövervakning eller skräppost.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 218,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Kryptera filer och kräver en lösensumma är en av de vanligaste metoderna för att få skadlig kod.",
+      "Kryptera filer och kräver en lösensumma som kan ett starkt lösenord, till exempel körsbärslim eller skuren från tvåfaktorsautentisering.",
+      "En skadlig kod som krypterar filer och kräver en lösensumma är ett av de mest kända exemplen på det.",
+      "Skadlig kod som krypterar filer och kräver en lösensumma kallas skadlig kod.",
+      "Skadlig kod som krypterar filer och kräver en lösensumma kallas Haar-kod."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är särskilt användbart på osäkra system, till exempel vid buffertövervakning eller skräppost.",
+      " Meddelandet är ofta vilseledande, så att du kan vara försiktig med vad ni delar.",
+      " En skadlig kod kan vara antingen en betald eller inte, och den används bland annat för att ge åtkomst till interna system.",
+      " I detta fall är det filändelsen av viruskod som \"Cryptography\" och den vanligaste formen för skadlig programvara.",
+      " Det är ett av de säkraste verktygen, men det kan vara skadligt om du inte har något säkerhetsprogram."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas en attack där många datorer överbelastar en server?",
+   "svar": "En attack består av skadlig kod, till exempel virus eller trojaner. För att få tillgång till en dator måste angriparen ha tillgång till datorn.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 194,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "En attack kallas också en kapare som ofta används på grund av deras höga responstid, låga responstider och kortlivade processer.",
+      "En attack är när en dator går igenom ett system som inte har uppdaterats.",
+      "En attack innebär att angriparen skickar in skadlig kod.",
+      "En attack är när sårbarheter blir oläsliga, till exempel öppna filer eller program som inte har uppdaterats.",
+      "En attack består av skadlig kod, till exempel virus eller trojaner."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " När användaren installerar en ny dator i en ny miljö får angriparen ofta tillgång till känslig data som används vid tidigare tillfällen.",
+      " När användaren installerar program på en annan dator blir de mindre känsliga för angreppet och kan sprida sig till flera datorer.",
+      " En attack är när någon skickar in databasklienter i ett nätverk och kan ge sig ut för att stjäla dessa.",
+      " För att göra detta måste datorer skapa flera filer från en katalog och använda andra program som Kahns.",
+      " För att få tillgång till en dator måste angriparen ha tillgång till datorn."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas ett nätverk av kapade datorer?",
+   "svar": "Ett nätverk av kapade datorer används för att upptäcka och begränsa angrepp, skräppost och spridning av skadlig kod. I ett okänt antal nätverk kan en angripare som tagit sig in i det andra nätverket skälla ut eller ändra trafiken utan att de märker dig.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 249,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett nätverk av kapade datorer används för att upptäcka och begränsa angrepp, skräppost och spridning av skadlig kod.",
+      "Ett nätverk av kapade datorer kan ha många komponenter som kallas för \"dump-moduler\" eller \"root modules\", men de förekommer oftast i program som använder andra protokoll.",
+      "Ett nätverk av kapade datorer kan mycket väl vara en samling filer, eller också ett system som har många kapade enheter.",
+      "Ett nätverk av kapade datorer kan vara fysiskt eller psykologiskt beroende, och det används ofta för att utnyttja svagheten i ett system eller en enhet.",
+      "Ett nätverk av kapade datorer finns i alla tider av Internet, men det är inte ett fullständigt datorsystem."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Ett nätverk av kapade datorer kan vara både ineffektivt och skadligt om det finns en mycket stor mängd data i nätverket.",
+      " Det fungerar som envägssignal och kan komma att läsas av användaren eller nätverket.",
+      " Ett IoT-nätverk är en typ av icke-överträdelsefri nätverk som har svag säkerhet, så det måste installeras på en lämplig plats.",
+      " I ett okänt antal nätverk kan en angripare som tagit sig in i det andra nätverket skälla ut eller ändra trafiken utan att de märker dig.",
+      " Ett IoT-nät är ett komplement till en traditionell dator med Internetuppkoppling."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas program som i hemlighet spionerar på användaren?",
+   "svar": "Ett program som i hemlighet spionerar på användaren kallas spionprogram. Det är ett av de mest kända programmen på Internet och har blivit en populär form av säkerhetsprogram.",
+   "ok": true,
+   "utkast": 13,
+   "pass_": 205,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett program som i hemlighet spionerar på användaren kallas spionprogram.",
+      "Det finns inga spionprogram som i hemlighet spionerar på användare.",
+      "Ett program som i hemlighet spionerar användaren på en sida eller ett system kallas spionprogram.",
+      "Det finns inga kända program som kan spionera på användaren, eftersom de är säkerhetsrelaterade.",
+      "\"Oxyz är en app som gör det svårt för användaren att tro på sin egen förmåga, men även om den andra personen säger till dig att du ska försöka göra något kommer programmet inte att låta dig känna igen dig."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är ett av de mest kända programmen på Internet och har blivit en populär form av säkerhetsprogram.",
+      " Detta är ett program som gör så att programmet ser ut att komma från en dator eller enhet och försöker stjäla information.",
+      " Programmet är avsett att spionera på andra personer, vanligtvis datoranvändare, för att få tillgång till information eller logga in med BankID.",
+      " Program som är specialiserade på att upptäcka, utnyttja och ta kontroll över datornätverk kan inkludera:",
+      " Ett datorprogram kan utnyttja detaljer om användaren för att kontrollera eller ta kontroll över datorn."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas ett säkerhetshål som tillverkaren ännu inte känner till?",
+   "svar": "Ett säkerhetshål som tillverkaren ännu inte känner till kallas för \"Firewall\". Det är ett vanligt verktyg i digitala spel och används av många kända antivirus- och antispywareföretag för att stjäla information, tjäna pengar eller stjäla information.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 156,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett säkerhetshål är ett säkerhetshål som används för att kontrollera och testa alla typer av skadlig kod.",
+      "Ett säkerhetshål som tillverkaren ännu inte känner till kallas för en \"trång säkerhet\".",
+      "Ett säkerhetshål som tillverkaren ännu inte känner till kallas för \"Firewall\".",
+      "Ett säkerhetshål kallas också en nivå eller ett mål som håller fast vid en sårbarhet.",
+      "Ett säkerhetshål kallas \"virus\" på grund av det faktum att ett säkerhetshål inte är en del av nätverket."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Det är ett litet, oansenligt litet objekt som liknar en tändsticka.",
+      " Detta är ett standardhål i form av en kedja.",
+      " Det är ett vanligt verktyg i digitala spel och används av många kända antivirus- och antispywareföretag för att stjäla information, tjäna pengar eller stjäla information.",
+      ""
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas skyddet som filtrerar trafiken in till ett nätverk?",
+   "svar": "Skydd som filtrerar trafiken in till ett nätverk, även kallat spionprogram eller ransomware, är när angripare gör anspråk på datorer eller system för att få information och spara data. Det fungerar eftersom de gör detta för att få någon att lämna ut information eller ge åtkomst.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 199,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Skydd som filtrerar trafiken in till ett nätverk, även kallat spionprogram eller ransomware, är när angripare gör anspråk på datorer eller system för att få information och spara data.",
+      "Brytekvationen som filtrerar trafiken in till ett nätverk är skyddet av innehållet, vilket betyder att det finns ingen väg mellan två punkter i nätverket.",
+      "Skydd som filtrerar trafiken in till ett nätverk kallas för överbelastning och kan leda till att din internetanslutning blir långsam eller slutar skicka data.",
+      "Stålfilter används för att filtrera trafiken i ett nätverk.",
+      "Sårbarhetsskanning: andra tjänster än VPN-anslutning."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är särskilt användbart om du har lämnat ditt hem, till exempel från en dators hårddisk eller från en apps",
+      " I det här fallet gäller samma sak som vid kryptering av data.",
+      " Det fungerar eftersom de gör detta för att få någon att lämna ut information eller ge åtkomst.",
+      " I det här fallet är enheten som skyddar enheten värd för spionprogrammet.",
+      " I det här fallet är datorn eller systemet skyddad mot skadlig kod."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad kallas inloggning som kräver både lösenord och en kod i telefonen?",
+   "svar": "En lösenordshanterare är ett program som skapar, sparar och fyller i långa unika lösenord åt dig. Du behöver bara komma ihåg ett starkt huvudlösenord.",
+   "ok": false,
+   "utkast": 12,
+   "pass_": 166,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Lösenord läcker och gissas hela tiden.",
+      "En lösenordshanterare är ett program som skapar, sparar och fyller i långa unika lösenord åt dig.",
+      "För att göra detta, tryck på de två viktigaste bokstäverna i ordet \"GEM\" och den andra bokstaven i det ordet.",
+      "Varningstecken är brådskande ton, hot om avstängning, oväntade bilagor, försvinnande av konto eller en läcka i systemet som gör att telefonen inte körs som den ska.",
+      "En lösenordshanterare är ett program som skapar, sparar och använder samma nyckel för att logga in."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Du behöver bara komma ihåg ett starkt huvudlösenord.",
+      " Du behöver bara komma ihåg ett starkt huvudlösenord.",
+      " Du behöver bara komma ihåg de två huvudlösenordningarna och en liten nyckel för att kunna använda dem.",
+      " Du behöver bara komma ihåg ett starkt huvudlösenord."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 11,
+   "q": "Vad står bokstaven S för i HTTPS?",
+   "svar": "I HTTPS står bokstaven S för i HTTPS. Det är den vanligaste bokstäverna i det engelska språket och används främst av internetanvändare.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 142,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det står \"S\" på det här meddelandet.",
+      "Det står i HTTPS att en bokstav är en kombination av två tecken.",
+      "I HTTPS står bokstaven S för i HTTPS.",
+      "Det står \"S\" på det språket.",
+      "Det står \"S\" på det textade meddelandet."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är den vanligaste bokstäverna i det engelska språket och används främst av internetanvändare.",
+      " Det är den vanligaste formen av ordet eftersom det finns två färger: rött och blått.",
+      " Det är en länkad webbmeme-hta och inte en fysisk adress.",
+      " För att se detta, klicka på ikonen som är en lista över alla vanliga ord och fraser i HTTPS.",
+      " Det är en av de tre tecken som vanligtvis används i webb-TV."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Norge?",
+   "svar": "Huvudstaden i Norge är Oslo.",
+   "ok": true,
+   "utkast": 6,
+   "pass_": 20,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Norge är Oslo.",
+      "Huvudstaden i Norge är Oslo.",
+      "Huvudstaden i Norge är Oslo."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Finland?",
+   "svar": "Huvudstaden i Finland är Helsingfors.",
+   "ok": true,
+   "utkast": 6,
+   "pass_": 20,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Finland är Helsingfors.",
+      "Huvudstaden i Finland är Helsingfors.",
+      "Huvudstaden i Finland är Helsingfors."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Danmark?",
+   "svar": "Huvudstaden i Danmark är Köpenhamn.",
+   "ok": true,
+   "utkast": 7,
+   "pass_": 27,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Danmark är Köpenhamn.",
+      "Huvudstaden i Danmark är Köpenhamn.",
+      "Huvudstaden i Danmark är Helsingör.",
+      "Huvudstaden i Danmark är Köpenhamn."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Frankrike?",
+   "svar": "Huvudstaden i Frankrike är Paris.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 73,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Frankrike är Paris.",
+      "Huvudstaden i Frankrike är Paris, belägen i sydöstra delen av landet, och har cirka 8800 000 invånare (2013).",
+      "Huvudstaden i Frankrike är Paris, belägen vid Adolphe d'Octeurs.",
+      "Huvudstaden i Frankrike är Paris.",
+      "Staden i Frankrike är Frankrikes åttonde största stad, med en befolkning på cirka invånare."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Tyskland?",
+   "svar": "Huvudstaden i Tyskland är Berlin.",
+   "ok": true,
+   "utkast": 7,
+   "pass_": 35,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Tyskland är Berlin.",
+      "Huvudstaden i Tyskland är Berlin, som har omkring 1,5 miljoner invånare.",
+      "Huvudstaden i Tyskland är Berlin.",
+      "Huvudstaden i Tyskland är Berlin."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Italien?",
+   "svar": "Huvudstaden i Italien är Rom.",
+   "ok": true,
+   "utkast": 9,
+   "pass_": 93,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Italien är Rom.",
+      "Huvudstaden i Italien är Rom, huvudstad i provinsen Aosta.",
+      "Huvudstaden i Italien är Milano, som har cirka 340 000 invånare (2016) och är känd för sin arkitektur, sina kultur- och konstscener, sitt vin, sitt nattliv, sitt mode och alla sina monument.",
+      "Huvudstaden i Italien är Rom.",
+      "Huvudstaden i Italien är Rom."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Italiens huvudstad heter Rom och har cirka 3,8 miljoner invånare (2020).",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Spanien?",
+   "svar": "Huvudstaden i Spanien är Madrid.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 47,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Spanien är Madrid.",
+      "Huvudstaden i Spanien är Madrid.",
+      "Huvudstaden i Spanien är Aragonien, med en yta på 138 908 (2005).",
+      "Huvudstaden är Madrid, Spanien.",
+      "Huvudstaden i Spanien är Madrid."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Japan?",
+   "svar": "Huvudstaden i Japan är Tokyo.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 61,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Japan är Tokyo, Japan.",
+      "Huvudstaden i Japan är Tokyo, som också har en av Japans mest populära turistorter.",
+      "Huvudstaden i Japan är Tokyo, med en uppskattad folkmängd av ca 546 000 invånare (2019).",
+      "Huvudstaden i Japan är Tokyo, Japan.",
+      "Huvudstaden i Japan är Tokyo."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Island?",
+   "svar": "Huvudstaden i landet är Reykjavik.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 36,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i landet är Reykjavik.",
+      "Huvudstaden är Reykjavik.",
+      "Huvudstaden i landet är Reykjavik.",
+      "Huvudstaden i Island är huvudstaden på ön.",
+      "Huvudstaden i landet är Reykjavik."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är huvudstaden i Australien?",
+   "svar": "Huvudstaden i Australien är Sydney.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 37,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Huvudstaden i Australien är Sydney.",
+      "Huvudstaden i landet är Sydney, som även är Australiens huvudstad.",
+      "Huvudstaden i Australien är Sydney.",
+      "Huvudstaden är Sydney.",
+      "Huvudstaden i Australien är Sydney."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken är Sveriges största sjö?",
+   "svar": "Sveriges största sjö är Vänern.",
+   "ok": true,
+   "utkast": 7,
+   "pass_": 29,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges största sjö är Vänern.",
+      "Sveriges största sjö är Vänern.",
+      "Sverige har den största sjö- och landmassan i hela EU.",
+      "Sveriges största sjö är Vänern."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken är Sveriges näst största sjö?",
+   "svar": "Sveriges näst största sjö är Vänern.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 57,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges näst största sjö är Vänern.",
+      "Sveriges näst största sjö är Vänern.",
+      "Sävsjön är Sveriges näst största sjö och en av de minsta i världen.",
+      "Vänern är Sveriges näst största sjö efter Vänern och kallas ibland även för Göta älvs mynning.",
+      "Det finns flera stora sjöar i Sverige och Finland."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket är Sveriges högsta berg?",
+   "svar": "Kuhmoberget är ett berg i Lappland som ingår i . Sjön är  meter djup, har en yta på  kvadratkilometer och befinner sig  meter över havet. Kuhmoberget ligger i Natura 2000-område.",
+   "ok": false,
+   "utkast": 18,
+   "pass_": 177,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Kuhmoberget är ett berg i Lappland som ingår i .",
+      "Sveriges högsta berg är Hemet.",
+      "Sveriges högsta berg är Mount Everest och världens högsta berg för den högsta bergs toppen, Mount Everest.",
+      "Det högsta berget i Sverige är Nordtoppen.",
+      "Sveriges högsta berg är Sveriges högsta, med en höjd av 1 750 meter över havet."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Toppen på Kuhmoberget når en höjd av cirka 15 meter över havet.",
+      "",
+      " Sveriges högsta berg är Kuhmoberget, Kiruna kommun.",
+      " Toppen i Kuhmoberget är meter över havet.",
+      " Sjön är  meter djup, har en yta på  kvadratkilometer och befinner sig  meter över havet."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " Kuhmoberget ligger i Natura 2000-område.",
+      "",
+      " Kuhmoberget ligger i Tärna socken i Åsele kommun i Sverige, 23 km söder om",
+      " Bergets högsta punkt är Kebnekaise (870 m ö."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken är Sveriges näst största stad?",
+   "svar": "Uppsala är Sveriges näst största stad.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 78,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Uppsala är Sveriges näst största stad.",
+      "Denna artikel behandlar tätorten Stockholm, för staden med det officiella namnet, se Stockholm (olika betydelser).",
+      "Uppsala är Sveriges näst största stad och ligger i Mellansverige, cirka tio kilometer norr om Stockholm.",
+      "Uppsala är Sveriges näst största stad och ligger i norra delen av Sverige, med nära till både Stockholm och Göteborg.",
+      "Uppsala är den tredje största staden i Sverige, efter Stockholm och Göteborg."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken är Sveriges största ö?",
+   "svar": "Östtuna är Sveriges största ö och ligger i Mälaren, mellan Stockholm och Göteborg. Ön är en del av tätorten Stockholm.",
+   "ok": false,
+   "utkast": 14,
+   "pass_": 179,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Östöarna är Sveriges största ö och ligger i Östersjön.",
+      "Sveriges största ö är en svensk film som hade biopremiär i Sverige den 13 september 2021, baserad på böckernaomaner av Carl-Michael Edenborg.",
+      "Östtuna är Sveriges största ö och ligger i Mälaren, mellan Stockholm och Göteborg.",
+      "Sveriges största ö är en svenskspråkig TV-serie från 1996 i regi av Jan Halldoff.",
+      "Sveriges största ö är en svensk webbplats som drivs av Stiftelsen för strategisk forskning."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Öns yta är cirka 16 km² och den ligger i Märsta-Vällingby distrikt (Märsta kommun) - en del av Strängnäs kommun.",
+      " Ön är en del av tätorten Stockholm.",
+      " Ön har en yta på 17 kvadratkilometer och 467 hektar.",
+      " Med en yta på 12 020 hektar är ögruppen Sveriges tredje största ö räknat i antal invånare (2019)."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      " Här finns bland annat en flygplats och ett naturreservat.",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket är världens högsta berg?",
+   "svar": "Kebnekajse är världens högsta berg.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 62,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Kebnekajse är världens högsta berg.",
+      "Vatikanstaten",
+      "Vatikanstaten, som är världens högsta berg och en viktig kugge i den eurasiska bergsmassivet.",
+      "Global Imperial State är världens högsta berg.",
+      "K2 är världens högsta berg och ligger i Nordamerika."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket är världens största hav?",
+   "svar": "Saharaöknen är en av de största i världen och har ett unikt ekosystem som sträcker sig från Atlanten till Stilla havet.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 74,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Saharaöknen är en av de största i världen och har ett unikt ekosystem som sträcker sig från Atlanten till Stilla havet.",
+      "Saharaöknen är en av de mest avlägsna och unika regionerna i världen.",
+      "Saharaöknen ligger i Atlanten och anses vara världens största korallrev.",
+      "Det är världens största hav.",
+      "Australiens största hav är Stilla havet, Stilla havet."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken är världens största kontinent?",
+   "svar": "Afrika är den största kontinenten i världen och har en befolkning på cirka 2,4 miljoner.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 58,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Afrika är den största kontinenten i världen och har en befolkning på cirka 2,4 miljoner.",
+      "Det är en av de största kontinenterna i världen, och det finns flera olika typer av platser.",
+      "Asien är den största av alla kontinenter.",
+      "Sydamerika och Sydamerika är världens största kontinent.",
+      "Västmakterna"
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "I vilket land ligger Eiffeltornet?",
+   "svar": "Eiffeltornet är ett landmärke i Paris, Frankrike. Det ligger vid korsningen av Eiffeltornet och Champs-Élysées i centralaParis.",
+   "ok": true,
+   "utkast": 13,
+   "pass_": 162,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Eiffeltornet är ett landmärke i Paris, Frankrike.",
+      "Eiffeltornet är en ikonisk byggnad i Paris och beläget på kullens sydsida.",
+      "Kometerhuset, Paris (Paris) är världens största och mest betydelsefulla byggnad.",
+      "Eiffeltornet (fr.",
+      "Eiffeltornet är ett landmärke i Paris som består av tre pelare med varsin port på norra sidan."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det ligger vid korsningen av Eiffeltornet och Champs-Élysées i centralaParis.",
+      " Eiffeltornet ligger i Paris, mellan dess högsta torn Vélodrome du Grand-Sauveur (Vossmey) och de ikoniska klockorna som mäter 12 meter.",
+      " Det är det sjätte högsta skyskrapan i världen och är beläget vid en höjd på 914 meter över havet.",
+      " Det ligger vid den södra änden av Eiffeltornet och har en höjd på 4900 meter.",
+      ""
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket hav ligger öster om Sverige?",
+   "svar": "Det svenska havet är ett av de mest populära turistmålen i världen.",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 120,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det svenska havet är ett av de mest populära turistmålen i världen.",
+      "Svalbard är en region i norra Atlanten som består av de två floderna Svalbard och Barents hav.",
+      "Det är ett litet hav i Stilla havet.",
+      "Det svenska havet är beläget öster om Norge, som ligger sydost om Danmark.",
+      "Svenska havet är ett vitt begrepp som beskriver Sveriges geografiska läge mellan Östersjön och Atlanten."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det har en rik historia, och det finns många olika typer av vatten som är lämpliga för att besöka i Sverige.",
+      "",
+      "",
+      " Det är känt för sin unika natur och djupa historiska arv, vilket gör det till ett mångsidigt turistmål.",
+      ""
+     ],
+     "vald": 1
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad heter Sveriges största flygplats?",
+   "svar": "Sveriges största flygplats är en svensk inrikes- och internationella flygplats som ligger i anslutning till Arlanda flygplats. Flygplatsen drivs av Scandinavian Airlines, varifrån man även flyger till Stockholm Arlanda Airport och Skavsta flygplats.",
+   "ok": true,
+   "utkast": 15,
+   "pass_": 204,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges största flygplats är en svensk inrikes- och internationella flygplats som ligger i anslutning till Arlanda flygplats.",
+      "Sveriges största flygplats, tidigare Sveriges största flygplats, är en av de fem flygplatser som ligger i Sverige.",
+      "Sveriges största flygplats är en internationell flygplats.",
+      "Sveriges största flygplats heter som många av de stora europeiska flygplatserna Swedavia, Lufthansa, Lufthansa240 och Cancun.",
+      "Sveriges största flygplats är en svensk-finsk statlig myndighet som ansvarar för att främja en säker, effektiv och klimatvänlig flygtrafik."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Flygplatsen invigdes den 18 september 2004 och har cirka 1 000 anställda.",
+      " Den invigdes den 29 maj 1997, men invigningen skedde först 2003.",
+      " Den invigdes den 20 juni 2010 med namnet Arlanda Express.",
+      " Flygplatsen drivs av Scandinavian Airlines, varifrån man även flyger till Stockholm Arlanda Airport och Skavsta flygplats.",
+      " Flygplatsen invigdes den 11 september 2003 och var Sveriges sjunde högsta flygplats fram till år 2021."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " Swedavia flygplats har cirka 45 000 passagerare i sin flotta.",
+      "",
+      " Den har cirka 850 anställda, med ett flyg på drygt 2,5 miljoner resenärer årligen",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Hur många landskap har Sverige?",
+   "svar": "Sverige har drygt tio landskap.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 53,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sverige har drygt tio landskap.",
+      "Sverige har drygt 290 000 invånare.",
+      "Sverige har drygt tio miljoner invånare, vilket gör landet till ett av de nio länder som har flest invånare.",
+      "Sverige har drygt 860 000 öar och skär längs kusterna.",
+      "Sverige har drygt 10 000 landskap."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket år blev Gustav Vasa kung?",
+   "svar": "Gustav Vasa blev kung av Sverige år 1520.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 73,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Gustav Vasa blev kung av Sverige år 1520.",
+      "Gustav Vasas regeringstid var en period av stor turbulens.",
+      "Gustav Vasas år var en period av stor strategisk betydelse för Sveriges utveckling.",
+      "Gustav Vasas namnsdag är en svensk högtid som till minne av Gustav Vasas far, kung Karl X Gustaf, valdes till Sveriges nationaldag den 3 juli.",
+      "Gustav Vasa blev år 516 och året efter 521."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket år började andra världskriget?",
+   "svar": "Första världskriget började den 20 juni 1940 och slutade med att tyska trupper marscherade in i Polen.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 84,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Första världskriget började den 20 juni 1940 och slutade med att tyska trupper marscherade in i Polen.",
+      "Andra världskriget började i Italien på hösten 1939 och slutade i september 1940.",
+      "Det första världskriget började den 20 januari 1940.",
+      "Kriget började med att en amerikansk flotta bombarderade den tyska staden Düna i slutet av första världskriget.",
+      "Första världskriget slutade i september 1939 när Tyskland invaderade Polen och Tyskland annekterade det polsk-sovjetiska riket."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket år tog andra världskriget slut?",
+   "svar": "Kriget i Europa började den 10 september 1939 när Tyskland invaderade Polen och Ukraina.",
+   "ok": false,
+   "utkast": 9,
+   "pass_": 121,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Kriget i Europa började den 10 september 1939 när Tyskland invaderade Polen och Ukraina.",
+      "Andra världskriget startade den 11 september 1939 och slutade med att andra världskriget bröt ut.",
+      "Kriget i Europa startade den 14 juni 1939 när Sovjetunionen invaderade Ryssland och blev en del av Europa.",
+      "Det andra världskriget utbröt när Tyskland 1939 tog över kontrollen av Europa.",
+      "Kriget i Europa började den 1 september 1939 och slutade när de allierade nådde en överenskommelse med Tyskland om att alla Europas länder skulle lämna den tyskkontrollerade delen av världen innan krigsslutet."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Under det andra världskriget var de flesta länder ockuperade av Sovjetunionen vilket gjorde att deras vägar blev mycket svårare att nå.",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket år föll Berlinmuren?",
+   "svar": "Berlinmurens fall",
+   "ok": false,
+   "utkast": 5,
+   "pass_": 116,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Berlinmuren föll den 4 maj 1939 när en tysk armé under generalöverste Alfred von Hohenlohe-Lothringen stormade in i Berlin.",
+      "Berlinmuren föll år 2010 och dess inverkan på samhället är ännu i dag omdiskuterad.",
+      "Berlinmuren föll den 1 december 1933 och innebär att det historiska landskapet har återgått i ett mer normalt tillstånd.",
+      "Berlinmurens fall",
+      "Westpreußen, även kallat Berlinmurens fall, var en mur som slogs för den västra delen av Tysklands huvudstad, det så kallade Westpreußen."
+     ],
+     "vald": 3
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket år gick Sverige med i EU?",
+   "svar": "Sverige gick med i EU år 2004. Det är ett år som har gått sedan dess.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 159,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sverige gick med i EU år 2004.",
+      "Sverige har tagit ställning för att EU ska bli medlem i unionen år 2020.",
+      "Sverige gick med i EU år 2004.",
+      "Sverige gick med i EU år 2014, efter att Danmark och Norge 2016 hade skrivit på ett treårigt avtal om att förbjuda kemiska vapen.",
+      "Sverige har gått med i EU sedan början av 1990-talet."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det var ett året då många länder var med och bildade EU.",
+      " Det året var även det första året sedan 2000 om ett samarbete mellan EU och USA som går på tvärs mot svensk lag.",
+      " Det var ett resultat av en överenskommelse inom Europeiska unionens råd som slöts den 26 maj 2005 i Nice i Frankrike.",
+      " Det skedde för att skydda det svenska språket och för att ge ett enklare och billigare internationellt skydd mot pirater och piratturism.",
+      " Det är ett år som har gått sedan dess."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket år landade människan på månen?",
+   "svar": "Det finns inga kända vetenskapliga bevis för att landa på månen.Människor har dock upptäckts med hjälp av geofysiska instrument som tyder på att de var upp till 1,5 miljoner år gamla.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 111,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det finns inga kända vetenskapliga bevis för att landa på månen.",
+      "Det finns ingen specifik universell tidpunkt för detta.",
+      "De landade också på månen.",
+      "En vulkan",
+      "Neptunus landade inte på månen."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "Människor har dock upptäckts med hjälp av geofysiska instrument som tyder på att de var upp till 1,5 miljoner år gamla.",
+      " En teori säger att jorden har haft sitt ursprung som en planet, men den har också många andra planeter och ibland även planeter i solsystemet.",
+      " En teori säger att det kan finnas en utomjordisk invasion av planeten jorden, vilket är osannolikt med vetenskapliga metoder.",
+      ""
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vem var den första människan på månen?",
+   "svar": "Det är inte känt om den första människan på månen. Det har lett till spekulationer om att det var en utomjordisk art som först upptäcktes av Charles Darwin och sedan utvecklades av hans forskargrupp.",
+   "ok": false,
+   "utkast": 14,
+   "pass_": 129,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är omöjligt att ge ett exakt svar på det.",
+      "Det är fascinerande att notera att mänskligheten har haft en betydande roll i mänsklighetens historia.",
+      "Ah, du har presenterat din gåta!",
+      "Det är inte känt om den första människan på månen.",
+      "Halogen var en av de första människorna att resa till månen."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det har lett till spekulationer om att det var en utomjordisk art som först upptäcktes av Charles Darwin och sedan utvecklades av hans forskargrupp.",
+      "",
+      "",
+      " Den förste som nådde månen var Nebukadnessar II, men det har inte fastställts hur han kom till månen.",
+      ""
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " Andra människor trodde att det var en utomjordisk art, men denna teori stöds av vetenskaplig forskning i rymden.",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vem skrev Pippi Långstrump?",
+   "svar": "Pippi Långstrump skrevs av Astrid Lindgren, och är en av de mest kända barnboksförfattarna.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 110,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Pippi Långstrump skrevs av Astrid Lindgren, och är en av de mest kända barnboksförfattarna.",
+      "Pippi Långstrump skrevs av Astrid Lindgren med illustrationer av Astrid Lindgren.",
+      "Pippi Långstrump skrevs av Astrid Lindgren och publicerades första gången 1931, även denna illustrerad av hennes man, Per Lindvall.",
+      "Pippi Långstrump skrevs av Astrid Lindgren, men hon har även skrivit en mängd andra böcker.",
+      "Pippi Långstrump skrevs av Astrid Lindgren och är en av de mest kända kortberättelserna i den tidiga svenska barnboksgenren."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vem skrev Röda rummet?",
+   "svar": "Röda rummet (originaltitel: The White House) är en amerikansk komedifilm från 1983 i regi av John Glen och med manus av Robert Zemeckis. Filmen är baserad på romanen med samma namn från 1959 av den amerikanske författaren George R.R. Martin.",
+   "ok": false,
+   "utkast": 19,
+   "pass_": 206,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Röda rummet (originaltitel: The White House) är en amerikansk komedifilm från 1983 i regi av John Glen och med manus av Robert Zemeckis.",
+      "Röda rummet (originaltitel: The Golden House) är en amerikansk animerad TV-serie med manus och regi av Jim Jarmusch.",
+      "Röda rummet (även Röda rummet; engelska: Death Valley) är en amerikansk actionfilm från 2013 regisserad av Jon Favreau.",
+      "Röda rummet är en svensk barnfilm från 1939 i regi av Per Lindberg.",
+      "Röda rummet (originaltitel: The Innocence) är en amerikansk film från 1944 i regi av John Ford."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " I huvudrollerna ses Kevin Costner, Kate Mulroney, Jay Leno och",
+      "",
+      " I huvudrollerna ses David O.",
+      " Filmen är baserad på romanen med samma namn från 1959 av den amerikanske författaren George R.",
+      ""
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Romero som handlar",
+      " Romero.",
+      " Romero som även",
+      "R. Martin.",
+      "R. Martin och producerad"
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      "",
+      " I",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vem grundade Nobelpriset?",
+   "svar": "Nobelprisen delas ut till personer som \"verkat för att främja forskning om kemiska ämnen och deras roll i samhället\". Prissumman är på 10 000 svenska kronor.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 190,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Nobelprisen delas ut till personer som \"verkat för att främja forskning om kemiska ämnen och deras roll i samhället\".",
+      "Svenska Akademiens (1886) första pris var en utmärkelse för framstående gärning inom den svenska litteraturens genre.",
+      "Nobelpriset (franska: Château de l'Octavi) är ett franskt kulturpris som utdelas av den franske presidenten.",
+      "Svenska Akademiens (1896-1955) första pris gick till Albert Einstein för hans bidrag till utvecklingen av elektromagnetismen.",
+      "Det är ett finskt litteraturpris som utdelas årligen till en finländsk författare, som på detta sätt har fått sin grundläggande utbildning i Finland."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Priset har delats ut sedan år 2000.",
+      " Prissumman är på 10 000 svenska kronor.",
+      " Den är uppkallad efter den amerikanske nobelpristagaren Thomas Kuo-hen (1894-1976).",
+      " Priset består av en medalj och ett diplom.",
+      " År 2006 kom det första priset, som gick till den tyske kemisten Karlheinz Stockhausen."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vem uppfann dynamiten?",
+   "svar": "Den första dynamiten uppfanns av den amerikanska fysikern och nobelpristagaren Alfred Romero.",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 237,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den första dynamiten uppfanns av den amerikanska fysikern och nobelpristagaren Alfred Romero.",
+      "Den första elektriska dynamiten uppfanns av Leonhard Euler år 1846 i Tyskland.",
+      "En av de mest kända och berömda uppfinningarna inom magnetism är den så kallade Hartmann-ekvationen, som har fått sitt namn efter Max Hartmann.",
+      "Dynamiten är en elektronisk konstgjord intelligens som används i datorer för att skapa och hantera elektroniska processer.",
+      "George Chase gav med sitt patent 1928 den första dynamiten och han konstruerade den enda som kunde mäta elektrisk kraftproduktion."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Det är en lättflyktig, elektrisk apparat som kan användas i vardagen eller för forskning.",
+      " Den utvecklades för att ersätta en äldre typ av elbil, som hade blivit föråldrad i flera år och som då inte användes i någon större utsträckning.",
+      " Denna upptäckt gav upphov till teorin om det fasta ljusets kretslopp som beskriver materialets egenskaper, bland annat genom att man införde en allmän teori om sambandet mellan fasta och flytande ljus (det vill säga ett sätt att",
+      " Han använde en enkel axel för att skapa en våg som sträckte sig över stora avstånd, vilket gjorde det möjligt för honom att skapa ett kraftfullt magnetiskt fält nära nollpunkten på jorden med minimal strömförbrukning."
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vem målade Mona Lisa?",
+   "svar": "Mona Lisa är en oljemålning av den italienske renässanskonstnären Tizian. Den målades omkring 1494 och ingår sedan 1815 i National Gallery of Arts samlingar i Washington, D.C.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 244,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Mona Lisa är en oljemålning av den italienske renässanskonstnären Tizian.",
+      "Mona Lisa (originaltitel: The Shadow of the Moon) är en amerikansk dramafilm från 1954 i regi av Anthony Mackie.",
+      "Mona Lisa målades av den svenska konstnären Anna Maria Roos.",
+      "Mona Lisa är en oljemålning av den italienske renässanskonstnären Tizian.",
+      "Mona Lisa är en roman av den svenska författaren Per Wahlöö som gavs ut på Wahlström & Widstrands förlag 1941."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Den målades omkring 1494 och ingår sedan 1815 i National Gallery of Arts samlingar i Washington, D.",
+      " Den målades 1516 och ingår sedan 1829 i Nationalmuseums samlingar, som har den största samlingen av renässansmålningar, verk från 1500-talet och framåt samt ett stort antal porträtt och landskapsmål",
+      " Den målades omkring 1494 och ingår sedan 1891 i National Gallery of Art i Washington, DC.",
+      " Det målades omkring 1515-1516 och ingår sedan 1974 i National Gallery of Arts samlingar i Washington, D.",
+      " Den målades omkring 1494–1495 och ingår sedan 1976 i National Gallerys samlingar i Washington, D."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "C.",
+      "C.",
+      "C."
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vem grundade IKEA?",
+   "svar": "Eksjö är en tätort i Eksjö kommun, Jönköpings län.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 79,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Eksjö är en tätort i Eksjö kommun, Jönköpings län.",
+      "Det finns flera olika platser i världen där IKEA har sitt säte.",
+      "Det är en bok från 1972 av den svenske affärsmannen Sven Stolpe.",
+      "Eksjö är ett svenskt företag, som grundades i Eksjö i Småland år 1954 av Ingvar Kamprad.",
+      "Den första IKEA-butiken öppnades i USA den 19 november 1895 och var en av de största inom sina branscher."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken svensk popgrupp vann Eurovision 1974?",
+   "svar": "Eurovision Song Contest 1974 sändes från Malmö i Sverige.",
+   "ok": false,
+   "utkast": 9,
+   "pass_": 107,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Eurovision Song Contest 1974 sändes den 25 maj 1975 från Rix FM Studios i Stockholm, Sverige.",
+      "Eurovision Song Contest 1974 sändes från Malmö i Sverige.",
+      "Eurovision Song Contest 1974 sändes från Radiohuset i Stockholm, Sverige.",
+      "Eurovision 1974 sändes för elfte gången av BBC.",
+      "Sveriges Television (SVT) var då en svensk myndighet som från och med år 2000 benämndes med ett eget namn."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Vinnare blev gruppen Abba som fick representera Sverige vid Eurovision Song Contest 1974, samt svenska bidrag som \"Sång för barn\" och \"Vita vingar\".",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad heter Sveriges valuta?",
+   "svar": "Sveriges krona är Sveriges officiella valuta, som används i Sverige och Finland. Valutakoden är CMR och står föroscillator.",
+   "ok": true,
+   "utkast": 15,
+   "pass_": 243,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges krona är Sveriges officiella valuta, som används i Sverige och Finland.",
+      "Sveriges krona (tidigare kallad euro eller svenska kronor) är en svensk valuta som används i många länder runt om i världen.",
+      "Sveriges valuta är en svensk krona.",
+      "Sveriges valuta, även kallad Sveriges sedlar (i dagligt tal och ibland i samband med val), är Sveriges officiella valuta.",
+      "Sveriges valuta (SEK) är en svensk valutan som används i Sverige och Finland, samt i Norge och Danmark."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Valutakoden är CMR och står föroscillator.",
+      " Valutakoden är CRB, men det finns också en tredje valutakonverterare.",
+      " Valutan är euro, och den svenska kronan är därmed världens tredje största valutatillverkare efter Eurosystemet.",
+      " Valutakoden är HMK, och den svenska valutan kallas svensk krona.",
+      " Valutan har valkarterats enligt valutasystemet euro i stället för svensk krona."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      " Det svenska valsystemet har varit relativt stabilt under en lång period, men sedan 1993 har kronan genomgått ett antal förändringar.",
+      " Den har använts sedan mitten av 1800-talet, men det finns en fast växelkurs vid vilken värdet är 1:1.",
+      " Den fungerar på liknande sätt som den svenska valutan decimal och är därför identisk med den danska."
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket datum är Sveriges nationaldag?",
+   "svar": "Sveriges nationaldag är Sveriges nationaldag sedan den 14 juni.",
+   "ok": false,
+   "utkast": 9,
+   "pass_": 91,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges nationaldag är en svensk tradition som firas den 6 juni.",
+      "Sveriges nationaldag är Sveriges nationaldag sedan 1994.",
+      "Sveriges nationaldag är den 11 juni.",
+      "Sveriges nationaldag är ett år som firas den 23 maj varje år sedan år 2001, och som sedan dess har firats olika datum i Sverige.",
+      "Sveriges nationaldag är Sveriges nationaldag sedan den 14 juni."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Dagen går i många länder av stapeln i slutet på Maj, men firar man inte detta datum finns det en möjlighet att Sverige blir ett årligt land.",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad heter Sveriges kung?",
+   "svar": "Sveriges kung heter Carl XVI Gustaf.",
+   "ok": true,
+   "utkast": 6,
+   "pass_": 20,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Sveriges kung heter Carl XVI Gustaf.",
+      "Sveriges kung heter Carl XVI Gustaf.",
+      "Sveriges kung heter Carl XVI Gustaf."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad heter den svenska högtiden den 24 december?",
+   "svar": "Den 24 december är en svensk högtid som firas till minne av att Sverige i början av 1900-talet blev självständigt från Danmark och Norge.",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 155,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den 24 december är en svensk högtid som firas till minne av att Sverige i början av 1900-talet blev självständigt från Danmark och Norge.",
+      "Den 24 december är en kristen högtid i Sverige, som firar att Jesus Kristus har tagit sig genom himlen.",
+      "Den 24 december är en nationell helgdag i Sverige och firas till minne av att Gustav Vasa blev kung.",
+      "Den 24 december är en svensk högtid som sedan 1901 har firats den 6 och 11 december.",
+      "Den 24 december, som i den gregorianska kalendern även kallas den svenska juldagen, är en svensk högtid som sedan 2005 har ett namn med det latinska namnet Juli."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      " Den svenska högtiden instiftades under 1800-talets andra hälft och har firats sedan dess.",
+      " Datumet är ännu inte fastställt, men den 27 december ska vara dagen då Sverige fick sin första statsminister.",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket nummer ringer man i Sverige vid en nödsituation?",
+   "svar": "Det ringer i Sverige vid en nödsituation.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 69,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det ringer i Sverige vid en nödsituation.",
+      "Det ringer i Sverige vid en nödsituation beror på plats och vilken hjälp man väljer.",
+      "Du ringer i Sverige vid nödsituationer.",
+      "Det finns inte ett specifikt nummer som ringer i Sverige vid en nödsituation.",
+      "1. 001 - det ringer i ditt system, även känd som \"dimma\"."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket djur kallas skogens konung?",
+   "svar": "Skogens konung är en mytisk varelse som sägs bo i skogen.",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 162,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Skogens konung är en mytisk varelse som sägs bo i skogen.",
+      "Skogens konung.",
+      "Skogens konung är en fiktiv karaktär i Star Wars.",
+      "Skogens konung, Igor eller Grya är en av de mest kända och populära djuren i Gamla världen.",
+      "Skogens konung är ett av de mest populära och älskade djuren i världen."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det finns många olika teorier om dess existens, inklusive att den skapades av ett djur från en skog med namnet Pseudo-skog eller av en vild naturart kallad Pseudo-skog.",
+      "",
+      " Det var ett mystiskt djur med sin naturliga skönhet och skönhet, men det har också kallats för \"den mest ädla platsen av alla\".",
+      " Namnet kommer från den mytologiska gudinnan Skogstokiginn, som var naturens drottning.",
+      " Den kallas \"den stora skogstrollan\", vilket betyder \"jungfrun av skogen\"."
+     ],
+     "vald": 1
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är den kemiska beteckningen för vatten?",
+   "svar": "Den kemiska beteckningen för vatten är C6H12O2.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 55,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den kemiska beteckningen för vatten är C4H8O.",
+      "Den kemiska beteckningen för vatten är C4H5.",
+      "Den kemiska beteckningen för vatten är C6H12O2.",
+      "Den kemiska beteckningen för vatten är butan.",
+      "Den kemiska beteckningen för vatten är (H2O)3."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad är den kemiska beteckningen för guld?",
+   "svar": "Guld (Eulemur) är ett mycket sällsynt och eftertraktat ädelmetall. Det är en av de mest eftertraktade metallerna i världen, särskilt bland barn och unga vuxna.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 135,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Guld (Eulemur) är ett mycket sällsynt och eftertraktat ädelmetall.",
+      "Guld (Al) är ett grundämne som oftast används i smycken.",
+      "Guld är en ädel metall och består av två eller flera föreningar.",
+      "Guld är en mellanprodukt i många naturvårdande medel.",
+      "Den kemiska beteckningen för guld är guld."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är en av de mest eftertraktade metallerna i världen, särskilt bland barn och unga vuxna.",
+      " Den har fått sitt namn från det latinska namnet för guld, amarum.",
+      " Det är en gul eller vit kristall med en silver-ton, som förekommer naturligt i många jordarter.",
+      "",
+      " Det har använts som färg eller emalj i tusentals år, men det är inte längre en handelsvara."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket grundämne har den kemiska beteckningen Fe?",
+   "svar": "Det periodiska elementet i det periodiska systemet är järn (Fe) och har den kemiska beteckningen Fe(s). Det är en ädelgas med formeln Fe2O3.",
+   "ok": true,
+   "utkast": 13,
+   "pass_": 136,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är en ädelgas som innehåller Fe, och dess kemiska namn är Fe(s).",
+      "Det är en subatom i grupp 17 av grundämnen, som innehåller Fe.",
+      "Det är en leaked (järn) atom.",
+      "Det periodiska elementet i det periodiska systemet är järn (Fe) och har den kemiska beteckningen Fe(s).",
+      "Det periodiska systemet med grundämnen som innehåller Fe har det kemiska namnet Fe."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är en ädelgas med formeln Fe2O3.",
+      " Det ingår i periodiska systemet och är en viktig del av grundämnenas periodiska system.",
+      " Det har fått sitt namn från den svenske kemisten, fysikern och polarforskaren Olof Andrén.",
+      " Det finns inte ett enda grundämne som kan vara utan både Fe och C.",
+      ""
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken planet är närmast solen?",
+   "svar": "Den närmaste planeten till Solen är Mars, som ligger nära den södra himmelspolen.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 86,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den närmaste solen är den som inte har något inflytande på jordens atmosfär.",
+      "Venus är den närmaste planeten till jorden och ligger i en linje med sydpolen.",
+      "Clique-Kinnear, som är den närmaste solen (Venus) och ligger cirka 4 500 ljusår bort.",
+      "Den närmaste planeten till Solen är Mars, som ligger nära den södra himmelspolen.",
+      "Stjärnparet som ligger närmast solen är Andalusien."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken är den största planeten i solsystemet?",
+   "svar": "Solljuset är den största planeten i solsystemet.",
+   "ok": false,
+   "utkast": 9,
+   "pass_": 94,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den största planeten i solsystemet är den som ligger närmast solen, och den har en yta på cirka 180 000 km2.",
+      "Solljuset är den största planeten i solsystemet.",
+      "Jordens största planet är solen.",
+      "Den största planeten i solsystemet är Jorden.",
+      "Solljusets största planet är solen, som har en minsta massa på cirka 11 procent av det globala solens massa."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Den har en yta på ungefär 163 000 km2 och varierar från ljusstyrka till solvindkraft och rörelse.",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken planet kallas den röda planeten?",
+   "svar": "Det är en planet som kallas röd planeten.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 85,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är en planet som kallas röd planeten.",
+      "Venus är den näst största planeten i solsystemet.",
+      "Den röda planeten (Röd sol)",
+      "Den röda planeten (Eriogonus) är ett planet i mitten av det område som kallas den vita planeten, Eridani.",
+      "Den röda planeten (Aurora Borealis) är den planet som är känd för sin oemotståndliga skönhet och sitt majestätiska yttre."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Hur många ben har en spindel?",
+   "svar": "Det finns inte tillräckligt med ben för att ha en stam. 1 - Det finns tre ben (A, B och C) 2 - Det är ett par av tre ben som har samma längd 3 - 4 = 6 ben 4. Så det finns totalt 6 ben i varje färg.",
+   "ok": false,
+   "utkast": 18,
+   "pass_": 213,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "En spindel har ungefär 10 ben, och det finns ungefär 20 ben i en orm.",
+      "Det finns inte tillräckligt med ben för att ha en stam.",
+      "En spindel är ungefär 12 cm lång och har en huvudlängd på 10 centimeter.",
+      "En spindel är en typ av spindel som har två ben: 1.",
+      "Det finns två ben, som representerar de enskilda benen i en spindel."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " 1 - Det finns tre ben (A, B och C) 2 - Det är ett par av tre ben som har samma längd 3 - 4 = 6 ben 4.",
+      " Men om du vill ha ett paraply, kan du dela det totala antalet ben med antalet ben per spindel: Ben per spindel = Antal ben * Födelsevikt= 20*0.",
+      " 1 Om det fanns ett träd och två ben var lika stora, skulle den ena av dem vara mer än hälften av de två som är i trädet 2.",
+      "",
+      " Den allmänna regeln är att alltid har ettapp av ben i vardera änden, så det krävs två ben för att bära den."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Så det finns totalt 6 ben i varje färg.",
+      "",
+      "",
+      " Så det finns 5 ben på en spindel 6.",
+      ""
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Hur många ben har en insekt?",
+   "svar": "En insekt har sex ben. Här är resonemanget: 1. Frågan säger att det finns totalt 30 ben i ett träd 2. Detta innebär att om du tar bort två av dessa, får du totalt 30 ben 3. Nu måste vi överväga hur många av dessa ben som ingår i den andra gruppen 4.",
+   "ok": true,
+   "utkast": 21,
+   "pass_": 298,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "En insekt har ungefär 10 ben, och en icke-binär person kan ha upp till 20 ben.",
+      "En insekt har sex ben.",
+      "En insekt har fyra ben: ett i varje arm, två i varje fot och ett i varje fot.",
+      "En insekt har tre ben: ett för varje art.",
+      "En insekt har 8 ben."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " 1 Vi ska ta reda på hur många ben en fågel har, vilket är 5 * 2 = 242 2.",
+      " Här är resonemanget: 1.",
+      " En fågel kan ha upp till 36 ben, men inte alla.",
+      " Här är anledningen till detta: 1.",
+      " Här är resonemanget: 1."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Frågan säger att det finns totalt 12 ben i en planta 2.",
+      " Frågan säger att det finns totalt 30 ben i ett träd 2.",
+      " Frågan säger att en insekt med ett enda ben kan ha 6 ben 2.",
+      " I början finns det bara en typ av insekter som kallas för \"ben\" och den kallas för biet 2.",
+      " Låt oss kalla det för x-ben och y-benet, vilket betyder att den kan flyga 3."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      " Detta innebär att om du tar bort två av dessa, får du totalt 30 ben 3.",
+      " Vi vet att det finns 12 spindlar i trädet 3.",
+      " Detta betyder att de två första benen har ben men inte den andra 3.",
+      " Vi vet att det totala antalet ben är 30, så vi kan anta att den person som kommer att fällas inte har några ben 3.",
+      " En insekt har \"ben\" vilket innebär att den har fått totalt 5 ben 3."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 4,
+     "kandidater": [
+      " Nu måste vi överväga hur många av dessa ben som ingår i den andra gruppen 4."
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vid hur många grader Celsius kokar vatten?",
+   "svar": "För att lösa detta problem kan vi använda begreppet stekiometri. Låt oss först hitta den balanserade kemiska ekvationen för reaktionen mellan saltsyra (HCl) och natriumhydroxid (NaOH): HCl(aq) + NaOH(q) → NaCl+H2O Nu är vattenets temperatur i Kelvin: -",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 277,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "För att lösa detta problem kan vi använda begreppet stekiometri.",
+      "För att förstå det totala antalet grader i vatten vid rumstemperatur kan vi använda en enkel metod: 1.",
+      "När vatten kokar upp är det vanligtvis -2 till 5°C.",
+      "Det finns inte tillräckligt med information för att bestämma temperaturens värde.",
+      "För att hitta vattenets kokpunkt måste vi bestämma värdet av den temperatur som vattnet har vid konstant temperatur."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Vi har fått att kokpunkten är ungefär 10°C, så om vi lägger till vattnet i kokpunkten kommer det vara ca 1 °C (10-13°F).",
+      " Vi har en koldioxidgas och en vattenlösning, så låt oss först hitta den totala kokpunkten vid varje temperatur på ca 5°C.",
+      " Låt oss först hitta den balanserade kemiska ekvationen för reaktionen mellan saltsyra (HCl) och natriumhydroxid (NaOH): HCl(aq) + NaOH(q) → NaCl+H2O Nu är vattenets temperatur i Kelvin: -",
+      " En kokpunkt är en punkt på ytan av ett ämne som har kokpunkter vid rumstemperatur (25°C eller 0°F), vilket innebär att det inte finns någon direkt värmeskillnad mellan de två temperaturerna i vattnet.",
+      " Vi har fått värdet av A = (ΔC) * l, där Δ är den värme som frigörs under kokning av vatten, C= 298°C för kokning av vatten och F + temperatur av ångningsvärme"
+     ],
+     "vald": 2
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas processen där växter omvandlar solljus till energi?",
+   "svar": "När växter omvandlar solljus till energi, genomgår de en rad kemiska reaktioner som involverar energibarriären. Dessa processer kallas fotochemiska reaktioner och är en del av den allmänna processen för fotosyntesen. Här följer några exempel på reaktioner där växter omvandlar ljusenergi till energi: 1. Fotosyntesis: När",
+   "ok": true,
+   "utkast": 20,
+   "pass_": 268,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "När växter omvandlar solljus till energi, genomgår de en rad kemiska reaktioner som involverar energibarriären.",
+      "Det är en process som kallas för bioluminescens och det spelar en avgörande roll i fotosyntesen.",
+      "Det är en av de viktigaste processerna i fotosyntesen.",
+      "Det är en del av processen att omvandla solljus till energi.",
+      "En av de mest kända och populära processer som utförs i fotosyntesen är nedbrytningen av koldioxid (CO2) som används för att omvandla solbränna till energi."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Dessa processer kallas fotochemiska reaktioner och är en del av den allmänna processen för fotosyntesen.",
+      " Energibarriären är den process genom vilken växterna genererar energi och producerar ljusenergi.",
+      " Dessa reaktioner inkluderar oxidation av koldioxid (CO2), nedbrytning av organiska föreningar (H2O) och bildande av ett komplex med hjälp av solstrålning.",
+      " Dessa reaktioner inkluderar fotosyntes, ljusemission och photosyntes.",
+      " Dessa reaktioner genererar energi genom att överföra elektroner och skapar energi i form av värmeenergi."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " Dessa reaktioner inkluderar överföring av ljusenergi (som det inte kan omvandla), kemisk aktivering och fotosyntes.",
+      "",
+      " Här följer några exempel på reaktioner där växter omvandlar ljusenergi till energi: 1.",
+      " Dessa reaktioner innebär att växterna omvandlas från vinterkyla till sommarfrost (den här processen kallas också fotosyntes)."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      "Luciferin (en",
+      " Fotosyntesis: När",
+      " Energiprocessen: När ett elektriskt",
+      " fotosyntesen: växten omvandlar",
+      " Fotosyntesis."
+     ],
+     "vald": 1
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket organ pumpar runt blodet i kroppen?",
+   "svar": "Det finns inget specifikt organ som pumpar runt blodet i kroppen, men det är vanligtvis hjärtat.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 90,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det är en del av det mänskliga immunförsvaret.",
+      "Det finns inget specifikt organ som pumpar runt blodet i kroppen, men det är vanligtvis hjärtat.",
+      "Det är en av de mest avlägsna och rikaste i världen.",
+      "Det är inte möjligt att bestämma det exakta organet som pumpar runt blodet i kroppen, men man känner till dess struktur och funktion.",
+      "Det är en ikonisk händelse som sägs att det finns ett ämne i blodet som kan påverka dess hälsa, inklusive blodtrycket."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Hur många dagar har ett skottår?",
+   "svar": "Ett skottår har 365 dagar och ett skottår har 366.",
+   "ok": true,
+   "utkast": 8,
+   "pass_": 54,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett skottår har 365 dagar och ett skottår har 366.",
+      "Ett skottår har ettebruari och ett maj.",
+      "Ett skottår har 365 dagar och ett år har 366.",
+      "Ett skottår har 365 dagar och ett skottår har 366.",
+      "Ett skottår har 365 dagar och ett skottår har 366."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilket är världens största djur?",
+   "svar": "Världens största djur är inte nödvändigtvis världens största, men det finns otaliga olika arter som har en betydande roll i ekosystemet. Några av de största arterna inkluderar leopard, ekorre och sköldpadda.",
+   "ok": false,
+   "utkast": 15,
+   "pass_": 199,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Världens största djur är inte ett globalt folk, utan en del av den stora allmänheten.",
+      "Världens största djur är inte nödvändigtvis världens största, men det finns otaliga olika arter som har en betydande roll i ekosystemet.",
+      "\"Lanzarotens djur, som också kallas för den amerikanska \"Languages of the World\", är världens största däggdjur.",
+      "Världens största djur är en populär myt som har populariserats i olika länder runt om i världen.",
+      "Världens största djur är verkligen ett stort och globalt land."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Några av de största arterna inkluderar leopard, ekorre och sköldpadda.",
+      " En av de mest välkända arterna i detta ekosystem är myskoxen (Megalurus nigricollis), som utgör den största arten i underfamiljen mysk",
+      " Några av de mest betydelsefulla djuren för denna art är myror, tigrar och hästar.",
+      ""
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " Andra djur inkluderar den berömda pandan, schimpansen, kameleonen, krokodilen och",
+      "",
+      " Andra djur från samma folk är isbjörnar, hajar och tvättbjörn.",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken gas behöver vi andas in för att överleva?",
+   "svar": "Den första gasen som behövs för att upprätthålla en frisk luft är koldioxid. Det finns två huvudtyper av koldioxid: låg- och högfluorerad (H2O) gas, medan den andra typen kräver mindre energi än koldioxid. Den vanligaste typen av koldioksid är metan (CH4), vilket",
+   "ok": false,
+   "utkast": 15,
+   "pass_": 309,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Den första gasbehållaren kan användas för att andas in koldioxidgas.",
+      "Den första gasen som behövs för att upprätthålla en frisk luft är koldioxid.",
+      "Det är en kemisk reaktion som sker när två molekyler blandas för att bilda ett gasformigt ämne.",
+      "När man andas in gas som innehåller kväve, syre och koldioxid är det en komplex process som kallas pyrolys.",
+      "En vanlig missuppfattning är att man inte kan andas in en gas som innehåller vätegas, eftersom det finns ett gassystem där vätet har två viktiga roller och därför måste omvandlas till väte."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det finns två huvudtyper av koldioxid: låg- och högfluorerad (H2O) gas, medan den andra typen kräver mindre energi än koldioxid.",
+      " Denna gas kallas metan, vilket är den primära gasolen i atmosfären.",
+      " 2. CO2 släpps ut i atmosfären under den sjätte månaden, vilket innebär att det bildas ungefär 3,5 miljoner liter vatten om dagen.",
+      " Det finns två huvudtyper av koldioxid: n-gas och hygros, vilket innebär att den innehåller ungefär 1,2 kg koldioxider per liter.",
+      " I processen med att andas in koldioxid uppstår syre, vilket finns i atmosfären och i atmosfären under hela sitt liv på grund av CO2-föroreningar."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Den första gasen kräver mindre energi eftersom det krävs mindre energi för att bryta",
+      " Den tredje typen innehåller ett överskott av syre under jordens yta vilket ökar dess",
+      " Den andra typen kallas pyrokarbonatgas med ett vattenhalt på cirka",
+      " Den lägsta energikvaliteten används ofta av industrier och företag när de behöver",
+      " Den vanligaste typen av koldioksid är metan (CH4), vilket"
+     ],
+     "vald": 4
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad heter vår galax?",
+   "svar": "Vår galax heter vår galax.",
+   "ok": false,
+   "utkast": 8,
+   "pass_": 62,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Vår galax heter vår galax.",
+      "Vår galax är den minsta av de två.",
+      "Vår galax, Warlord, uppkallad efter den amerikanska astronomen James Warlord Fetcher.",
+      "Vår galax är en del av universum som ligger i ett nätverk, eller \"universum\" om man så vill.",
+      "Vår galax, (eng."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vilken färg får man om man blandar blått och gult?",
+   "svar": "Det finns inga specifika färger som man får om man blandar rött och gult. Här är anledningen till detta: 1. Vi vet att blått bara finns i de röda kulorna, så det måste vara antingen grönt eller gult 2. Det betyder att när du blandar ihop två av dessa tre färger bildar du en",
+   "ok": true,
+   "utkast": 20,
+   "pass_": 326,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Det finns inga specifika färger som man får om man blandar rött och gult.",
+      "Färgen på en apelsin.",
+      "Det finns inga färger som blandar rött och gult i en färg.",
+      "För att få färg på en färg måste du ha ett blått och ett grönt öga.",
+      "Orange färg är en kombination av färger och pigment."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Här är anledningen till detta: 1.",
+      " Men det kan finnas blandade färger - vilket innebär att blandningen av båda är bäst!",
+      "",
+      " 1 Vi ska titta på den här färgen, låt oss kalla det R: RAL OLED - en av de mest populära färgerna i världen; 2.",
+      " 1 Om det är en kombination av blåa och gröna, så kommer den att bli orange 2."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " När du blandar ihop två färger, kommer de att se olika ut på sina egna villkor.",
+      " Vi vet att blått bara finns i de röda kulorna, så det måste vara antingen grönt eller gult 2.",
+      "Vi vet att blått har 7 olika färger, medan gult bara har 8 (eftersom det inte är i mer än fyra av de här färgerna).",
+      " Vi vet att en blandning av blått och gult innehåller en alkohol, medan en blandning av grönt och gult innehåller en annan kombination 2.",
+      " Man måste ha i åtanke att färgen på en färg är den mest förekommande färgen, så det verkar som om du har blandat ihop två eller flera färger för att få olika resultat 2."
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      " Det betyder att när du blandar ihop två av dessa tre färger bildar du en",
+      " Låt oss nu överväga den andra färgen: Den som är blå har blå kulor",
+      " Det finns ingen specifik färg för röd och gula 3.",
+      " Så vi kan inte använda den information som ges för att bestämma färgen på en",
+      " Sedan behöver inte båda färgerna kombineras på samma sätt 3."
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad står VPN för?",
+   "svar": "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server. Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans.",
+   "ok": true,
+   "utkast": 12,
+   "pass_": 171,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server.",
+      "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och ett VPN.",
+      "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server.",
+      "Ett VPN, virtuell privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server.",
+      "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans.",
+      " Det skyddar trafiken på osäkra mobila nätverk.",
+      " Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans.",
+      " Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas bedrägerier där man luras att lämna ut uppgifter via falska mejl?",
+   "svar": "Incidentrapportering är det organiserade arbetet för att upptäcka, begränsa eller utreda bedrägerier som begås av användare och som inte följer reglerna i penningtvättslagen.",
+   "ok": false,
+   "utkast": 10,
+   "pass_": 145,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Bedrägeri med falska mejl kan ha flera olika namn, beroende på syftet.",
+      "Koppla bort från det vanliga meddelandet och börja med en kanal som bara skickar vidare trafik.",
+      "Incidentrapportering är det organiserade arbetet för att upptäcka, begränsa eller utreda bedrägerier som begås av användare och som inte följer reglerna i penningtvättslagen.",
+      "Kontrollera att mejlet du anger är ett seriöst meddelande, och lägg inte till fler uppgifter i det.",
+      "Bötfällanden som skickar SMS utan att någon svarar är bedrägerier."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      "Kryptovalutor har blivit ett populärt sätt att samla in känslig information om individer och företag.",
+      "",
+      "I vissa länder kan bedragare använda e-postadresser för att skicka finansiella uppgifter via e-post eller andra elektroniska kommunikationskanaler.",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas skadlig kod som krypterar filer och kräver en lösensumma?",
+   "svar": "Kryptera filer och kräver en lösensumma för att låsa upp dem. Ju mer du vet, desto lättare är det att dekryptera.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 135,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Kryptera filer och kräver en lösensumma för att låsa upp dem.",
+      "Kryptering gör om data till oläsliga formlar, till exempel genom att kryptera filer.",
+      "Kryptera filer och kräver en lösensumma för att låsa upp dem.",
+      "Skadlig kod som krypterar filer och kräver en lösensumma kallas skadlig kod och kommer inte att göra något för att ge krypteringen.",
+      "Skräppost, eller spam, är oönskade massutskick via e-post."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      "",
+      " Ju mer du vet, desto lättare är det att dekryptera.",
+      "",
+      " Avinstallera alla kända filer från datorn.",
+      " LÄGG INFORMATIONEN FÖR VATORNA OCH DELASERNA"
+     ],
+     "vald": 1
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas en attack där många datorer överbelastar en server?",
+   "svar": "En attack där många datorer överbelastar en server kallas en attack med ett känt program eller plug-in. Det är mycket svårt att hitta exakt den information som krävs för att identifiera attacken, men det finns flera metoder: 1. Använd antivirus (SHA) - En kraftfull antispionprogram",
+   "ok": false,
+   "utkast": 15,
+   "pass_": 269,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "En attack där många datorer överbelastar en server kallas en attack med ett känt program eller plug-in.",
+      "Varningstecken: Använd ett betroddprogram, till exempel AES eller en ökänd server som ODBC.",
+      "En attack kallas också en återställning efter att ha varit långsam eller slutar att fungera.",
+      "En attack kallas ofta en attack där många datorsystem överbelastas.",
+      "En attack där många datorer överbelastar en server är en typ av felmeddelande som skapats genom att publicera skadlig kod eller trafik på en dator."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är mycket svårt att hitta exakt den information som krävs för att identifiera attacken, men det finns flera metoder: 1.",
+      " Detta är ofta sett som en bot, men det kan också vara en attack där datorn behöver fylla i systemresurser och skicka dem till andra enheter.",
+      " En angripare kan använda sig av en dator för att utnyttja intrånget, till exempel genom att kontrollera om datorn är krypterad eller inte.",
+      " Det är en vanlig attack där systemet körs på egen hand utan att komma åt resten av systemet.",
+      " Denna attack kan vara effektiv om datorn är långsam och har låga responstider."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Använd antivirus (SHA) - En kraftfull antispionprogram",
+      " Identifiera målet (State) - Det här programmet är ofta associerat",
+      " Använda målkonfigurationstekniker - En dator kan använda sig av olika",
+      "",
+      " SELECT TEXTRICTER (SERVAR"
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas ett nätverk av kapade datorer?",
+   "svar": "Ett nätverk av kapade datorer kan ha flera typer: 1. kapade datorer har ofta ett begränsat utbud av nätverksanslutningar, vilket gör det svårt för dem att komma åt varandra 2. kapade datorer är ofta anslutna till nätverket med andra datorer som inte är anslutna till nätverket 3. kapade datorer",
+   "ok": false,
+   "utkast": 20,
+   "pass_": 328,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett nätverk av kapade datorer kan ha flera typer: 1.",
+      "Ett nätverk av kapade datorer är en typ av digital signatur, liknande ett nätverk av vanliga datorer.",
+      "Ett nätverk av kapade datorer kan ha olika namn, beroende på den specifika användningen och nätverket som används.",
+      "Ett nätverk av kapade datorer kallas för nätverket för kapade datorer.",
+      "Ett nätverk av kapade datorer är nätverk som skapas och används av många användare för att få åtkomst till information, till exempel lösenord, nätfiske eller digital signatur."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " kapade datorer har ofta ett begränsat utbud av nätverksanslutningar, vilket gör det svårt för dem att komma åt varandra 2.",
+      "Location kapade: En capdacension är ett stort system som består av flera olika komponenter, till exempel processor, nätverkskort och ibland även programvara.",
+      "Location Control (LOC): Denna funktion gör det möjligt för de som har tillgång till internet att ansluta till en central server, t.",
+      " maskin-kapa (hårdvara): Dessa är program som måste köras från en dators synvinkel, vanligtvis från en maskin till en annan.",
+      "Datorerna i ett datorsystem kan vara utformade med flera kapare, var och en med sina egna unika egenskaper."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " kapade datorer är ofta anslutna till nätverket med andra datorer som inte är anslutna till nätverket 3.",
+      " kapade datorer är ofta inte säkra på nätverket utan vet hur man hanterar sina filer 3.",
+      " hackade datorer är konstruerade med hjälp av en programvara som kallas \"hot\" eller \"next\" (eng",
+      " kapade datorer är också ofta anslutna med andra företag eller organisationer 3.",
+      " kapade datorer kan ha olika typer (t."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      " kapade datorer",
+      " kabel-tv",
+      " kapade datorer",
+      " mobila enheter -",
+      " kapade datorer"
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas program som i hemlighet spionerar på användaren?",
+   "svar": "Ett program som i hemlighet spionerar på användare kallas spionprogram. Det är ett av de mest kända programmen och används ofta för att stjäla information, tjäna pengar eller sabotera.",
+   "ok": true,
+   "utkast": 13,
+   "pass_": 192,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett spionprogram som i hemlighet spionerar på användaren kallas för en \"spionprogram\" och är ofta använt för att stjäla information.",
+      "Ett spionprogram, eller spyware, krypterar och tar över datorn efter en stor mängd data.",
+      "Det finns inga kända program eller drivrutiner som kan spionera på användaren.",
+      "Ett program som i hemlighet spionerar på användare kallas spionprogram.",
+      "Ett spionprogram som i hemlighet spionerar på användaren kallas spionprogram och är avsett att stjäla information."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är ett av de mest kända programmen och används ofta för att stjäla information, tjäna pengar eller sabotera.",
+      " Ett känt exempel är skadlig programvara.",
+      " Detta program använder ofta kända sårbarheter och till och med skadlig kod för att få tillgång till dina data.",
+      " Denna program är ofta stor och komplex, vilket gör det till en komplex enhet för datautbyte och lagring, och kan vara svår att komma åt.",
+      " Program som är stora nog att stjäla information kan utnyttja svagheter i systemet för att kontrollera vilka filer man delar med andra."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas ett säkerhetshål som tillverkaren ännu inte känner till?",
+   "svar": "Ett säkerhetshål som tillverkaren ännu inte känner till är ett säkerhetshål i form av en trumma. Det används för att skydda data och information, men det kan också användas för att upptäcka intrång eller andra faror som finns i samband med detta.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 234,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Ett säkerhetshål som tillverkaren ännu inte känner till kallas \"Firewall\".",
+      "Ett säkerhetshål med en styrka av 10 ns (N) som gör det möjligt för tillverkaren att fånga in skadlig kod genom att sätta i ett nätverk av kapade enheter.",
+      "Ett säkerhetshål som tillverkaren ännu inte känner till är ett säkerhetshål i form av en trumma.",
+      "Ett säkerhetshål heter \"WISE 1012-1.\" Det är det mest populära säkerhetshålet i världen, och det är också det mest använda.",
+      "Ett säkerhetshål är ett lock som innehåller skadlig kod och sprider sig själv mellan datorer."
+     ],
+     "vald": 2
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det används för att skydda data och information, men det kan också användas för att upptäcka intrång eller andra faror som finns i samband med detta.",
+      "",
+      " Det är mindre troligt att den ursprungliga tröskan har gått sönder, men det har blivit mycket vanligare och används ofta av cyberbrottslingar för att hålla gisslan borta från andra datorer eller enheter.",
+      " Det används ofta för att gömma sig eller hålla sig undan från trafiken, men det kan också vara avsett för att bryta isen på grund av värme och kyla.",
+      " Det är känt att det alltid finns plats för ett litet eller medelstort hål."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas skyddet som filtrerar trafiken in till ett nätverk?",
+   "svar": "Sårbarhetsskanning är att med automatiska verktyg söka igenom nätverk efter kända sårbarheter och felkonfigurationer. Det bör göras regelbundet och följas av åtgärder.",
+   "ok": false,
+   "utkast": 13,
+   "pass_": 154,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Risken att bli upptäcktad av en cyberattack som är kopplad till ett nätverk är stor.",
+      "Strikt nödvändigt är det minsta skydd som kan användas för att avlägsna en skadligmarkör från nätverket.",
+      "Skydd som filtrerar trafiken in till ett nätverk är ofta skydd mot skadlig kod och nätverkssensorsystem.",
+      "Sårbarhetsskanning är att med automatiska verktyg söka igenom nätverk efter kända sårbarheter och felkonfigurationer.",
+      "Skydd som filtrerar trafiken in till ett nätverk innebär att något går igenom det från luften till vattnet."
+     ],
+     "vald": 3
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det bör göras regelbundet och följas av åtgärder.",
+      " Det bör göras regelbundet och följas av åtgärder.",
+      " Det bör ske på ett säkert sätt.",
+      " Det bör göras regelbundet och följas av en plan för att minska skadan.",
+      " Om ett nätverk inte fungerar som det ska, är det för att skydda mot attacker."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad kallas inloggning som kräver både lösenord och en kod i telefonen?",
+   "svar": "Lösenord läcker och gissas hela tiden. Meddelandet är ofta brådskande och kommer från många håll. Använd därför ett starkt lösenord, gärna med en lösenordshanterare, och slå på tvåfaktorsautentisering.",
+   "ok": true,
+   "utkast": 18,
+   "pass_": 180,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "Lösenord läcker och gissas hela tiden.",
+      "Klicka här för att öppna ett hemligt meddelande.",
+      "Lösenord är stora ord, kortformeritet.",
+      "Med hjälp av den givna appen kan du köpa och läsa e-post utan att ha några problem.",
+      "Lösenord läcker och gissade inte med att du har samma lösenord som internet."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Meddelandet är ofta brådskande eller att du inte har fått något.",
+      " Meddelanden är allt för snabba.",
+      " Meddelandet är ofta brådskande och bör sparas i telefonen.",
+      " Med e-legitimation kan du logga in på flera olika platser i telefonen för att ta del av allt innehåll på internet.",
+      " Meddelandet är ofta brådskande och kommer från många håll."
+     ],
+     "vald": 4
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      " Använd därför ett starkt lösenord, gärna med en lösenordshanterare, och slå på tvåfaktorsautentisering.",
+      "",
+      " Använd aldrig sådana lösenord, det finns ingen möjlighet att spara dem.",
+      " Håll dina hemligheter, mina, och var lugna tillsammans.",
+      ""
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 3,
+     "kandidater": [
+      "",
+      "",
+      ""
+     ],
+     "vald": 0
+    }
+   ]
+  },
+  {
+   "seed": 22,
+   "q": "Vad står bokstaven S för i HTTPS?",
+   "svar": "S står för \"e\" i HTTPS. Det är ett tecken som används för att indikera en e-postadress.",
+   "ok": false,
+   "utkast": 15,
+   "pass_": 246,
+   "spar": [
+    {
+     "mening": 0,
+     "kandidater": [
+      "S står för \"e\" i HTTPS.",
+      "Key Features TLC, som är valutasnke, är den vanligaste typen av offentlig nyckel som används i HTTP.",
+      "Kryptering gör om information till oläslig form med hjälp av en nyckel.",
+      "S står för \"T\".",
+      "Skalets ID är HTTP."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 1,
+     "kandidater": [
+      " Det är ett tecken som används för att indikera en e-postadress.",
+      " Det är ett tecken som gör det möjligt att skicka e-post till alla i en e-postadress.",
+      " I det engelska språket betyder bokstav \"e\", i den franska språket betyder bokstaven \"eulerska\", i italienska språket betyder \"dumpa\" \"den goda\".",
+      " Det är en rak linje, vilket betyder att det kommer att finnas ett mellanrum mellan två tecken i ordet.",
+      " Meddelandet är ofta brådskande eller av mer brådskande karaktär."
+     ],
+     "vald": 0
+    },
+    {
+     "mening": 2,
+     "kandidater": [
+      "",
+      " Eftersom e-posten kommer från en offentlig e-postlåda, kan den inte nås eller skrivas ut på något annat sätt än med e-post.",
+      " Ju högre upp i e-postmeddelandet desto mer sannolikt är det att det kommer från den \"nya\" e-postadressen du har registrerat.",
+      "",
+      " Är det till exempel en vanlig sexa kan det betyda \"Hej\", \"Jag heter S\"."
+     ],
+     "vald": 0
+    }
+   ]
+  }
+ ]
+}

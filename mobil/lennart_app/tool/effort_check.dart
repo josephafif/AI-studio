@@ -18,7 +18,7 @@ Future<void> main(List<String> a) async {
         ];
   for (final q in questions) {
     stdout.writeln('\n=== $q');
-    for (final effort in Effort.values) {
+    for (final effort in (Platform.environment["EFFORTS"] ?? "snabb,djup,djupPlus").split(",").map((n) => Effort.values.byName(n))) {
       final drafts = <int, StringBuffer>{};
       final scores = <int, String>{};
       final answer = StringBuffer();
@@ -27,10 +27,13 @@ Future<void> main(List<String> a) async {
         switch (e) {
           case GenToken(:final text):
             answer.write(text);
-          case GenDraft(:final index, :final text):
-            (drafts[index] ??= StringBuffer()).write(text);
+          case GenDraft(:final index, :final text, :final segment):
+            (drafts[index] ??= StringBuffer(segment >= 0 ? '[m${segment + 1}] ' : '')).write(text);
           case GenDraftEnd(:final index, :final score, :final pruned):
             scores[index] = pruned ? 'sållad' : score.toStringAsFixed(2);
+          case GenSegment(:final text, :final index):
+            answer.write(text);
+            scores[index] = '${scores[index]} ← vald mening';
           case GenChosen(:final text, :final index):
             answer.write(text);
             scores[index] = '${scores[index]} ← vald';

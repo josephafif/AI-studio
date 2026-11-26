@@ -39,7 +39,7 @@ def main():
         "urval": [
             ["Ett svar (Snabb)", 30.9], ["Girigt svar", 32.4], ["Appens poäng, 3 utkast", 28.7],
             ["Appens poäng, 6 utkast", 29.4], ["Frågevinst", 30.9], ["Bakåtkontroll", 30.1],
-            ["Wikipedia som domare", 31.6], ["Konsensus, 6 utkast", 33.1], ["Lärd domare", 34.6],
+            ["Wikipedia som domare", 31.6], ["Konsensus, 6 utkast", 33.1], ["Lärd domare", 34.6], ["Djup+ (per mening)", 36.0],
             ["Orakel: något utkast rätt", 55.1]],
         "kalib": {"niva": ["Snabb", "Medel", "Djup"], "over": [70, 71, 67], "under": [21, 11, 10],
                   "andel": [20, 30, 34]},

@@ -30,16 +30,14 @@ class _ChatScreenState extends State<ChatScreen> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
   final _focus = FocusNode();
-  late ModelInfo _model =
-      widget.catalog.models.where((m) => m.id == Prefs.modelId).firstOrNull ?? widget.catalog.latest;
+  late ModelInfo _model = widget.catalog.models.where((m) => m.id == Prefs.modelId).firstOrNull ?? widget.catalog.latest;
   late GenSettings _settings = _defaults(_model);
   late Conversation _chat = Conversation.empty(_model.id);
   bool _loading = false, _busy = false;
-  int _draftTotal = 0, _draftIndex = 0;
+  int _draftTotal = 0, _draftIndex = 0, _segment = -1;
   StreamSubscription<GenEvent>? _sub;
 
-  GenSettings _defaults(ModelInfo m) =>
-      GenSettings(temperature: m.temperature, maxTokens: m.maxTokens, topK: m.topK, effort: Prefs.effort);
+  GenSettings _defaults(ModelInfo m) => GenSettings(temperature: m.temperature, maxTokens: m.maxTokens, topK: m.topK, effort: Prefs.effort);
   Color get _color => _model.color;
   String _label(ModelInfo m) => ModelIcon.labelFor(m.name);
 
@@ -71,11 +69,13 @@ class _ChatScreenState extends State<ChatScreen> {
   void _scrollDown({bool jump = false}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scroll.hasClients) return;
-      final end = _scroll.position.maxScrollExtent;
+      // Under övergången mellan två samtal är båda listorna kopplade en kort stund – rulla den nyaste.
+      final pos = _scroll.positions.last;
+      final end = pos.maxScrollExtent;
       if (jump) {
-        _scroll.jumpTo(end);
+        pos.jumpTo(end);
       } else {
-        _scroll.animateTo(end, duration: const Duration(milliseconds: 220), curve: Curves.easeOutCubic);
+        pos.animateTo(end, duration: const Duration(milliseconds: 220), curve: Curves.easeOutCubic);
       }
     });
   }
@@ -104,7 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final reply = Message(false, '');
     final turns = [
       for (final m in _chat.messages)
-        if (!m.error && m.text.isNotEmpty) ChatTurn(m.fromUser, m.text)
+        if (!m.error && m.text.isNotEmpty) ChatTurn(m.fromUser, m.text),
     ];
     final effort = _settings.effort;
     setState(() {
@@ -112,6 +112,7 @@ class _ChatScreenState extends State<ChatScreen> {
       _busy = true;
       _draftTotal = effort.drafts;
       _draftIndex = 0;
+      _segment = effort.sentenceWise ? 0 : -1;
     });
     _scrollDown();
     _sub = _engine.generate(turns, _settings).listen((e) {
@@ -119,20 +120,31 @@ class _ChatScreenState extends State<ChatScreen> {
         case GenToken(:final text):
           setState(() => reply.text += text);
           _scrollDown(jump: true);
-        case GenDraft(:final index, :final total, :final text):
+        case GenDraft(:final index, :final total, :final text, :final segment):
           setState(() {
             while (reply.drafts.length <= index) {
               reply.drafts.add(Draft(''));
             }
-            reply.drafts[index].text += text;
+            reply.drafts[index]
+              ..text += text
+              ..segment = segment;
             _draftIndex = index;
             _draftTotal = total;
+            _segment = segment;
           });
+        case GenSegment(:final index, :final text):
+          setState(() {
+            if (index < reply.drafts.length) reply.drafts[index].picked = true;
+            reply.text = (reply.text + text).trimLeft();
+          });
+          _scrollDown(jump: true);
         case GenDraftEnd(:final index, :final score, :final pruned):
           if (index < reply.drafts.length) {
-            setState(() => reply.drafts[index]
-              ..score = score
-              ..pruned = pruned);
+            setState(
+              () => reply.drafts[index]
+                ..score = score
+                ..pruned = pruned,
+            );
           }
         case GenChosen(:final index, :final text):
           setState(() {
@@ -144,7 +156,8 @@ class _ChatScreenState extends State<ChatScreen> {
           _scrollDown();
         case GenDone():
           setState(() {
-            if (reply.text.trim().isEmpty) reply.text = '…';
+            reply.text = reply.text.trim();
+            if (reply.text.isEmpty) reply.text = '…';
             if (reply.drafts.isNotEmpty) reply.thoughtSeconds = e.seconds;
             reply.uncertain = e.uncertain;
             reply.meta = '${_model.name} · ${effort.label.toLowerCase()} · ${e.tokens} tok · ${e.tokensPerSecond.toStringAsFixed(1)} tok/s';
@@ -183,14 +196,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _pickModel() async {
     if (_busy) return;
-    final pick = await pickModel(context,
-        models: widget.catalog.models,
-        currentId: _model.id,
-        effort: _settings.effort,
-        onEffort: (e) {
-          Prefs.effort = e;
-          setState(() => _settings = _settings.copyWith(effort: e));
-        });
+    final pick = await pickModel(
+      context,
+      models: widget.catalog.models,
+      currentId: _model.id,
+      effort: _settings.effort,
+      onEffort: (e) {
+        Prefs.effort = e;
+        setState(() => _settings = _settings.copyWith(effort: e));
+      },
+    );
     switch (pick) {
       case PickModel(:final model) when model.id != _model.id:
         _loadModel(model);
@@ -229,11 +244,17 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (ctx) => Center(
         child: Glass(
           padding: const EdgeInsets.all(26),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            const AsciiSphere(size: 140, color: Palette.violet, thinking: true),
-            const SizedBox(height: 10),
-            Material(color: Colors.transparent, child: BrailleSpinner(color: ctx.c.accent, text: 'installerar modellen')),
-          ]),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const AsciiSphere(size: 140, color: Palette.violet, thinking: true),
+              const SizedBox(height: 10),
+              Material(
+                color: Colors.transparent,
+                child: BrailleSpinner(color: ctx.c.accent, text: 'installerar modellen'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -266,65 +287,87 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final c = context.c;
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: c.bg,
-      statusBarIconBrightness: c.dark ? Brightness.light : Brightness.dark,
-      systemNavigationBarIconBrightness: c.dark ? Brightness.light : Brightness.dark,
-    ));
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: c.bg,
+        statusBarIconBrightness: c.dark ? Brightness.light : Brightness.dark,
+        systemNavigationBarIconBrightness: c.dark ? Brightness.light : Brightness.dark,
+      ),
+    );
     final empty = _chat.messages.isEmpty;
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      drawer: _HistoryDrawer(store: widget.store, catalog: widget.catalog, onOpen: _openChat, onNew: () {
-        Navigator.pop(context);
-        _newChat();
-      }),
-      body: Stack(children: [
-        Positioned.fill(
-          child: TweenAnimationBuilder<double>(
-            tween: Tween(end: empty ? 1.0 : 0.45),
-            duration: const Duration(milliseconds: 600),
-            builder: (_, v, __) => AsciiRain(color: _color, intensity: v),
-          ),
-        ),
-        SafeArea(
-          child: Column(children: [
-            _topBar(),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 350),
-                child: empty ? _empty() : _messages(),
-              ),
+      drawer: _HistoryDrawer(
+        store: widget.store,
+        catalog: widget.catalog,
+        onOpen: _openChat,
+        onNew: () {
+          Navigator.pop(context);
+          _newChat();
+        },
+      ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(end: empty ? 1.0 : 0.45),
+              duration: const Duration(milliseconds: 600),
+              builder: (_, v, __) => AsciiRain(color: _color, intensity: v),
             ),
-            _composer(),
-          ]),
-        ),
-      ]),
+          ),
+          SafeArea(
+            child: Column(
+              children: [
+                _topBar(),
+                Expanded(
+                  child: AnimatedSwitcher(duration: const Duration(milliseconds: 350), child: empty ? _empty() : _messages()),
+                ),
+                _composer(),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _topBar() {
     final c = context.c;
-    final title = _chat.messages.isEmpty ? '' : _chat.title == 'Nytt samtal' ? _chat.messages.first.text : _chat.title;
+    final title = _chat.messages.isEmpty
+        ? ''
+        : _chat.title == 'Nytt samtal'
+        ? _chat.messages.first.text
+        : _chat.title;
     return Padding(
       padding: const EdgeInsets.fromLTRB(4, 4, 4, 0),
-      child: Row(children: [
-        Builder(
+      child: Row(
+        children: [
+          Builder(
             builder: (ctx) => IconButton(
-                icon: Icon(Icons.notes_rounded, color: c.text, size: 26), onPressed: () => Scaffold.of(ctx).openDrawer())),
-        Expanded(
-          child: AnimatedOpacity(
-            duration: const Duration(milliseconds: 250),
-            opacity: title.isEmpty ? 0 : 1,
-            child: Text(title.replaceAll('\n', ' '),
+              icon: Icon(Icons.notes_rounded, color: c.text, size: 26),
+              onPressed: () => Scaffold.of(ctx).openDrawer(),
+            ),
+          ),
+          Expanded(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 250),
+              opacity: title.isEmpty ? 0 : 1,
+              child: Text(
+                title.replaceAll('\n', ' '),
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: c.text, fontSize: 15, fontWeight: FontWeight.w600)),
+                style: TextStyle(color: c.text, fontSize: 15, fontWeight: FontWeight.w600),
+              ),
+            ),
           ),
-        ),
-        IconButton(icon: Icon(Icons.edit_square, color: c.text, size: 22), onPressed: _busy ? null : _newChat),
-      ]),
+          IconButton(
+            icon: Icon(Icons.edit_square, color: c.text, size: 22),
+            onPressed: _busy ? null : _newChat,
+          ),
+        ],
+      ),
     );
   }
 
@@ -334,12 +377,12 @@ class _ChatScreenState extends State<ChatScreen> {
     final options = h < 5
         ? ['Sent ute, nattuggla?', 'Klockan är mycket. Vad skaver?']
         : h < 10
-            ? ['God morgon. Kaffe först?', 'God morgon. Vad ska vi lösa?']
-            : h < 17
-                ? ['Vad har du på hjärtat?', 'Hit med frågan.']
-                : h < 22
-                    ? ['God kväll. Vad funderar du på?', 'Kvällspass? Jag är med.']
-                    : ['Sent ute, nattuggla?', 'En sen nattlig fråga?'];
+        ? ['God morgon. Kaffe först?', 'God morgon. Vad ska vi lösa?']
+        : h < 17
+        ? ['Vad har du på hjärtat?', 'Hit med frågan.']
+        : h < 22
+        ? ['God kväll. Vad funderar du på?', 'Kvällspass? Jag är med.']
+        : ['Sent ute, nattuggla?', 'En sen nattlig fråga?'];
     return options[_chat.id.hashCode.abs() % options.length];
   }
 
@@ -352,12 +395,17 @@ class _ChatScreenState extends State<ChatScreen> {
         return Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              AsciiSphere(size: size, color: _color, thinking: _loading),
-              const SizedBox(height: 4),
-              ScrambleText(_loading ? 'Väcker ${_model.name} …' : _greeting,
-                  style: serif.copyWith(fontSize: 29, color: c.text, fontWeight: FontWeight.w500, letterSpacing: -0.4, height: 1.2)),
-            ]),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AsciiSphere(size: size, color: _color, thinking: _loading),
+                const SizedBox(height: 4),
+                ScrambleText(
+                  _loading ? 'Väcker ${_model.name} …' : _greeting,
+                  style: serif.copyWith(fontSize: 29, color: c.text, fontWeight: FontWeight.w500, letterSpacing: -0.4, height: 1.2),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -381,6 +429,7 @@ class _ChatScreenState extends State<ChatScreen> {
           live: last && _busy,
           draftIndex: _draftIndex,
           draftTotal: _draftTotal,
+          segment: _segment,
           canRegenerate: last && !_busy && !_loading,
           onRegenerate: _regenerate,
           onRevealed: () => setState(() => m.reveal = false),
@@ -401,40 +450,53 @@ class _ChatScreenState extends State<ChatScreen> {
           color: c.surface.withValues(alpha: c.dark ? 0.92 : 0.97),
           borderRadius: BorderRadius.circular(28),
           border: Border.all(color: _focus.hasFocus ? _color.withValues(alpha: 0.45) : c.stroke),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: c.dark ? 0.35 : 0.07), blurRadius: 24, offset: const Offset(0, 6))],
-        ),
-        child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 6, 16, 0),
-            child: TextField(
-              controller: _input,
-              focusNode: _focus,
-              minLines: 1,
-              maxLines: 6,
-              textCapitalization: TextCapitalization.sentences,
-              style: TextStyle(color: c.text, fontSize: 16.5, height: 1.35),
-              cursorColor: _color,
-              decoration: InputDecoration(
-                hintText: _loading ? 'Läser in ${_model.name} …' : 'Fråga ${_model.name}',
-                hintStyle: TextStyle(color: c.muted, fontSize: 16.5),
-                border: InputBorder.none,
-              ),
-              onSubmitted: (_) => _send(),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: c.dark ? 0.35 : 0.07),
+              blurRadius: 24,
+              offset: const Offset(0, 6),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
-            child: Row(children: [
-              _CircleButton(icon: Icons.add_rounded, onTap: _plus, filled: false),
-              const SizedBox(width: 8),
-              Expanded(child: Align(alignment: Alignment.centerLeft, child: _modelChip())),
-              const SizedBox(width: 8),
-              _busy
-                  ? _CircleButton(icon: Icons.stop_rounded, onTap: _stop, filled: true)
-                  : _CircleButton(icon: Icons.arrow_upward_rounded, onTap: canSend ? _send : null, filled: true),
-            ]),
-          ),
-        ]),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 6, 16, 0),
+              child: TextField(
+                controller: _input,
+                focusNode: _focus,
+                minLines: 1,
+                maxLines: 6,
+                textCapitalization: TextCapitalization.sentences,
+                style: TextStyle(color: c.text, fontSize: 16.5, height: 1.35),
+                cursorColor: _color,
+                decoration: InputDecoration(
+                  hintText: _loading ? 'Läser in ${_model.name} …' : 'Fråga ${_model.name}',
+                  hintStyle: TextStyle(color: c.muted, fontSize: 16.5),
+                  border: InputBorder.none,
+                ),
+                onSubmitted: (_) => _send(),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+              child: Row(
+                children: [
+                  _CircleButton(icon: Icons.add_rounded, onTap: _plus, filled: false),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Align(alignment: Alignment.centerLeft, child: _modelChip()),
+                  ),
+                  const SizedBox(width: 8),
+                  _busy
+                      ? _CircleButton(icon: Icons.stop_rounded, onTap: _stop, filled: true)
+                      : _CircleButton(icon: Icons.arrow_upward_rounded, onTap: canSend ? _send : null, filled: true),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -449,22 +511,33 @@ class _ChatScreenState extends State<ChatScreen> {
         onTap: _busy ? null : _pickModel,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(6, 6, 10, 6),
-          child: Row(mainAxisSize: MainAxisSize.min, children: [
-            ModelIcon(size: 26, color: _color, label: _label(_model), thinking: _busy || _loading),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text.rich(
-                TextSpan(children: [
-                  TextSpan(text: _model.name, style: TextStyle(color: c.text, fontWeight: FontWeight.w600)),
-                  TextSpan(text: '  ${_settings.effort.label}', style: TextStyle(color: c.muted)),
-                ]),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14.5),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ModelIcon(size: 26, color: _color, label: _label(_model), thinking: _busy || _loading),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: _model.name,
+                        style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: '  ${_settings.effort.label}',
+                        style: TextStyle(color: c.muted),
+                      ),
+                    ],
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 14.5),
+                ),
               ),
-            ),
-            Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: c.muted),
-          ]),
+              Icon(Icons.keyboard_arrow_down_rounded, size: 18, color: c.muted),
+            ],
+          ),
         ),
       ),
     );
@@ -538,12 +611,15 @@ class _FadeIn extends StatelessWidget {
   const _FadeIn({required this.child});
   @override
   Widget build(BuildContext context) => TweenAnimationBuilder<double>(
-        tween: Tween(begin: 0, end: 1),
-        duration: const Duration(milliseconds: 280),
-        curve: Curves.easeOutCubic,
-        builder: (_, v, child) => Opacity(opacity: v, child: Transform.translate(offset: Offset(0, 10 * (1 - v)), child: child)),
-        child: child,
-      );
+    tween: Tween(begin: 0, end: 1),
+    duration: const Duration(milliseconds: 280),
+    curve: Curves.easeOutCubic,
+    builder: (_, v, child) => Opacity(
+      opacity: v,
+      child: Transform.translate(offset: Offset(0, 10 * (1 - v)), child: child),
+    ),
+    child: child,
+  );
 }
 
 /// Lennarts svar: tankeblock (utkasten), själva svaret och en rad med åtgärder – utan bubbla, som i Claude.
@@ -551,7 +627,7 @@ class _Answer extends StatelessWidget {
   final Message message;
   final Color color;
   final bool live, canRegenerate;
-  final int draftIndex, draftTotal;
+  final int draftIndex, draftTotal, segment;
   final VoidCallback onRegenerate, onRevealed, onGrow;
   const _Answer({
     required this.message,
@@ -559,6 +635,7 @@ class _Answer extends StatelessWidget {
     required this.live,
     required this.draftIndex,
     required this.draftTotal,
+    required this.segment,
     required this.canRegenerate,
     required this.onRegenerate,
     required this.onRevealed,
@@ -575,42 +652,67 @@ class _Answer extends StatelessWidget {
     if (message.text.isNotEmpty) {
       body = message.reveal
           ? _Reveal(text: message.text, style: style, onDone: onRevealed, onGrow: onGrow)
-          : Text.rich(TextSpan(children: [
-              TextSpan(text: message.text, style: style),
-              if (live) WidgetSpan(alignment: PlaceholderAlignment.middle, child: DecodingTail(color: accent)),
-            ]));
+          : Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: message.text, style: style),
+                  if (live)
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.middle,
+                      child: DecodingTail(color: accent),
+                    ),
+                ],
+              ),
+            );
     } else if (live && !thinking) {
-      body = Row(children: [ThinkingStar(color: accent), const SizedBox(width: 6), Text('Skriver …', style: TextStyle(color: c.muted))]);
+      body = Row(
+        children: [
+          ThinkingStar(color: accent),
+          const SizedBox(width: 6),
+          Text('Skriver …', style: TextStyle(color: c.muted)),
+        ],
+      );
     }
     return _FadeIn(
       child: Padding(
         padding: const EdgeInsets.only(top: 8, bottom: 4),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (thinking)
-            _ThinkingBlock(
-              message: message,
-              live: live && message.text.isEmpty,
-              index: draftIndex,
-              total: draftTotal,
-              accent: accent,
-            ),
-          if (body != null) GestureDetector(onLongPress: () => _copy(context, message.text), child: body),
-          if (!live && message.uncertain && !message.error) const _UncertainChip(),
-          if (!live && message.text.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 2),
-              child: Row(children: [
-                _Action(icon: Icons.copy_rounded, onTap: () => _copy(context, message.text)),
-                if (canRegenerate) _Action(icon: Icons.refresh_rounded, onTap: onRegenerate),
-                const SizedBox(width: 4),
-                if (message.meta != null)
-                  Expanded(
-                    child: Text(message.meta!,
-                        maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.muted, fontSize: 11.5)),
-                  ),
-              ]),
-            ),
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (thinking)
+              _ThinkingBlock(
+                message: message,
+                // Djup+ fortsätter tänka medan svaret växer mening för mening
+                live: live && (message.text.isEmpty || segment >= 0),
+                index: draftIndex,
+                total: draftTotal,
+                segment: segment,
+                accent: accent,
+              ),
+            if (body != null) GestureDetector(onLongPress: () => _copy(context, message.text), child: body),
+            if (!live && message.uncertain && !message.error) const _UncertainChip(),
+            if (!live && message.text.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Row(
+                  children: [
+                    _Action(icon: Icons.copy_rounded, onTap: () => _copy(context, message.text)),
+                    if (canRegenerate) _Action(icon: Icons.refresh_rounded, onTap: onRegenerate),
+                    const SizedBox(width: 4),
+                    if (message.meta != null)
+                      Expanded(
+                        child: Text(
+                          message.meta!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: c.muted, fontSize: 11.5),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -632,12 +734,17 @@ class _UncertainChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: amber.withValues(alpha: 0.35)),
         ),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(Icons.help_outline_rounded, size: 15, color: c.dark ? amber : const Color(0xFF9A6400)),
-          const SizedBox(width: 6),
-          Text('Osäker – dubbelkolla gärna',
-              style: TextStyle(color: c.dark ? amber : const Color(0xFF9A6400), fontSize: 12.5, fontWeight: FontWeight.w600)),
-        ]),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.help_outline_rounded, size: 15, color: c.dark ? amber : const Color(0xFF9A6400)),
+            const SizedBox(width: 6),
+            Text(
+              'Osäker – dubbelkolla gärna',
+              style: TextStyle(color: c.dark ? amber : const Color(0xFF9A6400), fontSize: 12.5, fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -649,24 +756,31 @@ class _Action extends StatelessWidget {
   const _Action({required this.icon, required this.onTap});
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: 34,
-        height: 34,
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          iconSize: 18,
-          icon: Icon(icon, color: context.c.muted),
-          onPressed: onTap,
-        ),
-      );
+    width: 34,
+    height: 34,
+    child: IconButton(
+      padding: EdgeInsets.zero,
+      iconSize: 18,
+      icon: Icon(icon, color: context.c.muted),
+      onPressed: onTap,
+    ),
+  );
 }
 
 /// "Tänker · utkast 2 av 3" medan Lennart skriver utkast, sedan "Tänkte i 6 s". Tryck för att se utkasten.
 class _ThinkingBlock extends StatefulWidget {
   final Message message;
   final bool live;
-  final int index, total;
+  final int index, total, segment;
   final Color accent;
-  const _ThinkingBlock({required this.message, required this.live, required this.index, required this.total, required this.accent});
+  const _ThinkingBlock({
+    required this.message,
+    required this.live,
+    required this.index,
+    required this.total,
+    this.segment = -1,
+    required this.accent,
+  });
   @override
   State<_ThinkingBlock> createState() => _ThinkingBlockState();
 }
@@ -679,71 +793,163 @@ class _ThinkingBlockState extends State<_ThinkingBlock> {
     final c = context.c;
     final m = widget.message;
     final n = m.drafts.length;
+    final plus = m.drafts.any((d) => d.segment >= 0) || widget.segment >= 0;
+    final sentences = m.drafts.where((d) => d.picked).length;
+    final secs = (m.thoughtSeconds ?? 0).toStringAsFixed((m.thoughtSeconds ?? 0) < 10 ? 1 : 0);
     final header = widget.live
-        ? 'Tänker · utkast ${widget.index + 1} av ${widget.total}'
-        : 'Tänkte i ${(m.thoughtSeconds ?? 0).toStringAsFixed((m.thoughtSeconds ?? 0) < 10 ? 1 : 0)} s · $n utkast';
+        ? (plus
+              ? 'Tänker · mening ${widget.segment + 1} · utkast ${widget.index + 1} av högst ${widget.total}'
+              : 'Tänker · utkast ${widget.index + 1} av ${widget.total}')
+        : (plus ? 'Tänkte i $secs s · $n utkast · $sentences meningar' : 'Tänkte i $secs s · $n utkast');
     final current = n == 0 ? '' : m.drafts[math.min(widget.index, n - 1)].text.replaceAll('\n', ' ');
     final tail = current.length > 140 ? '…${current.substring(current.length - 140)}' : current;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        InkWell(
-          borderRadius: BorderRadius.circular(10),
-          onTap: () => setState(() => _open = !_open),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(mainAxisSize: MainAxisSize.min, children: [
-              ThinkingStar(color: widget.accent, animate: widget.live),
-              const SizedBox(width: 8),
-              Flexible(child: Text(header, style: TextStyle(color: c.muted, fontSize: 14, fontWeight: FontWeight.w500))),
-              AnimatedRotation(
-                turns: _open ? 0.25 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: Icon(Icons.chevron_right_rounded, size: 18, color: c.muted),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(10),
+            onTap: () => setState(() => _open = !_open),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ThinkingStar(color: widget.accent, animate: widget.live),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      header,
+                      style: TextStyle(color: c.muted, fontSize: 14, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  AnimatedRotation(
+                    turns: _open ? 0.25 : 0,
+                    duration: const Duration(milliseconds: 200),
+                    child: Icon(Icons.chevron_right_rounded, size: 18, color: c.muted),
+                  ),
+                ],
               ),
-            ]),
-          ),
-        ),
-        if (widget.live && !_open && tail.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(left: 26, top: 2, right: 8),
-            child: ShaderMask(
-              shaderCallback: (r) => LinearGradient(colors: [Colors.transparent, c.muted, c.muted]).createShader(r),
-              child: Text(tail, maxLines: 2, overflow: TextOverflow.clip, style: mono.copyWith(color: Colors.white, fontSize: 12, height: 1.4)),
             ),
           ),
-        AnimatedSize(
-          duration: const Duration(milliseconds: 240),
-          curve: Curves.easeOutCubic,
-          alignment: Alignment.topLeft,
-          child: !_open
-              ? const SizedBox(width: double.infinity)
-              : Container(
-                  margin: const EdgeInsets.only(left: 7, top: 6),
-                  padding: const EdgeInsets.only(left: 16),
-                  decoration: BoxDecoration(border: Border(left: BorderSide(color: c.stroke, width: 2))),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    for (var i = 0; i < n; i++)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          Text(
-                            'Utkast ${i + 1}${i == m.chosen ? ' · valt' : m.drafts[i].pruned ? ' · sållat tidigt' : ''}'
-                            '${m.drafts[i].score != null && !m.drafts[i].pruned ? '  (${m.drafts[i].score!.toStringAsFixed(2)})' : ''}',
-                            style: mono.copyWith(
-                                color: i == m.chosen ? widget.accent : c.muted, fontSize: 11.5, fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(m.drafts[i].text.trim().isEmpty ? '…' : m.drafts[i].text.trim(),
-                              style: TextStyle(color: c.muted, fontSize: 13.5, height: 1.4)),
-                        ]),
-                      ),
-                  ]),
+          if (widget.live && !_open && tail.isNotEmpty && !plus)
+            Padding(
+              padding: const EdgeInsets.only(left: 26, top: 2, right: 8),
+              child: ShaderMask(
+                shaderCallback: (r) => LinearGradient(colors: [Colors.transparent, c.muted, c.muted]).createShader(r),
+                child: Text(
+                  tail,
+                  maxLines: 2,
+                  overflow: TextOverflow.clip,
+                  style: mono.copyWith(color: Colors.white, fontSize: 12, height: 1.4),
                 ),
-        ),
-      ]),
+              ),
+            ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 240),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topLeft,
+            child: !_open
+                ? const SizedBox(width: double.infinity)
+                : Container(
+                    margin: const EdgeInsets.only(left: 7, top: 6),
+                    padding: const EdgeInsets.only(left: 16),
+                    decoration: BoxDecoration(
+                      border: Border(left: BorderSide(color: c.stroke, width: 2)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (plus) ..._segments(context, m),
+                        if (!plus)
+                          for (var i = 0; i < n; i++)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Utkast ${i + 1}${i == m.chosen
+                                        ? ' · valt'
+                                        : m.drafts[i].pruned
+                                        ? ' · sållat tidigt'
+                                        : ''}'
+                                    '${m.drafts[i].score != null && !m.drafts[i].pruned ? '  (${m.drafts[i].score!.toStringAsFixed(2)})' : ''}',
+                                    style: mono.copyWith(
+                                      color: i == m.chosen ? widget.accent : c.muted,
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    m.drafts[i].text.trim().isEmpty ? '…' : m.drafts[i].text.trim(),
+                                    style: TextStyle(color: c.muted, fontSize: 13.5, height: 1.4),
+                                  ),
+                                ],
+                              ),
+                            ),
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
+}
+
+/// Djup+: utkasten grupperade per mening, med den valda meningen markerad.
+List<Widget> _segments(BuildContext context, Message m) {
+  final c = context.c;
+  final segs = <int, List<Draft>>{};
+  for (final d in m.drafts) {
+    (segs[d.segment] ??= []).add(d);
+  }
+  final keys = segs.keys.toList()..sort();
+  return [
+    for (final g in keys)
+      Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Mening ${g + 1} · ${segs[g]!.length} utkast',
+              style: mono.copyWith(color: c.muted, fontSize: 11.5, fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 4),
+            for (final d in segs[g]!)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 3),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 18,
+                      child: d.picked
+                          ? Padding(padding: const EdgeInsets.only(top: 2), child: Icon(Icons.check_rounded, size: 14, color: c.accent))
+                          : Text('·', style: TextStyle(color: c.muted, fontWeight: FontWeight.w700, fontSize: 13)),
+                    ),
+                    Expanded(
+                      child: Text(
+                        d.text.trim().isEmpty ? '(slut på svaret)' : d.text.trim(),
+                        style: TextStyle(
+                          color: d.picked ? c.text : c.muted,
+                          fontSize: 13.5,
+                          height: 1.4,
+                          fontWeight: d.picked ? FontWeight.w500 : FontWeight.w400,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
+  ];
 }
 
 /// Skriver fram ett färdigt svar snabbt, som om det strömmade.
@@ -757,16 +963,19 @@ class _Reveal extends StatefulWidget {
 }
 
 class _RevealState extends State<_Reveal> with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-      vsync: this, duration: Duration(milliseconds: (widget.text.length * 9).clamp(250, 1600)))
-    ..addListener(() {
-      setState(() {});
-      widget.onGrow();
-    })
-    ..addStatusListener((s) {
-      if (s == AnimationStatus.completed) widget.onDone();
-    })
-    ..forward();
+  late final AnimationController _c =
+      AnimationController(
+          vsync: this,
+          duration: Duration(milliseconds: (widget.text.length * 9).clamp(250, 1600)),
+        )
+        ..addListener(() {
+          setState(() {});
+          widget.onGrow();
+        })
+        ..addStatusListener((s) {
+          if (s == AnimationStatus.completed) widget.onDone();
+        })
+        ..forward();
 
   @override
   void dispose() {
@@ -777,10 +986,17 @@ class _RevealState extends State<_Reveal> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final n = (widget.text.length * Curves.easeOut.transform(_c.value)).round();
-    return Text.rich(TextSpan(children: [
-      TextSpan(text: widget.text.substring(0, n), style: widget.style),
-      TextSpan(text: widget.text.substring(n), style: widget.style.copyWith(color: Colors.transparent)),
-    ]));
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(text: widget.text.substring(0, n), style: widget.style),
+          TextSpan(
+            text: widget.text.substring(n),
+            style: widget.style.copyWith(color: Colors.transparent),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -802,57 +1018,80 @@ class _HistoryDrawerState extends State<_HistoryDrawer> {
     return Drawer(
       backgroundColor: c.surface,
       child: SafeArea(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
-            child: Row(children: [
-              ModelIcon(size: 34, color: widget.catalog.latest.color, label: 'L'),
-              const SizedBox(width: 12),
-              Text('Lennart', style: serif.copyWith(color: c.text, fontSize: 24, fontWeight: FontWeight.w600)),
-            ]),
-          ),
-          ListTile(
-            leading: Icon(Icons.edit_square, color: c.text, size: 22),
-            title: Text('Nytt samtal', style: TextStyle(color: c.text, fontWeight: FontWeight.w600)),
-            onTap: widget.onNew,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 14, 18, 6),
-            child: Text('Senaste', style: TextStyle(color: c.muted, fontSize: 13, fontWeight: FontWeight.w600)),
-          ),
-          Expanded(
-            child: items.isEmpty
-                ? Padding(padding: const EdgeInsets.all(18), child: Text('Dina samtal sparas här.', style: Theme.of(context).textTheme.bodySmall))
-                : ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (_, i) {
-                      final conv = items[i];
-                      final m = widget.catalog.models.where((x) => x.id == conv.modelId).firstOrNull;
-                      return Dismissible(
-                        key: ValueKey(conv.id),
-                        direction: DismissDirection.endToStart,
-                        background: Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
+              child: Row(
+                children: [
+                  ModelIcon(size: 34, color: widget.catalog.latest.color, label: 'L'),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Lennart',
+                    style: serif.copyWith(color: c.text, fontSize: 24, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.edit_square, color: c.text, size: 22),
+              title: Text(
+                'Nytt samtal',
+                style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
+              ),
+              onTap: widget.onNew,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 14, 18, 6),
+              child: Text(
+                'Senaste',
+                style: TextStyle(color: c.muted, fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            ),
+            Expanded(
+              child: items.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Text('Dina samtal sparas här.', style: Theme.of(context).textTheme.bodySmall),
+                    )
+                  : ListView.builder(
+                      itemCount: items.length,
+                      itemBuilder: (_, i) {
+                        final conv = items[i];
+                        final m = widget.catalog.models.where((x) => x.id == conv.modelId).firstOrNull;
+                        return Dismissible(
+                          key: ValueKey(conv.id),
+                          direction: DismissDirection.endToStart,
+                          background: Container(
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 20),
                             color: Palette.danger.withValues(alpha: 0.2),
-                            child: const Icon(Icons.delete_outline_rounded, color: Palette.danger)),
-                        onDismissed: (_) => setState(() => widget.store.delete(conv)),
-                        child: ListTile(
-                          dense: true,
-                          title: Text(conv.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: c.text, fontSize: 15)),
-                          subtitle: Text(m?.name ?? conv.modelId, style: TextStyle(color: c.muted, fontSize: 12)),
-                          onTap: () => widget.onOpen(conv),
-                        ),
-                      );
-                    },
-                  ),
-          ),
-          const Padding(padding: EdgeInsets.fromLTRB(14, 0, 14, 8), child: AppearancePicker()),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18, 4, 18, 14),
-            child: Text('Allt körs lokalt på telefonen.', style: Theme.of(context).textTheme.bodySmall),
-          ),
-        ]),
+                            child: const Icon(Icons.delete_outline_rounded, color: Palette.danger),
+                          ),
+                          onDismissed: (_) => setState(() => widget.store.delete(conv)),
+                          child: ListTile(
+                            dense: true,
+                            title: Text(
+                              conv.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(color: c.text, fontSize: 15),
+                            ),
+                            subtitle: Text(m?.name ?? conv.modelId, style: TextStyle(color: c.muted, fontSize: 12)),
+                            onTap: () => widget.onOpen(conv),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+            const Padding(padding: EdgeInsets.fromLTRB(14, 0, 14, 8), child: AppearancePicker()),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(18, 4, 18, 14),
+              child: Text('Allt körs lokalt på telefonen.', style: Theme.of(context).textTheme.bodySmall),
+            ),
+          ],
+        ),
       ),
     );
   }
