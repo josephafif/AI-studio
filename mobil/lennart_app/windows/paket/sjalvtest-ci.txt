@@ -1,0 +1,13 @@
+Lennart självtest 2026-11-26T10:02:28.634374
+Program: D:\a\AI-studio\AI-studio\mobil\lennart_app\build\windows\x64\runner\Release\Lennart.exe
+System: windows "Windows Server 2025 Datacenter" 10.0 (Build 26100), 4 kärnor
+Modellmapp: D:\a\AI-studio\AI-studio\testmodeller-samlad
+Modeller: Lennart, Lennart 2
+[Lennart · Snabb · inläst 3 ms · 30 tokens · 391.6 tok/s] Jag heter Lennart och svarar på frågor om cybersäkerhet och IT-säkerhet. Vad vill du veta?
+[Lennart · Djup+ · inläst 3 ms · 109 tokens · 669.4 tok/s] Jag heter Lennart och svarar på frågor om cybersäkerhet och IT-säkerhet. Vad vill du veta?
+[Lennart 2 · Snabb · inläst 89 ms · 20 tokens · 180.5 tok/s] Hej! Jag heter Lennart och svarar på frågor om cybersäkerhet och IT-säkerhet. Vad vill du veta?
+[Lennart 2 · Djup+ · inläst 89 ms · 102 tokens · 287.9 tok/s] Hej! Jag heter Lennart och svarar på frågor om cybersäkerhet och IT-säkerhet. Vad vill du veta?
+[verktyg raknare] 84
+[verktyg sok_i_filer] anteckning.txt:2: Ring banken.
+[verktyg las_fil] fel: Bara sökvägar inuti arbetsmappen är tillåtna
+RESULTAT: OK
