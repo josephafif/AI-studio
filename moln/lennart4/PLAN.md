@@ -139,6 +139,10 @@ Avstår: Flashback, Reddit och undertexter. Licensen är oklar, tonen svår att 
 | 2 | ~6 h + ~20 h | Pilot (A/B), sedan förträning startar |
 | 3–4 | 2 × 30 h | Förträning (fas 1–2) |
 | 5 | ~30 h | Fas 3: samtal + stil + DPO → Lennart 4.0 |
+| 6 | ~3 h | **4.x:** svensktest av grundmodellkandidaterna (frågebanken + 50 uppgifter), licenskontroll, val av grundmodell. Uppgiftsformatet låses |
+| 6 | 0 h (Opus) eller ~10 h (lokal lärare) | **4.x:** läraren skriver den öppna mängden (~18 000 uppgifter). Opus skriver den dolda mängden (~1 800) |
+| 7 | ~25 h | **4.x:** QLoRA i två steg (svenska och stil, sedan hjälparrollen). Läckagekontrollen körs före start |
+| 8 | ~5 h | **4.x:** kalibrera återlämningsgränsen på den öppna mängden, utvärdera på den dolda, mät sparad användning i riktiga arbetspass |
 
 ## Ändringar efter nattforskningen (26 nov)
 
@@ -190,6 +194,234 @@ Modellfilen markeras med `"verktyg": true` i sin beskrivning. Då ger appen mode
 på agentslingan. Senare verktyg, som alltid kräver uttryckligt godkännande: söka i det lokala uppslagsverket,
 köra ett godkänt kommando och läsa en webbsida.
 
+## Lennart 4.x som hjälpare åt en stor modell
+
+Ett spår vid sidan av 4.0. Avsnitten ovan beskriver en modell på ~350 M som tränas från grunden och körs i
+telefonen. Hjälparrollen kräver mer kunskap än vi kan träna in från grunden på 30 h GPU i veckan. Därför
+**tränas Lennart 4.x inte från grunden**, utan bygger på en befintlig öppen modell på ~4 miljarder
+parametrar. Den körs i första hand på datorn.
+
+### 1. Grundidé och grundmodell
+
+Grundmodellen finjusteras i två steg med QLoRA, som ryms på en T4 (16 GB):
+1. **Svenska och Lennarts stil:** kvalitetstext (FineWeb2-HQ, Wikipedia) och stilsamtalen ovan.
+2. **Hjälparrollen:** uppgifter i det fasta formatet nedan (punkt 3), med facit som går att kontrollera.
+
+Kvoten räcker till tiotals miljoner tokens finjustering, inte till förträning. Det är därför vi lånar en
+grundmodell.
+
+**Var den körs:** 4 B parametrar i 4 bitar tar ungefär 2,5–3 GB. Det går bra på en dator men är tungt för
+en telefon. Vår motor (`lmengine.c`) kan i dag bara GPT-2-arkitekturen. Den behöver RoPE, RMSNorm, SwiGLU
+och GQA, som redan står i planen för 4.0, och dessutom 4-bitsvikter. Alternativet är att köra 4.x med
+llama.cpp (MIT) i Windows-versionen.
+
+**Krav på grundmodellens licens:** den ska tillåta finjustering och destillation, alltså att vi tränar och
+sprider en egen modell byggd på den. Den ska också tillåta att träningsdatan skrivs av en annan modell.
+Licenserna nedan kontrollerades på modellkorten 26 nov 2026. Läs licensfilen igen i exakt den modellfil vi
+laddar ned. Storlekar i samma familj kan ha olika licens: Qwen2.5-3B hade till exempel en forskningslicens.
+
+| Kandidat | Storlek | Licens | Finjustering | Destillation | Data från annan modell | Att tänka på |
+|---|---|---|---|---|---|---|
+| [Qwen3.5-4B](https://huggingface.co/Qwen/Qwen3.5-4B) (Alibaba, mars 2026) | 4 B, Base-variant finns | Apache 2.0 | Ja | Ja | Ja, licensen säger inget om datakällor | Nyast. Text och bild, tänkläge som standard, lång kontext |
+| [Gemma 4 E4B](https://huggingface.co/google/gemma-4-E4B) (Google, april 2026) | ~4 B effektiva | Apache 2.0 | Ja | Ja | Ja | Första Gemma under Apache 2.0. Tidigare Gemma hade egna villkor med spridningskrav. Kontrollera att licensfilen finns i repot: metadatan säger Apache 2.0, men en diskussion på modellsidan påpekar att filen saknas |
+| [Qwen3-4B](https://huggingface.co/Qwen/Qwen3-4B) (2025) | 4 B | Apache 2.0 | Ja | Ja | Ja | Äldre men väl beprövad. Reserv |
+| [Phi-4-mini-instruct](https://huggingface.co/microsoft/Phi-4-mini-instruct) (Microsoft, 2025) | 3,8 B | MIT | Ja | Ja | Ja | Svenskan måste testas särskilt noga |
+| [Ministral 3 3B](https://huggingface.co/mistralai/Ministral-3-3B-Base-2512) (Mistral, dec 2025) | 3 B, Base/Instruct/Reasoning | Apache 2.0 | Ja | Ja | Ja | Under 4 B, men tre varianter att utgå från |
+
+Uteslutna:
+- **Tiny Aya** (Cohere, 3,35 B) är stark på många språk men har licensen CC-BY-NC, som bara tillåter
+  icke-kommersiell användning.
+- **Llama 3.2 3B** får finjusteras, men en modell som tränats med Llama eller dess utdata ska heta
+  "Llama …" och följa Metas användningspolicy.
+
+**Den svåra licensfrågan gäller läraren.** Grundmodellernas licenser säger inget om var träningsdatan kommer
+ifrån. Begränsningen sitter hos den modell som *skriver* datan.
+
+- **Opus 5.5 via API:** [Anthropics kommersiella villkor](https://www.anthropic.com/legal/commercial-terms)
+  (avsnitt D.4) förbjuder att tjänsterna används "to build a competing product or service, including to
+  train competing AI models". Lennart 4.x är en egen AI-assistent.
+  - Om den räknas som en konkurrerande modell är en villkorsfråga. Den måste vara utredd innan Opus skriver
+    något som Lennart tränas på, och det gäller även den öppna testmängden.
+  - Samma utredning bör också täcka testfall som bara används för utvärdering.
+  - Jag kan inte avgöra frågan. Fråga Anthropic eller läs de villkor som gäller för ert konto.
+- **Lokal öppen lärare med Apache 2.0** (Qwen3-8B, som redan föreslås ovan, eller en större Qwen3.5): inga
+  sådana begränsningar, men svagare text och sämre facit.
+
+### 2. Rollfördelning
+
+| | Stor modell (t.ex. Opus 5.5 via API) | Lennart 4.x, lokalt |
+|---|---|---|
+| Gör | Förstår målet, planerar, delar upp arbetet, resonerar, granskar och sätter ihop slutsvaret | Små, avgränsade deluppgifter med ett svar som går att kontrollera |
+| Ser | Hela ärendet | Bara den egna uppgiften |
+| Läser | Uppgiftsbeskrivningen och Lennarts korta svar | Indatan, som kan vara lång |
+
+Målet är att spara anrop till den stora modellen. Varje deluppgift som Lennart klarar lokalt är text som
+Opus aldrig behöver läsa eller skriva.
+
+| Uppgiftstyp | Exempel | Kontroll |
+|---|---|---|
+| `sammanfatta` | mejl → tre punkter | Längdgräns. Nyckelfakta från facit finns med. Inga namn eller siffror som saknas i indatan |
+| `extrahera` | datum, belopp, namn ur en text | Schema. Varje värde finns i indatan. Jämförelse med facit |
+| `klassificera` | ärendetyp, språk, ton | Fast lista med etiketter. Jämförelse med facit |
+| `formatera` | tabell → JSON, datum → ÅÅÅÅ-MM-DD | Deterministisk kontroll (schema, reguljärt uttryck) |
+| `kod` | liten funktion, reguljärt uttryck, SQL-fråga | Körs mot testfall i en sandlåda |
+| `verktyg` | räkna, dagar till ett datum, söka i filer | Verktyget körs med agentgrundens behörigheter |
+
+### 3. Kompatibilitet: fast format för uppgift och svar
+
+Formatet bygger på agentprotokollet i `mobil/lennart_app/lib/agent/agent.dart`: taggar med JSON i Lennarts
+vanliga samtalsformat, utan nya specialtecken.
+- Uppgiften kommer som en användartur och svaret är assistentturen.
+- Behöver Lennart ett verktyg på vägen används de vanliga turerna `<verktyg>` och `<resultat>` emellan.
+- Samma format används i träningsdatan, i testfallen och i drift.
+
+**Uppgift** (stor modell → Lennart):
+
+| Fält | Innehåll |
+|---|---|
+| `id` (attribut) | Unikt id som kommer tillbaka i svaret |
+| `typ` (attribut) | En av uppgiftstyperna ovan |
+| `indata` | Texten eller datan uppgiften gäller |
+| `utdata` | Förväntat format: `text` (med `max_ord`), `json` (med `falt`), `etikett` (med `val`) eller `kod` (med `sprak`) |
+| `sammanhang` | Valfritt: dagens datum, språk eller annat som Lennart behöver veta |
+
+**Svar** (Lennart → stor modell): `<svar id="…" sakerhet="hog|lag" poang="…">`. Innehållet följer `utdata`.
+
+Säkerhetsflaggan sätts av appen, inte av Lennart själv. `poang` är motorns medelvärde av log-sannolikheten
+per token, samma mått som ger "Osäker – dubbelkolla gärna" i appen. En modell kan lära sig att alltid skriva
+"säker", men den kan inte förfalska sina egna sannolikheter.
+
+Exempel: ett klarat svar. Lennart skriver bara innehållet:
+
+```
+<|user|><uppgift id="u-0412" typ="extrahera">{"indata": "Hej! Mötet flyttas till torsdag 3 december kl. 14.30, rum Ugglan. /Karin", "utdata": {"format": "json", "falt": {"datum": "ÅÅÅÅ-MM-DD", "tid": "TT.MM", "plats": "text"}}, "sammanhang": {"idag": "2026-11-26"}}</uppgift>
+<|assistant|>{"datum": "2026-12-03", "tid": "14.30", "plats": "Ugglan"}<|end|>
+```
+
+Appen kontrollerar formatet, läser av poängen och lämnar detta till den stora modellen (poängen är påhittad
+för exemplet):
+
+```
+<svar id="u-0412" sakerhet="hog" poang="-0.21">{"datum": "2026-12-03", "tid": "14.30", "plats": "Ugglan"}</svar>
+```
+
+Exempel: en återlämnad uppgift.
+
+```
+<|user|><uppgift id="u-0413" typ="extrahera">{"indata": "Vi ses 14.30. Nej vänta, 15 blir bättre – eller kör vi förmiddag?", "utdata": {"format": "json", "falt": {"tid": "TT.MM"}}}</uppgift>
+<|assistant|><tillbaka>Texten nämner flera tider och ingen är bekräftad.</tillbaka><|end|>
+```
+
+Den stora modellen får `<svar id="u-0413" sakerhet="lag" poang="-0.94" tillbaka="ja">Texten nämner flera
+tider och ingen är bekräftad.</svar>`.
+
+**På den stora modellens sida** är Lennart ett vanligt klientverktyg i Claude API (tool use).
+- Verktyget `lennart` har fälten från `<uppgift>` som indataschema, med `strict: true` så att uppgifterna
+  alltid följer schemat.
+- Ett litet mellanprogram översätter mellan verktygsanropet och Lennarts taggar och lämnar tillbaka `<svar>`
+  som verktygsresultat.
+
+### 4. Återlämning vid osäkerhet
+
+Lennart lämnar tillbaka uppgiften i stället för att gissa när något av följande gäller:
+1. **Poängen är under gränsen.** Startvärdet är −0,5 från nattens mätning. På Lennart 3.4 skilde poängen
+   rätt svar från fel med AUROC 0,85. På Medel var svar över gränsen rätt i 71 % av fallen och svar under
+   gränsen i 11 %.
+2. **Lennart skriver själv `<tillbaka>`.** Det tränas med uppgifter där svaret saknas eller är tvetydigt i
+   indatan, på samma sätt som "det står inte i texten"-övningarna.
+3. **Svaret klarar inte formatkontrollen:** fel schema, en etikett utanför listan eller kod som inte går
+   att köra.
+
+Gränsen −0,5 är mätt på Lennart 3.4 och på allmänna frågor. 4.x är en annan modell med andra
+sannolikheter, så gränsen kalibreras om per uppgiftstyp på den öppna mängden. Vi väljer den gräns som
+lämnar tillbaka så få uppgifter som möjligt medan felen bland godkända svar håller sig under målet i
+punkt 7. Kalibreringen görs aldrig på den dolda mängden.
+
+Nattens förbehåll gäller fortfarande. Poängen mäter hur *bekant* uppgiften är, inte om just det här svaret
+är rätt. Den duger för att skilja lätta uppgifter från svåra, men inte för att välja mellan utkast. Den är
+alltså en grind, inte ett facit. Opus gör de återlämnade uppgifterna själv. Det kostar lika mycket som utan
+Lennart, plus den korta uppgiftstexten.
+
+### 5. Den stora modellen som examinator
+
+Opus 5.5 skriver testfall för varje uppgiftstyp. Varje fall har indata, förväntad utdata (facit) och ett
+sätt att kontrollera svaret.
+
+Ett testfall godtas bara om facit håller i en andra, oberoende kontroll:
+- en deterministisk kontroll där det går,
+- annars en ny Opus-körning som inte ser det första svaret.
+
+Fall där kontrollerna inte är överens kastas.
+
+| Mängd | Används till | Storlek per typ (förslag) |
+|---|---|---|
+| **Öppen** | Träning och kalibrering av återlämningsgränsen | ~3 000, alltså ~18 000 totalt. Det är också hjälparrollens träningsdata |
+| **Dold** | Bara utvärdering. Lennart tränas aldrig på den | ~300, förnyas inför varje version |
+
+Godkännandet görs per uppgiftstyp. En typ som inte når målen på den dolda mängden stängs av, och då gör Opus
+den själv. Resten av modellen kan ändå användas.
+
+### 6. Skydd mot fusk
+
+- **Den dolda mängden ligger skild från träningsdatan.** Den finns inte i repot och inte i de
+  Kaggle-dataset som används för träning, utan förvaras separat.
+  - Varje dolt fall har en unik kontrollsträng (en så kallad kanariesträng).
+  - Före varje träning körs en läckagekontroll över all träningsdata. Den letar efter kanariesträngar,
+    exakta dubbletter och 13 ord i följd som också finns i något dolt fall.
+  - Hittar den något startar träningen inte.
+- **Uppgifterna formuleras om och varieras.**
+  - Varje uppgift finns i flera formuleringar, och namn, tal, datum och ordning byts ut.
+  - Den dolda mängden skrivs med andra formuleringar och mallar än den öppna. Ett inlärt svar eller en
+    inlärd mall räcker alltså inte.
+- **Nya testfall skrivs regelbundet.** Opus skriver en ny dold omgång inför varje version, med fall Lennart
+  aldrig sett. Förbrukade dolda fall får flyttas till den öppna mängden, men aldrig tvärtom.
+- **Ett glapp mellan mängderna räknas som en genväg, inte förståelse.**
+  - Klarar Lennart den öppna mängden men inte den dolda, med mer än 10 procentenheters skillnad per typ, har
+    han lärt sig en genväg. Typen godkänns inte förrän glappet är borta.
+  - Det är nattens lärdom från lästräningen. På övningar som liknade träningen valde Lennart rätt artikel
+    oftare (37 % → 62 %). På riktiga frågor med tre artiklar föll träffsäkerheten från 36,8 % till 14,7 %.
+  - Han hade lärt sig mallen "[namn ur texten] är [frågans ord]", inte uppgiften.
+
+### 7. Mätetal
+
+Mätetalen mäts per uppgiftstyp och version, på den dolda mängden om inget annat sägs.
+
+| Mätetal | Definition | Mål (preliminärt) |
+|---|---|---|
+| Klarade dolda testfall | Rätta svar / alla dolda fall. Återlämnade fall räknas inte som klarade | Sätts efter första mätningen |
+| Återlämnade uppgifter | Återlämnade / alla | Så lågt som möjligt utan att nästa mål bryts |
+| Fel bland godkända | Fel / svar som Lennart själv godkände (`sakerhet="hog"`) | ≤ 5 % |
+| Sparad användning av den stora modellen | Tokens Opus hade använt för de uppgifter Lennart klarade, minus tokens för att skriva uppgifterna, läsa svaren och göra de återlämnade uppgifterna. Räknas i tokens och i dollar till Opus 5.5-pris (4 $ in / 20 $ ut per miljon tokens) | Positiv på riktiga arbetspass |
+
+- **Fel bland godkända** är det viktigaste måttet, eftersom det är de fel som den stora modellen inte ser. I
+  drift kontrollerar Opus ett slumpvis stickprov (5 %) av Lennarts godkända svar, så att måttet följs även
+  efter utvärderingen.
+- **Sparad användning** mäts på riktiga arbetspass och inte bara på testfall, eftersom det är den siffran
+  som avgör om 4.x är värd att ha.
+
+### 8. Begränsning
+
+En liten modell kommer ofta på rätt svar men känner inte igen det.
+- I natt fanns rätt svar bland Lennart 3.4:s sex utkast i 55 % av fallen. Ändå kunde varken modellens egen
+  poäng eller urvalet peka ut det.
+- 4 B är mycket större än 0,3 B, men vi har inte mätt det mönstret på 4 B och ska inte anta att det
+  försvinner.
+
+Därför får Lennart 4.x bara smala deluppgifter vars svar går att kontrollera utifrån, genom format, facit, ett
+verktyg eller ett test. Öppna resonemang, avvägningar och slutsatser stannar hos den stora modellen.
+
+### 9. Koppling till det som redan finns
+
+- **Självskiss och ekodekodning** bygger på samma princip i liten skala: något billigt gör förarbetet och
+  något dyrare kontrollerar.
+  - I självskissen gissar modellens första halva, och hela modellen kontrollerar. Gissningen träffade i
+    84,5 % av fallen i piloten.
+  - I ekodekodningen föreslås ord ur tidigare text, och modellen godkänner flera på en gång.
+  - Här är Lennart den billiga skissen och Opus kontrollen, fast på uppgiftsnivå i stället för ordnivå.
+- **Agentgrunden** (`mobil/lennart_app/lib/agent/`) har redan verktyg, protokoll, stegtak och godkännanden.
+  Hjälparläget lägger till uppgifterna men behåller reglerna: verktyg som ändrar något kräver fortfarande
+  att *människan* godkänner. Den stora modellen kan inte godkänna åt användaren.
+
 ## Utvärdering
 - Valideringsförlust på samma webb- och samtalsdata som 3.x, med tokenizer-oberoende mått (bits per byte),
   eftersom tokenizern byts.
@@ -201,3 +433,10 @@ köra ett godkänt kommando och läsa en webbsida.
 1. Storlek: ~350 M (som 3.x i telefonen) eller ~150 M (dubbelt så snabb, mindre kunnig)?
 2. Ny arkitektur från grunden, eller fortsätta 3.x-linjen med ny data och stil?
 3. Hur fräck: "lite glimt" (förebilderna ovan) eller ännu kaxigare?
+4. Grundmodell för 4.x: Qwen3.5-4B, Gemma 4 E4B eller någon annan i tabellen? Mitt förslag är att låta
+   svensktestet avgöra mellan de två första. Båda har Apache 2.0.
+5. Vem skriver träningsdatan för 4.x?
+   - **Opus 5.5 via API:** bättre data och facit, och ingen GPU-tid. Grovt 150–300 $ för den öppna mängden
+     via Batch API (halva priset), beroende på hur mycket Opus tänker. Anthropics villkor om
+     konkurrerande modeller måste vara utredda först.
+   - **En lokal öppen modell:** inget villkorsproblem och ryms i Kaggle-kvoten, men svagare data.
