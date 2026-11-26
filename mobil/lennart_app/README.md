@@ -33,5 +33,14 @@ Det ger `Lennart-för-Windows.zip` plus en zip per extra modell, alla under 500 
 
 ## Agentläget
 
-Se kommentaren överst i `lib/agent/agent.dart` och `moln/lennart4/PLAN.md`. Formatet för verktygsanrop
+Agentläget är på som standard. Lennart använder verktygen själv när du frågar, till exempel "vad är klockan?",
+"hur många km är 3 mil?" eller "lägg till mjölk på inköpslistan". Dagens modeller är inte tränade på
+verktygsprotokollet, så appens verktygssinne (`lib/agent/avsikt.dart`) känner igen frågorna och gör om dem till
+verktygsanrop. Anropet, resultatet och svaret visas i samtalet. Svaret byggs av verktygets resultat, så siffrorna
+blir alltid rätt. Verktyg som ändrar något frågar dig först.
+
+Beräkningarna (`lib/agent/berakning.dart`) och verktygssinnet har inga beroenden till `dart:io`, så samma kod går
+att kompilera till JavaScript för webbversionen.
+
+Se också kommentaren överst i `lib/agent/agent.dart` och `moln/lennart4/PLAN.md`. Formatet för verktygsanrop
 passar Lennarts samtalsformat, så Lennart 4 kan tränas på det direkt.

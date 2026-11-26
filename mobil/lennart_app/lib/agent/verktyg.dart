@@ -8,18 +8,20 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'berakning.dart';
+
+export 'berakning.dart' show VerktygsFel;
+
 /// Det ett verktyg får tillgång till.
 class AgentMiljo {
   final Directory? arbetsmapp;
   final DateTime Function() nu;
-  AgentMiljo({this.arbetsmapp, DateTime Function()? nu}) : nu = nu ?? DateTime.now;
-}
 
-class VerktygsFel implements Exception {
-  final String meddelande;
-  VerktygsFel(this.meddelande);
-  @override
-  String toString() => meddelande;
+  /// Slumpkälla för tärning, lösenord m.m. Kryptografiskt säker utom i tester.
+  final math.Random slump;
+  AgentMiljo({this.arbetsmapp, DateTime Function()? nu, math.Random? slump})
+    : nu = nu ?? DateTime.now,
+      slump = slump ?? math.Random.secure();
 }
 
 abstract class Verktyg {
@@ -32,6 +34,9 @@ abstract class Verktyg {
   /// Ändrar verktyget något utanför samtalet? Då måste användaren godkänna varje anrop.
   bool get andrar => false;
 
+  /// Ändrar just det här anropet något? För verktyg där bara vissa åtgärder ändrar (t.ex. listor).
+  bool andrarMed(Map<String, dynamic> arg) => andrar;
+
   /// Behöver verktyget en arbetsmapp?
   bool get behoverMapp => false;
 
@@ -39,7 +44,23 @@ abstract class Verktyg {
 }
 
 /// Alla inbyggda verktyg.
-List<Verktyg> standardVerktyg() => [Klocka(), DagarTill(), Raknare(), Anteckna(), ListaMapp(), LasFil(), SokIFiler(), SkrivFil()];
+List<Verktyg> standardVerktyg() => [
+  Klocka(),
+  Kalender(),
+  DagarTill(),
+  Helgdagar(),
+  Raknare(),
+  Omvandla(),
+  Slumpa(),
+  Losenord(),
+  Textinfo(),
+  AttGora(),
+  Anteckna(),
+  ListaMapp(),
+  LasFil(),
+  SokIFiler(),
+  SkrivFil(),
+];
 
 String _str(Map<String, dynamic> a, String k) {
   final v = a[k];
@@ -47,23 +68,8 @@ String _str(Map<String, dynamic> a, String k) {
   return v.toString();
 }
 
-// ───────────────────────────────────────────────────────── klocka
+// ───────────────────────────────────────────────────────── klocka och kalender
 class Klocka extends Verktyg {
-  static const _dagar = ['måndag', 'tisdag', 'onsdag', 'torsdag', 'fredag', 'lördag', 'söndag'];
-  static const _manader = [
-    'januari',
-    'februari',
-    'mars',
-    'april',
-    'maj',
-    'juni',
-    'juli',
-    'augusti',
-    'september',
-    'oktober',
-    'november',
-    'december',
-  ];
   @override
   String get namn => 'klocka';
   @override
@@ -71,10 +77,41 @@ class Klocka extends Verktyg {
   @override
   Map<String, String> get parametrar => {};
   @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async => klockText(miljo.nu());
+}
+
+class Kalender extends Verktyg {
+  @override
+  String get namn => 'kalender';
+  @override
+  String get beskrivning => 'Veckodag, veckonummer och dagnummer för ett datum, eller för ett datum ett antal dagar framåt eller bakåt.';
+  @override
+  Map<String, String> get parametrar => {
+    'datum': 'idag, ÅÅÅÅ-MM-DD, "24 december" eller en högtid',
+    'plus_dagar': 'valfritt antal dagar framåt (negativt bakåt)',
+  };
+  @override
   Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
-    final d = miljo.nu();
-    String two(int n) => n.toString().padLeft(2, '0');
-    return '${_dagar[d.weekday - 1]} ${d.day} ${_manader[d.month - 1]} ${d.year}, klockan ${two(d.hour)}.${two(d.minute)}';
+    final plus = arg['plus_dagar'];
+    final n = plus == null ? 0 : (plus is num ? plus.toInt() : int.tryParse(plus.toString()));
+    if (n == null || n.abs() > 100000) throw VerktygsFel('"plus_dagar" måste vara ett heltal');
+    return kalender((arg['datum'] ?? 'idag').toString(), n, miljo.nu());
+  }
+}
+
+class Helgdagar extends Verktyg {
+  @override
+  String get namn => 'helgdagar';
+  @override
+  String get beskrivning => 'Sveriges röda dagar och aftnar ett visst år, och nästa röda dag.';
+  @override
+  Map<String, String> get parametrar => {'ar': 'valfritt årtal, annars i år'};
+  @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
+    final a = arg['ar'];
+    final ar = a == null ? null : (a is num ? a.toInt() : int.tryParse(a.toString()));
+    if (a != null && ar == null) throw VerktygsFel('"ar" måste vara ett årtal');
+    return helgdagar(ar, miljo.nu());
   }
 }
 
@@ -85,107 +122,77 @@ class Raknare extends Verktyg {
   @override
   String get namn => 'raknare';
   @override
-  String get beskrivning => 'Räknar ut ett matematiskt uttryck, t.ex. "(12+8)*3/4" eller "sqrt(2)".';
+  String get beskrivning => 'Räknar ut ett matematiskt uttryck, t.ex. "(12+8)*3/4", "15%*2300" eller "sqrt(2)".';
   @override
   Map<String, String> get parametrar => {'uttryck': 'uttrycket som ska räknas ut'};
   @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async => rakna(_str(arg, 'uttryck'));
+}
+
+class Omvandla extends Verktyg {
+  @override
+  String get namn => 'omvandla';
+  @override
+  String get beskrivning => 'Räknar om mellan enheter: längd, vikt, volym, area, hastighet, tid, data, energi och temperatur.';
+  @override
+  Map<String, String> get parametrar => {
+    'varde': 'talet',
+    'fran': 'enheten det står i, t.ex. mil',
+    'till': 'enheten det ska bli, t.ex. km',
+  };
+  @override
   Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
-    final v = _Tolk(_str(arg, 'uttryck')).las();
-    if (v.isNaN || v.isInfinite) throw VerktygsFel('Uttrycket har inget ändligt värde');
-    if (v == v.roundToDouble() && v.abs() < 1e15) return v.round().toString();
-    return double.parse(v.toStringAsPrecision(12)).toString().replaceAll('.', ',');
+    final v = arg['varde'];
+    final tal = v is num ? v.toDouble() : double.tryParse((v ?? '').toString().replaceAll(',', '.'));
+    if (tal == null) throw VerktygsFel('"varde" måste vara ett tal');
+    return omvandla(tal, _str(arg, 'fran'), _str(arg, 'till'));
   }
 }
 
-class _Tolk {
-  final String s;
-  int i = 0;
-  _Tolk(String text) : s = text.replaceAll('×', '*').replaceAll('÷', '/').replaceAll('−', '-').replaceAll(',', '.').replaceAll(' ', '');
+// ───────────────────────────────────────────────────────── slump, lösenord, text
+class Slumpa extends Verktyg {
+  @override
+  String get namn => 'slumpa';
+  @override
+  String get beskrivning => 'Slår tärning, singlar slant, drar ett tal eller väljer mellan alternativ.';
+  @override
+  Map<String, String> get parametrar => {
+    'typ': 'tarning, mynt, tal eller valj',
+    'antal': 'antal tärningar',
+    'sidor': 'sidor per tärning',
+    'fran': 'lägsta tal',
+    'till': 'högsta tal',
+    'alternativ': 'lista att välja ur',
+  };
+  @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async => slumpa(arg, miljo.slump);
+}
 
-  double las() {
-    if (s.length > 200) throw VerktygsFel('Uttrycket är för långt');
-    final v = _summa();
-    if (i != s.length) throw VerktygsFel('Förstår inte "${s.substring(i)}"');
-    return v;
+class Losenord extends Verktyg {
+  @override
+  String get namn => 'losenord';
+  @override
+  String get beskrivning => 'Skapar ett starkt, slumpat lösenord direkt i appen. Det skickas ingenstans.';
+  @override
+  Map<String, String> get parametrar => {'langd': 'antal tecken, 8–64 (standard 20)'};
+  @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
+    final l = arg['langd'];
+    final langd = l == null ? 20 : (l is num ? l.toInt() : int.tryParse(l.toString()));
+    if (langd == null) throw VerktygsFel('"langd" måste vara ett heltal');
+    return losenord(langd, miljo.slump);
   }
+}
 
-  bool _ta(String c) {
-    if (i < s.length && s[i] == c) {
-      i++;
-      return true;
-    }
-    return false;
-  }
-
-  double _summa() {
-    var v = _produkt();
-    while (true) {
-      if (_ta('+')) {
-        v += _produkt();
-      } else if (_ta('-')) {
-        v -= _produkt();
-      } else {
-        return v;
-      }
-    }
-  }
-
-  double _produkt() {
-    var v = _potens();
-    while (true) {
-      if (_ta('*')) {
-        v *= _potens();
-      } else if (_ta('/')) {
-        final d = _potens();
-        if (d == 0) throw VerktygsFel('Division med noll');
-        v /= d;
-      } else {
-        return v;
-      }
-    }
-  }
-
-  double _potens() {
-    final b = _unar();
-    if (_ta('^')) return math.pow(b, _potens()).toDouble(); // högerassociativ
-    return b;
-  }
-
-  double _unar() {
-    if (_ta('-')) return -_unar();
-    if (_ta('+')) return _unar();
-    var v = _atom();
-    if (_ta('%')) v /= 100;
-    return v;
-  }
-
-  double _atom() {
-    if (_ta('(')) {
-      final v = _summa();
-      if (!_ta(')')) throw VerktygsFel('En parentes stängs inte');
-      return v;
-    }
-    for (final f in ['sqrt', 'abs', 'round']) {
-      if (s.startsWith('$f(', i)) {
-        i += f.length + 1;
-        final v = _summa();
-        if (!_ta(')')) throw VerktygsFel('En parentes stängs inte');
-        return switch (f) {
-          'sqrt' => v < 0 ? throw VerktygsFel('Roten ur ett negativt tal') : math.sqrt(v),
-          'abs' => v.abs(),
-          _ => v.roundToDouble(),
-        };
-      }
-    }
-    if (s.startsWith('pi', i)) {
-      i += 2;
-      return math.pi;
-    }
-    final m = RegExp(r'\d+(\.\d+)?|\.\d+').matchAsPrefix(s, i);
-    if (m == null) throw VerktygsFel(i < s.length ? 'Förstår inte "${s.substring(i)}"' : 'Uttrycket tar slut för tidigt');
-    i = m.end;
-    return double.parse(m[0]!);
-  }
+class Textinfo extends Verktyg {
+  @override
+  String get namn => 'textinfo';
+  @override
+  String get beskrivning => 'Räknar ord, tecken och meningar i en text och uppskattar lästiden.';
+  @override
+  Map<String, String> get parametrar => {'text': 'texten'};
+  @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async => textinfo(_str(arg, 'text'));
 }
 
 // ───────────────────────────────────────────────────────── filer i arbetsmappen
@@ -370,38 +377,84 @@ class DagarTill extends Verktyg {
   @override
   String get namn => 'dagar_till';
   @override
-  String get beskrivning => 'Räknar dagar till ett datum (ÅÅÅÅ-MM-DD) eller till jul, nyår, midsommar eller nationaldagen.';
+  String get beskrivning => 'Räknar dagar till (eller sedan) ett datum eller en högtid som jul, påsk, midsommar eller lucia.';
   @override
-  Map<String, String> get parametrar => {'datum': 'ÅÅÅÅ-MM-DD, eller jul, nyår, midsommar, nationaldagen'};
+  Map<String, String> get parametrar => {'datum': 'ÅÅÅÅ-MM-DD, "24 december" eller en högtid'};
+  @override
+  Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async => dagarTill(_str(arg, 'datum'), miljo.nu());
+}
+
+// ───────────────────────────────────────────────────────── listor
+/// Att-göra-listan och inköpslistan, som markdown-checklistor i arbetsmappen.
+class AttGora extends Verktyg {
+  static const filer = {'att-gora': 'att-gora.md', 'inkop': 'inkopslista.md'};
+  static const namnPa = {'att-gora': 'att-göra-listan', 'inkop': 'inköpslistan'};
+  @override
+  String get namn => 'att_gora';
+  @override
+  String get beskrivning => 'Att-göra-lista och inköpslista: lägga till, visa, bocka av och rensa.';
+  @override
+  Map<String, String> get parametrar => {
+    'atgard': 'lagg_till, visa, klar eller rensa',
+    'text': 'det som ska läggas till eller bockas av (nummer eller text)',
+    'lista': 'att-gora eller inkop',
+  };
+  @override
+  bool get andrar => true;
+  @override
+  bool andrarMed(Map<String, dynamic> arg) => arg['atgard'] != 'visa';
+  @override
+  bool get behoverMapp => true;
+
   @override
   Future<String> kor(Map<String, dynamic> arg, AgentMiljo miljo) async {
-    final idag = DateTime(miljo.nu().year, miljo.nu().month, miljo.nu().day);
-    final q = _str(arg, 'datum').toLowerCase().trim();
-    DateTime nasta(DateTime Function(int ar) f) => !f(idag.year).isBefore(idag) ? f(idag.year) : f(idag.year + 1);
-    // Midsommarafton: fredagen mellan 19 och 25 juni.
-    DateTime midsommar(int ar) => [for (var d = 19; d <= 25; d++) DateTime(ar, 6, d)].firstWhere((x) => x.weekday == DateTime.friday);
-    final (mal, namn) = switch (q) {
-      'jul' || 'julafton' => (nasta((y) => DateTime(y, 12, 24)), 'julafton'),
-      'nyår' || 'nyar' || 'nyårsdagen' => (nasta((y) => DateTime(y, 1, 1)), 'nyårsdagen'),
-      'nyårsafton' => (nasta((y) => DateTime(y, 12, 31)), 'nyårsafton'),
-      'midsommar' || 'midsommarafton' => (nasta(midsommar), 'midsommarafton'),
-      'nationaldagen' => (nasta((y) => DateTime(y, 6, 6)), 'nationaldagen'),
-      _ => (_datum(q), null),
-    };
-    final dagar = mal.difference(idag).inDays;
-    final dag = Klocka._dagar[mal.weekday - 1];
-    final datum = '$dag ${mal.day} ${Klocka._manader[mal.month - 1]} ${mal.year}';
-    final vad = namn == null ? datum : '$namn ($datum)';
-    if (dagar == 0) return 'Det är $vad i dag!';
-    if (dagar > 0) return '$dagar ${dagar == 1 ? 'dag' : 'dagar'} kvar till $vad';
-    return '$vad var för ${-dagar} ${dagar == -1 ? 'dag' : 'dagar'} sedan';
-  }
+    final lista = filer.containsKey(arg['lista']) ? arg['lista'] as String : 'att-gora';
+    final f = _inuti(miljo, filer[lista]!);
+    final listnamn = namnPa[lista]!;
+    final rader = await f.exists() ? (await f.readAsLines()).where((l) => l.trim().isNotEmpty).toList() : <String>[];
+    final punkter = [
+      for (final r in rader)
+        if (RegExp(r'^- \[[ xX]\] ').hasMatch(r)) r,
+    ];
+    Future<void> spara(List<String> ny) async {
+      await f.parent.create(recursive: true);
+      await f.writeAsString(ny.isEmpty ? '' : '${ny.join('\n')}\n');
+    }
 
-  static DateTime _datum(String q) {
-    final m = RegExp(r'^(\d{4})-(\d{1,2})-(\d{1,2})$').firstMatch(q);
-    if (m == null) throw VerktygsFel('Skriv datumet som ÅÅÅÅ-MM-DD, eller jul, nyår, midsommar, nationaldagen');
-    final d = DateTime(int.parse(m[1]!), int.parse(m[2]!), int.parse(m[3]!));
-    if (d.month != int.parse(m[2]!) || d.day != int.parse(m[3]!)) throw VerktygsFel('Det datumet finns inte');
-    return d;
+    String text(String rad) => rad.substring(6).trim();
+    bool klar(String rad) => rad[3] != ' ';
+    switch ((arg['atgard'] ?? 'visa').toString()) {
+      case 'lagg_till':
+        final t = _str(arg, 'text').trim();
+        final saker = (lista == 'inkop' ? t.split(RegExp(r'\s*,\s*|\s+och\s+|\n')) : t.split(RegExp(r'\s*;\s*|\n')))
+            .map((e) => e.trim())
+            .where((e) => e.isNotEmpty)
+            .toList();
+        if (saker.isEmpty) throw VerktygsFel('Inget att lägga till');
+        if (punkter.length + saker.length > 500) throw VerktygsFel('Listan är full');
+        await spara([...punkter, for (final x in saker) '- [ ] ${x.length > 300 ? x.substring(0, 300) : x}']);
+        return saker.length == 1
+            ? 'Lade till "${saker.first}" på $listnamn'
+            : 'Lade till ${saker.length} saker på $listnamn: ${saker.join(', ')}';
+      case 'visa':
+        if (punkter.isEmpty) return 'Listan är tom ($listnamn)';
+        return [for (var i = 0; i < punkter.length; i++) '${i + 1}. [${klar(punkter[i]) ? 'x' : ' '}] ${text(punkter[i])}'].join('\n');
+      case 'klar':
+        final q = _str(arg, 'text').trim().toLowerCase();
+        final nr = int.tryParse(q);
+        var i = nr != null ? nr - 1 : punkter.indexWhere((p) => !klar(p) && text(p).toLowerCase() == q);
+        if (nr == null && i < 0) i = punkter.indexWhere((p) => !klar(p) && text(p).toLowerCase().contains(q));
+        if (i < 0 || i >= punkter.length) throw VerktygsFel('Hittade inget på $listnamn som matchar "$q"');
+        final ny = [...punkter];
+        ny[i] = '- [x] ${text(punkter[i])}';
+        await spara(ny);
+        final kvar = ny.where((p) => !klar(p)).length;
+        return 'Bockade av "${text(punkter[i])}". $kvar kvar på $listnamn';
+      case 'rensa':
+        final kvar = punkter.where((p) => !klar(p)).toList();
+        await spara(kvar);
+        return 'Tog bort ${punkter.length - kvar.length} avbockade från $listnamn';
+    }
+    throw VerktygsFel('Okänd åtgärd – välj lagg_till, visa, klar eller rensa');
   }
 }

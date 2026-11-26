@@ -335,8 +335,9 @@ Future<void> agentSettings(BuildContext context) => _present<void>(
                       style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
                     ),
                     subtitle: Text(
-                      'Lennart får använda verktygen nedan. Dagens modeller anropar dem inte själva än – det tränas in i Lennart 4. '
-                      'Redan nu kan du köra dem med kommandon, t.ex. /räkna 12*7.',
+                      'Lennart använder verktygen själv när du frågar, t.ex. "vad är klockan?" eller "hur många km är 3 mil?". '
+                      'Dagens modeller får hjälp av appens verktygssinne att känna igen frågorna; Lennart 4 tränas att välja själv. '
+                      'Du kan också köra verktygen direkt med kommandon, t.ex. /räkna 12*7.',
                       style: TextStyle(color: c.muted, fontSize: 12.5),
                     ),
                   ),
@@ -372,8 +373,9 @@ Future<void> agentSettings(BuildContext context) => _present<void>(
                   Padding(
                     padding: const EdgeInsets.fromLTRB(14, 6, 14, 4),
                     child: Text(
-                      'Kommandon du skriver körs direkt. När Lennart själv vill använda ett verktyg som ändrar något (låset) '
-                      'frågar appen dig först. Inga verktyg kör program eller går ut på internet.',
+                      'Kommandon du skriver körs direkt. När Lennart själv vill använda ett verktyg som ändrar något (låset), '
+                      't.ex. skriva en anteckning eller lägga till på en lista, frågar appen dig först. '
+                      'Inga verktyg kör program eller går ut på internet.',
                       style: TextStyle(color: c.muted, fontSize: 12),
                     ),
                   ),
@@ -393,6 +395,13 @@ String kommandoFor(String verktyg) => switch (verktyg) {
   'dagar_till' => '/dagar',
   'anteckna' => '/anteckna',
   'raknare' => '/räkna',
+  'kalender' => '/vecka',
+  'helgdagar' => '/helgdagar',
+  'omvandla' => '/omvandla',
+  'slumpa' => '/slumpa',
+  'losenord' => '/lösenord',
+  'att_gora' => '/attgöra',
+  'textinfo' => '/ord',
   'lista_mapp' => '/lista',
   'las_fil' => '/läs',
   'sok_i_filer' => '/sök',

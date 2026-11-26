@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../agent/agent.dart';
+import '../agent/avsikt.dart';
 import '../agent/miljo.dart';
 import '../agent/verktyg.dart';
 import '../core/catalog.dart';
@@ -112,7 +113,47 @@ class _ChatScreenState extends State<ChatScreen> {
       _command(text);
       return;
     }
+    // Verktygssinnet: dagens modeller kan inte själva avgöra när ett verktyg behövs, så appen känner igen
+    // frågor som "vad är klockan?" och låter Lennart anropa verktyget. En modell som är tränad på verktyg
+    // (Lennart 4) bestämmer själv.
+    if (Prefs.agent && _model.json['verktyg'] != true) {
+      final av = tolkaFraga(text);
+      if (av != null) {
+        _autoTool(av);
+        return;
+      }
+    }
     _generate();
+  }
+
+  /// Lennart säger vad han gör, anropar verktyget och svarar utifrån resultatet – ett steg i taget.
+  Future<void> _autoTool(Avsikt av) async {
+    final a = VerktygsAnrop(av.namn, av.argument, anropsText(av.namn, av.argument), av.fore);
+    setState(() {
+      _busy = true;
+      _chat.messages.add(Message(false, '${av.fore}\n${a.text}', kind: 'anrop'));
+    });
+    _scrollDown();
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
+    final r = await (await _agent()).korAnrop(a);
+    if (!mounted) return;
+    setState(() => _chat.messages.add(Message(true, resultatText(a.namn, r.resultat, fel: r.fel || r.nekad), kind: 'resultat')));
+    _scrollDown();
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    if (!mounted) return;
+    setState(() {
+      _chat.messages.add(
+        Message(
+          false,
+          svarFran(av.namn, av.argument, r.resultat, fel: r.fel, nekad: r.nekad),
+          meta: '${_model.name} · verktyg: ${visningsnamn[av.namn] ?? av.namn}',
+        )..reveal = true,
+      );
+      _busy = false;
+    });
+    _scrollDown();
+    widget.store.save(_chat);
   }
 
   // ───────────────────────────── agentläge
@@ -136,7 +177,7 @@ class _ChatScreenState extends State<ChatScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: c.surface,
-        title: Text('Tillåta ${v.namn}?', style: TextStyle(color: c.text)),
+        title: Text('Får Lennart använda ${visningsnamn[v.namn] ?? v.namn}?', style: TextStyle(color: c.text)),
         content: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 460, maxHeight: 320),
           child: SingleChildScrollView(
@@ -188,6 +229,21 @@ class _ChatScreenState extends State<ChatScreen> {
       '/anteckna' || '/notera' => call('anteckna', {'text': rest}),
       '/anteckningar' => call('las_fil', {'fil': 'anteckningar.md'}),
       '/räkna' || '/rakna' => call('raknare', {'uttryck': rest}),
+      '/vecka' || '/kalender' || '/datum' => call('kalender', {'datum': rest.isEmpty ? 'idag' : rest}),
+      '/helgdagar' || '/röda' => call('helgdagar', {if (int.tryParse(rest) != null) 'ar': int.parse(rest)}),
+      '/omvandla' => () {
+        final av = tolkaFraga(rest);
+        return av?.namn == 'omvandla' ? call('omvandla', av!.argument) : null;
+      }(),
+      '/slumpa' || '/tärning' || '/tarning' || '/mynt' => call('slumpa', _slumpArg(first, rest)),
+      '/lösenord' || '/losenord' => call('losenord', {'langd': int.tryParse(rest) ?? 20}),
+      '/attgöra' || '/att-göra' || '/attgora' || '/inköp' || '/inkop' => call('att_gora', {
+        'atgard': rest.isEmpty ? 'visa' : 'lagg_till',
+        if (rest.isNotEmpty) 'text': rest,
+        'lista': first.startsWith('/ink') ? 'inkop' : 'att-gora',
+      }),
+      '/klar' => call('att_gora', {'atgard': 'klar', 'text': rest, 'lista': 'att-gora'}),
+      '/ord' => call('textinfo', {'text': rest}),
       '/lista' => call('lista_mapp', {'mapp': rest}),
       '/läs' || '/las' => call('las_fil', {'fil': rest}),
       '/sök' || '/sok' => call('sok_i_filer', {'text': rest}),
@@ -202,7 +258,12 @@ class _ChatScreenState extends State<ChatScreen> {
         () => _chat.messages.add(
           Message(
             false,
-            'Kommandon i agentläget:\n/klocka – datum och tid\n/dagar jul – dagar kvar till ett datum eller en högtid\n/räkna 12*7 – räknare\n'
+            'Fråga som vanligt, t.ex. "vad är klockan?", "hur många km är 3 mil?" eller "lägg till mjölk på '
+            'inköpslistan", så använder Lennart verktygen själv. Kommandon kör dem direkt:\n'
+            '/klocka – datum och tid\n/vecka – veckonummer (eller /vecka 24 december)\n/dagar jul – dagar kvar\n'
+            '/helgdagar 2027 – röda dagar\n/räkna 12*7 – räknare\n/omvandla 3 mil till km – enheter\n'
+            '/tärning, /mynt, /slumpa 1-100, /slumpa pizza, tacos – slump\n/lösenord 20 – nytt lösenord\n'
+            '/attgöra ring banken, /inköp mjölk, /klar 1 – listor\n/ord text – räkna ord\n'
             '/anteckna köp mjölk – spara en anteckning\n/anteckningar – visa dina anteckningar\n/sök ord – sök i anteckningarna\n'
             '/lista – filer i arbetsmappen\n/läs fil.txt – läs en fil\n/skriv fil.txt (ny rad) text – skriv en fil',
             meta: 'agentläge',
@@ -212,6 +273,15 @@ class _ChatScreenState extends State<ChatScreen> {
       return;
     }
     _runTool(a, thenContinue: false, fromUser: true);
+  }
+
+  /// Argument till /slumpa, /tärning och /mynt.
+  Map<String, dynamic> _slumpArg(String kommando, String rest) {
+    if (kommando == '/mynt' || rest == 'mynt' || rest == 'slant') return {'typ': 'mynt'};
+    final tal = RegExp(r'^(-?\d+)\s*(?:-|till)\s*(-?\d+)$').firstMatch(rest);
+    if (tal != null) return {'typ': 'tal', 'fran': int.parse(tal[1]!), 'till': int.parse(tal[2]!)};
+    if (rest.contains(',') || rest.contains(' eller ')) return {'typ': 'valj', 'alternativ': rest.split(RegExp(r'\s*,\s*|\s+eller\s+'))};
+    return {'typ': 'tarning', 'antal': int.tryParse(rest) ?? 1};
   }
 
   /// Skriver ett nytt svar på det sista användarmeddelandet.
@@ -226,7 +296,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final reply = Message(false, '');
     final turns = [
       for (final m in _chat.messages)
-        if (!m.error && m.text.isNotEmpty && !(m.fromUser && m.kind == null && m.text.startsWith('/') && Prefs.agent))
+        if (!m.error &&
+            m.text.isNotEmpty &&
+            !(m.fromUser && m.kind == null && m.text.startsWith('/') && Prefs.agent) &&
+            // Verktygsturer visas bara för en modell som kan protokollet; dagens modeller skulle förvirras av dem.
+            (m.kind == null || _model.json['verktyg'] == true))
           ChatTurn(m.fromUser, m.text),
     ];
     // En modell som är tränad på verktyg (Lennart 4) får veta vilka som finns.
@@ -748,35 +822,46 @@ class _ToolCall extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.c;
     final a = hittaAnrop(message.text);
+    final fore = a?.fore ?? '';
     return _FadeIn(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(Icons.handyman_outlined, size: 16, color: c.muted),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: 'Använder ',
-                      style: TextStyle(color: c.muted),
-                    ),
-                    TextSpan(
-                      text: _visningsnamn[a?.namn] ?? a?.namn ?? 'verktyg',
-                      style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
-                    ),
-                    if (a != null && a.argument.isNotEmpty)
-                      TextSpan(
-                        text: '  ${jsonEncode(a.argument)}',
-                        style: mono.copyWith(color: c.muted, fontSize: 12),
-                      ),
-                  ],
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+            if (fore.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text(fore, style: TextStyle(color: c.text, fontSize: 15, height: 1.45)),
               ),
+            Row(
+              children: [
+                Icon(Icons.handyman_outlined, size: 16, color: c.muted),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Använder ',
+                          style: TextStyle(color: c.muted),
+                        ),
+                        TextSpan(
+                          text: visningsnamn[a?.namn] ?? a?.namn ?? 'verktyg',
+                          style: TextStyle(color: c.text, fontWeight: FontWeight.w600),
+                        ),
+                        if (a != null && a.argument.isNotEmpty)
+                          TextSpan(
+                            text: '  ${jsonEncode(a.argument)}',
+                            style: mono.copyWith(color: c.muted, fontSize: 12),
+                          ),
+                      ],
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -784,18 +869,6 @@ class _ToolCall extends StatelessWidget {
     );
   }
 }
-
-/// Verktygens namn som de visas i samtalet.
-const _visningsnamn = {
-  'klocka': 'Klocka',
-  'dagar_till': 'Dagar kvar',
-  'raknare': 'Räknare',
-  'anteckna': 'Anteckning',
-  'lista_mapp': 'Filer',
-  'las_fil': 'Läste filen',
-  'sok_i_filer': 'Sökning',
-  'skriv_fil': 'Skrev filen',
-};
 
 /// Ett verktygs svar, som ett utfällbart kort.
 class _ToolResult extends StatefulWidget {
@@ -811,7 +884,7 @@ class _ToolResultState extends State<_ToolResult> {
   Widget build(BuildContext context) {
     final c = context.c;
     final m = RegExp(r'^<resultat namn="([^"]+)"( fel="ja")?>(.*)</resultat>$', dotAll: true).firstMatch(widget.message.text);
-    final namn = _visningsnamn[m?.group(1)] ?? m?.group(1) ?? 'Verktyg';
+    final namn = visningsnamn[m?.group(1)] ?? m?.group(1) ?? 'Verktyg';
     final fel = m?.group(2) != null;
     final body = (m?.group(3) ?? widget.message.text).trim();
     final lines = body.split('\n');

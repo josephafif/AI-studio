@@ -126,6 +126,56 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   }, skip: !enabled);
 
+  testWidgets('telefon verktygssinne', (tester) async {
+    debugDisableShadows = false;
+    await _loadFonts();
+    tester.view.physicalSize = const Size(412 * 2.5, 900 * 2.5);
+    tester.view.devicePixelRatio = 2.5;
+    Prefs.agent = true;
+    final mapp = Directory.systemTemp.createTempSync('lennart_sinne');
+    Prefs.arbetsmapp = mapp.path;
+    final catalog = Catalog.preview([_m('lennart-3-4', 'Lennart 3.4', 298407936, 300)]);
+    await tester.pumpWidget(MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: buildTheme(Brightness.dark),
+      home: ChatScreen(catalog: catalog, store: ChatStore(), engine: _FakeEngine()),
+    ));
+    Future<void> vanta() async {
+      for (var i = 0; i < 60; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 30)));
+        await tester.pump(const Duration(milliseconds: 30));
+        if (i > 3 && find.byIcon(Icons.arrow_upward_rounded).evaluate().isNotEmpty) break;
+      }
+      await tester.pump(const Duration(milliseconds: 400));
+    }
+
+    Future<void> send(String t) async {
+      await tester.enterText(find.byType(TextField), t);
+      await tester.pump();
+      await tester.tap(find.byIcon(Icons.arrow_upward_rounded));
+      await vanta();
+    }
+
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await send('Hur många km är 3 mil?');
+    await send('Hur många dagar är det kvar till jul?');
+    await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/t-sinne1-mork.png'));
+    await send('Lägg till mjölk, bröd och ägg på inköpslistan');
+    await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/t-sinne2-godkann.png'));
+    await tester.tap(find.text('Tillåt'));
+    await vanta();
+    await send('Vad står på inköpslistan?');
+    await expectLater(find.byType(MaterialApp), matchesGoldenFile('preview/t-sinne3-mork.png'));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 1));
+    mapp.deleteSync(recursive: true);
+    Prefs.agent = false;
+    Prefs.arbetsmapp = null;
+    debugDisableShadows = true;
+  }, skip: !enabled);
+
   testWidgets('telefon agent', (tester) async {
     debugDisableShadows = false;
     await _loadFonts();

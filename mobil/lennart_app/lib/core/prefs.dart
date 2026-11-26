@@ -32,7 +32,7 @@ class Prefs {
   }
 
   /// Agentläge: Lennart får använda verktyg (förhandsvisning – kräver en modell tränad på verktyg).
-  static bool get agent => _data['agent'] == true;
+  static bool get agent => _data['agent'] != false; // på som standard
   static set agent(bool v) {
     _data['agent'] = v;
     _save();

@@ -115,7 +115,7 @@ class Agent {
     if (v.behoverMapp && miljo.arbetsmapp == null) {
       return AgentResultat(a, 'Ingen arbetsmapp är vald', fel: true);
     }
-    if (v.andrar && !await godkann(a, v)) {
+    if (v.andrarMed(a.argument) && !await godkann(a, v)) {
       return AgentResultat(a, 'Användaren nekade anropet', nekad: true);
     }
     try {

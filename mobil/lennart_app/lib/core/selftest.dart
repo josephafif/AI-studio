@@ -6,6 +6,7 @@
 import 'dart:io';
 
 import '../agent/agent.dart';
+import '../agent/avsikt.dart';
 import '../agent/verktyg.dart';
 import 'catalog.dart';
 import 'engine.dart';
@@ -79,6 +80,10 @@ Future<void> runSelfTest(List<String> args) async {
     final r1 = await agent.korAnrop(VerktygsAnrop('raknare', {'uttryck': '12*7'}, '', ''));
     final r3 = await agent.korAnrop(VerktygsAnrop('las_fil', {'fil': '../utanfor.txt'}, '', ''));
     if (r1.resultat != '84' || !r3.fel) ok = false;
+    // Verktygssinnet: en vanlig fråga ska bli ett räknaranrop.
+    final av = tolkaFraga('Hur mycket är 12 gånger 7?');
+    line('[verktygssinne] ${av?.namn} ${av?.argument}');
+    if (av?.namn != 'raknare' || av?.argument['uttryck'] != '12*7') ok = false;
     await tmp.delete(recursive: true);
   } catch (e, st) {
     ok = false;
