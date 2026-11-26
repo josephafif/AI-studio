@@ -45,6 +45,7 @@ def argument():
     ap.add_argument("--blandning", default=e("L4_MIX", "sv_hq:0.70,sv_wiki:0.15,en_edu:0.15"))
     ap.add_argument("--eval-var", type=int, default=int(e("L4_EVAL", 100)), help="utvärdera var N:e steg")
     ap.add_argument("--eval-sekvenser", type=int, default=int(e("L4_EVAL_SEQ", 24)))
+    ap.add_argument("--spara-var", type=float, default=float(e("L4_SPARA", 0)), help="spara modellen var N:e minut (0 = bara i slutet)")
     ap.add_argument("--lokal-text", default=e("L4_LOKAL", ""), help="glob med textfiler i stället för Hugging Face (test)")
     ap.add_argument("--samtal", default=e("L4_SAMTAL", ""), help="egna samtal (jsonl: fråga/svar eller messages), komma-separerade globbar")
     ap.add_argument("--upprepa-egna", type=int, default=int(e("L4_UPPREPA", 20)), help="hur många gånger de egna samtalen tas med")
@@ -412,6 +413,34 @@ def main():
         rå.train()
         return res
 
+    def spara(slutlig: bool):
+        """Modellen, tokeniseraren, licensen och noteringen om ändringar – så att mappen kan spridas som den är."""
+        mapp = ut / "modell"
+        rå.save_pretrained(mapp, safe_serialization=True)
+        tok.save_pretrained(mapp)
+        for f in ["LICENSE", "chat_template.jinja", "generation_config.json"]:
+            try:
+                lokal_fil = Path(a.modell) / f
+                if lokal_fil.exists():
+                    (mapp / f).write_bytes(lokal_fil.read_bytes())
+                elif not Path(a.modell).exists():
+                    from huggingface_hub import hf_hub_download
+
+                    (mapp / f).write_bytes(Path(hf_hub_download(a.modell, f)).read_bytes())
+            except Exception:  # noqa: BLE001
+                pass
+        tidigare = Path(a.modell) / "ANDRINGAR.txt"
+        rad = ((f"Fortsatt förträning på svensk text (FineWeb2-HQ swe_Latn, svenska Wikipedia) med engelsk FineWeb-Edu "
+                f"inblandad, {tokens / 1e6:.0f} M tokens") if a.fas == "cpt" else
+               f"Finjustering på svenska samtal i ChatML (OpenHermes-2.5-sv och Lennarts egna samtal), {tokens / 1e6:.0f} M tokens")
+        rad += ", av AI Studio (Lennart-projektet)." + ("" if slutlig else " (sparpunkt under träningen)")
+        if tidigare.exists():
+            text = tidigare.read_text(encoding="utf-8").rstrip() + "\n" + rad + "\n"
+        else:
+            text = f"Bearbetning av LiquidAI/LFM2.5-350M (LFM Open License v1.0, §4 b):\n{rad}\n"
+        (mapp / "ANDRINGAR.txt").write_text(text, encoding="utf-8")
+        skriv(handelse="sparad", mapp=str(mapp), slutlig=slutlig, tokens=tokens)
+
     if huvud:
         skriv(handelse="start", fas=a.fas, precision=a.precision, gpu=world, accum=accum, steg_planerade=steg_tot,
               tokens_per_steg=a.seq * a.micro * world * accum, **utvardera())
@@ -421,6 +450,7 @@ def main():
     steg, tokens, t_logg, tok_logg = 0, 0, time.time(), 0
     T_slinga = time.time()
     slut = T_slinga + a.minuter * 60
+    senast_sparad = time.time()
     while steg < steg_tot and time.time() < slut:
         for g in opt.param_groups:
             g["lr"] = lr_vid(steg)
@@ -454,27 +484,16 @@ def main():
                 skriv(handelse="utvardering", steg=steg, tokens=tokens, **utvardera())
             if ddp:
                 dist.barrier()
+        if a.spara_var and time.time() - senast_sparad > a.spara_var * 60:
+            # Sparpunkt: tar kvoten eller tiden slut finns det senaste kvar.
+            if huvud:
+                spara(slutlig=False)
+            if ddp:
+                dist.barrier()
+            senast_sparad = time.time()
     if huvud:
         skriv(handelse="slut", steg=steg, tokens=tokens, data=packare.antal, varv=getattr(packare, "varv", None), **utvardera())
-        rå.save_pretrained(ut / "modell", safe_serialization=True)
-        tok.save_pretrained(ut / "modell")
-        for f in ["LICENSE", "chat_template.jinja", "generation_config.json"]:
-            try:
-                from huggingface_hub import hf_hub_download
-
-                if not Path(a.modell).exists():
-                    p = hf_hub_download(a.modell, f)
-                    (ut / "modell" / f).write_bytes(Path(p).read_bytes())
-            except Exception:  # noqa: BLE001
-                pass
-        (ut / "modell" / "ANDRINGAR.txt").write_text(
-            (f"Bearbetning av {a.modell} (LFM Open License v1.0, §4 b): fortsatt förträning på svensk text "
-             f"(FineWeb2-HQ swe_Latn, svenska Wikipedia) med engelsk FineWeb-Edu inblandad, {tokens / 1e6:.0f} M tokens, "
-             f"av AI Studio (Lennart-projektet).\n") if a.fas == "cpt" else
-            (f"Bearbetning av {a.modell} (LFM Open License v1.0, §4 b): finjusterad på svenska samtal i ChatML "
-             f"(OpenHermes-2.5-sv och Lennarts egna samtal), {tokens / 1e6:.0f} M tokens, av AI Studio (Lennart-projektet).\n"),
-            encoding="utf-8")
-        skriv(handelse="sparad", mapp=str(ut / "modell"))
+        spara(slutlig=True)
     if ddp:
         dist.barrier()
         dist.destroy_process_group()

@@ -40,6 +40,21 @@ tokens. Det är ungefär 5 000 gånger mer än vi har råd att träna själva (L
 - Svensk och engelsk förlust mäts på text som aldrig tränas på, så att glömska syns direkt.
 - Samtalen kodas exakt som appen och originalets mall (kontrollerat token för token).
 
+**Pilot 26 nov** (Kaggle 2× T4, fas 1 i 110 minuter, 34 M tokens, inlärningstakt 2e-4):
+
+| | Original | Pilot |
+|---|---|---|
+| Förlust, svensk Wikipedia (fp32, text som aldrig tränats på) | 8,04 | **2,93** |
+| Förlust, engelsk text (fp32) | 3,81 | **3,35** |
+| Svar på "Berätta kort om Astrid Lindgren." | Tyska ("…eine schwedische Schriftstellerin…") | Flytande svenska men påhittat innehåll ("…en fransk kvinna som föddes 1908 i Paris") |
+
+- **Takt:** 5 150 tokens/s, alltså cirka 18,5 M tokens i timmen och cirka 0,55 miljarder per 30 timmar. Det är
+  hälften av den tidigare uppskattningen.
+- **Stabilitet:** fp16 fungerar på T4. Toppminnet är 10,9 GB med 2 sekvenser per delsteg.
+- **Slutsats:** språket kommer snabbt, men kunskap kräver mycket mer svensk text. Svaren kräver fas 2.
+- **Nästa körning:** fas 1 i cirka 7 timmar och sedan fas 2 i 2,5 timmar, från pilotens vikter. Den startas med
+  `python moln/lennart4/kaggle_natt.py` när veckokvoten är tillbaka. Den 26 nov var kvoten slut.
+
 **Risker:**
 - Engelskan och resonemangen kan försämras. Det mäts med engelsk förlust under hela fas 1.
 - OpenHermes-sv är maskinöversatt.
@@ -474,7 +489,7 @@ verktyg eller ett test. Öppna resonemang, avvägningar och slutsatser stannar h
 
 ## Beslut som är dina
 1. ~~Storlek och arkitektur~~ Avgjort 26 nov: LFM2.5-350M.
-2. Hur mycket av GPU-kvoten fas 1 får. 2× T4 ger grovt 1 miljard tokens per 30 timmar (mäts i piloten).
+2. Hur mycket av GPU-kvoten fas 1 får. 2× T4 ger cirka 0,55 miljarder tokens per 30 timmar (uppmätt i piloten).
 3. Hur fräck: "lite glimt" (förebilderna ovan) eller ännu kaxigare?
 4. Grundmodell för 4.x: Qwen3.5-4B, Gemma 4 E4B eller någon annan i tabellen? Mitt förslag är att låta
    svensktestet avgöra mellan de två första. Båda har Apache 2.0.

@@ -29,7 +29,7 @@ LFM2_PATTERN = (r"'[sS]|'[tT]|'[rR][eE]|'[vV][eE]|'[mM]|'[lL][lL]|'[dD]|[^\r\n\p
 ANDRINGAR = """Ändringar (enligt LFM Open License v1.0, §4 b):
 Filen {id}.lmod är konverterad från {kalla} av AI Studio (Lennart-projektet):
 vikterna är omsorterade till Lennarts .lmod-format och matriserna avrundade till int8 med en skala per 64 vikter.
-Tokeniseraren är omskriven till Lennarts JSON-format. Inga vikter är tränade eller ändrade i övrigt.
+Tokeniseraren är omskriven till Lennarts JSON-format.{tranad}
 """
 
 
@@ -141,7 +141,10 @@ def main() -> int:
     tok = lfm_tokenizer(json.loads((a.src / "tokenizer.json").read_text()), vocab)
     (a.out / f"{a.id}.tok.json").write_text(json.dumps(tok), encoding="utf-8")
     licens = (a.src / "LICENSE").read_text(encoding="utf-8")
-    andringar = ANDRINGAR.format(id=a.id, kalla=a.kalla)
+    # En vidaretränad modell har en egen notering (ANDRINGAR.txt från moln/lennart4/lfm_trana.py).
+    egen = a.src / "ANDRINGAR.txt"
+    tranad = ("\n" + egen.read_text(encoding="utf-8").strip()) if egen.exists() else " Inga vikter är tränade eller ändrade i övrigt."
+    andringar = ANDRINGAR.format(id=a.id, kalla=a.kalla, tranad=tranad)
     (a.out / "LICENS-LFM.txt").write_text(licens + "\n\n" + andringar, encoding="utf-8")
     params = sum(t.numel() for t in sd.values())
     entry = {
