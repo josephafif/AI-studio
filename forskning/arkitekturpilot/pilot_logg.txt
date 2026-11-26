@@ -1,0 +1,30 @@
+lennart3: 13.2 M parametrar (4.79 M utan inbäddning), 16.1 M tränings-tokens
+steg 250 · tränings-loss 3.491 · val 4.400 (1.856 bpb) · mittlager=67.9% · 2855 tok/s
+steg 500 · tränings-loss 3.305 · val 3.832 (1.616 bpb) · mittlager=59.1% · 2848 tok/s
+steg 750 · tränings-loss 1.979 · val 3.286 (1.386 bpb) · mittlager=50.1% · 2843 tok/s
+steg 1000 · tränings-loss 1.899 · val 3.090 (1.303 bpb) · mittlager=44.5% · 2825 tok/s
+steg 1250 · tränings-loss 2.186 · val 2.932 (1.237 bpb) · mittlager=43.1% · 2827 tok/s
+steg 1500 · tränings-loss 2.376 · val 2.810 (1.185 bpb) · mittlager=42.9% · 2836 tok/s
+steg 1750 · tränings-loss 2.623 · val 2.745 (1.158 bpb) · mittlager=42.2% · 2836 tok/s
+steg 2000 · tränings-loss 1.941 · val 2.676 (1.128 bpb) · mittlager=42.3% · 2843 tok/s
+steg 2250 · tränings-loss 2.348 · val 2.640 (1.114 bpb) · mittlager=41.7% · 2842 tok/s
+steg 2500 · tränings-loss 2.443 · val 2.617 (1.104 bpb) · mittlager=41.1% · 2845 tok/s
+modern: 13.1 M parametrar (4.67 M utan inbäddning), 16.1 M tränings-tokens
+steg 250 · tränings-loss 3.210 · val 4.186 (1.765 bpb) · mittlager=48.0% · 2731 tok/s
+steg 500 · tränings-loss 2.877 · val 3.321 (1.401 bpb) · mittlager=46.2% · 2732 tok/s
+steg 750 · tränings-loss 1.721 · val 2.986 (1.259 bpb) · mittlager=46.4% · 2694 tok/s
+steg 1000 · tränings-loss 1.689 · val 2.832 (1.194 bpb) · mittlager=45.4% · 2663 tok/s
+steg 1250 · tränings-loss 1.965 · val 2.718 (1.146 bpb) · mittlager=46.5% · 2671 tok/s
+steg 1500 · tränings-loss 2.133 · val 2.598 (1.096 bpb) · mittlager=45.4% · 2674 tok/s
+steg 1750 · tränings-loss 2.407 · val 2.537 (1.070 bpb) · mittlager=45.0% · 2679 tok/s
+steg 2000 · tränings-loss 1.775 · val 2.468 (1.041 bpb) · mittlager=45.7% · 2686 tok/s
+steg 2250 · tränings-loss 2.086 · val 2.440 (1.029 bpb) · mittlager=45.0% · 2688 tok/s
+steg 2500 · tränings-loss 2.227 · val 2.418 (1.020 bpb) · mittlager=45.8% · 2690 tok/s
+modern+skiss: 13.1 M parametrar (4.67 M utan inbäddning), 16.1 M tränings-tokens
+steg 250 · tränings-loss 3.073 · val 4.018 (1.695 bpb) · mittlager=76.4% · 1602 tok/s
+steg 500 · tränings-loss 2.744 · val 3.199 (1.349 bpb) · mittlager=73.8% · 1603 tok/s
+steg 750 · tränings-loss 1.708 · val 2.971 (1.253 bpb) · mittlager=74.1% · 1596 tok/s
+steg 1000 · tränings-loss 1.680 · val 2.815 (1.187 bpb) · mittlager=80.3% · 1600 tok/s
+steg 1250 · tränings-loss 1.963 · val 2.702 (1.139 bpb) · mittlager=83.2% · 1597 tok/s
+steg 1500 · tränings-loss 2.127 · val 2.582 (1.089 bpb) · mittlager=84.5% · 1602 tok/s
+PILOT_KLAR

@@ -1,0 +1,55 @@
+{
+ "antal": 136,
+ "traffsakerhet": {
+  "snabb (1 sampel)": [
+   0.309,
+   0.04
+  ],
+  "girig": [
+   0.324,
+   0.04
+  ],
+  "medel: poäng (3)": [
+   0.287,
+   0.039
+  ],
+  "djup: poäng (6)": [
+   0.294,
+   0.039
+  ],
+  "medel: konsensus (3)": [
+   0.338,
+   0.041
+  ],
+  "djup: konsensus (6)": [
+   0.331,
+   0.04
+  ],
+  "djup: hybrid (6)": [
+   0.294,
+   0.039
+  ],
+  "orakel (6)": [
+   0.551,
+   0.043
+  ]
+ },
+ "kalibrering_auroc": {
+  "poäng": 0.85,
+  "konsensus": 0.8
+ },
+ "vet_inte": [
+  {
+   "andel_besvarade": 1.0,
+   "traff": 0.33088235294117646
+  },
+  {
+   "andel_besvarade": 0.75,
+   "traff": 0.38235294117647056
+  },
+  {
+   "andel_besvarade": 0.5,
+   "traff": 0.5441176470588235
+  }
+ ]
+}

@@ -1,0 +1,426 @@
+{
+ "Lennart 3.4 läsare v2": {
+  "traffsakerhet": {
+   "utan_text": 0.25,
+   "1_traff": 0.103,
+   "3_traffar": 0.015
+  },
+  "exempel": [
+   {
+    "fraga": "Vad är huvudstaden i Norge?",
+    "utan_text": "Huvudstaden i Norge är Oslo.",
+    "med_3": "Tana är huvudstad i Norge.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Finland?",
+    "utan_text": "Huvudstaden i Finland är Helsingfors.",
+    "med_3": "Uurainen är huvudstad i Finland.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Danmark?",
+    "utan_text": "Huvudstaden i Danmark är Köpenhamn.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Frankrike?",
+    "utan_text": "Huvudstaden i Frankrike är Paris.",
+    "med_3": "Marseille är Frankrikes näst största stad efter Paris och Marseille.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Tyskland?",
+    "utan_text": "Huvudstaden i Tyskland är Berlin.",
+    "med_3": "Bonnie är huvudstad i Tyskland.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Italien?",
+    "utan_text": "Huvudstaden i Italien är Rom.",
+    "med_3": "Republiken Italien är en republik och även fransk lydstat i dagens Italien.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Spanien?",
+    "utan_text": "Huvudstaden i Spanien är Madrid.",
+    "med_3": "Piñero är en kommun i Spanien.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Japan?",
+    "utan_text": "Huvudstaden i Japan är Tokyo.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Island?",
+    "utan_text": "Huvudstaden i Island är Reykjavik.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Australien?",
+    "utan_text": "Huvudstaden i Australien är Sydney.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges största sjö?",
+    "utan_text": "Sveriges största sjö är Vänern.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges näst största sjö?",
+    "utan_text": "Sveriges näst största sjö är Vänern.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är Sveriges högsta berg?",
+    "utan_text": "Sveriges högsta berg är Sveriges högsta.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges näst största stad?",
+    "utan_text": "Sveriges näst största stad är Stockholm.",
+    "med_3": "Norrköpings historia som stad började 1384 när staden fick sina stadsrättigheter bekräftade. Då hade människor redan bott kring Motala ströms fall under lång tid. Staden fick sin första storhetstid under 1600-talet och blev därmed den näst största i Texas, sjätte",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges största ö?",
+    "utan_text": "Sveriges största ö är Sveriges största ö i Medelhavet.",
+    "med_3": "Torneträsk är Sveriges största ö.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är världens högsta berg?",
+    "utan_text": "Himalaya är världens högsta berg.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är världens största hav?",
+    "utan_text": "Det är världens största hav.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är världens största kontinent?",
+    "utan_text": "Afrika är den största av världens länder.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "I vilket land ligger Eiffeltornet?",
+    "utan_text": "Eiffeltornet ligger i Paris, Frankrike.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket hav ligger öster om Sverige?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges största flygplats?",
+    "utan_text": "Sveriges största flygplats är en flygplats som ligger i anslutning till Sveriges största flygplats.",
+    "med_3": "Flygfältet är från början en gammal lägerplats.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många landskap har Sverige?",
+    "utan_text": "Sverige har drygt tio landskap.",
+    "med_3": "Landskapet är i Sverige cirka 10 000, m².",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år blev Gustav Vasa kung?",
+    "utan_text": "Gustav Vasa blev kung år 1523.",
+    "med_3": "Gustav Vasas härstamning är ett genealogiskt ämne som intresserar både regelrätta historiker och privatpersoner med härstamning från Gustav Vasa.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år började andra världskriget?",
+    "utan_text": "Första världskriget började den 1 januari 1918.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år tog andra världskriget slut?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år föll Berlinmuren?",
+    "utan_text": "Berlinmuren föll inte under Berlins mur, men det stod inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år gick Sverige med i EU?",
+    "utan_text": "Sverige gick med i EU år 2004.",
+    "med_3": "Den 13 november 1994 gick Sverige med i EU.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år landade människan på månen?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem var den första människan på månen?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem skrev Pippi Långstrump?",
+    "utan_text": "Pippi Långstrump skrevs av Astrid Lindgren, en av Sveriges mest kända barnboksförfattare.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem skrev Röda rummet?",
+    "utan_text": "Röda rummet är en roman skriven av den svenske författaren och nobelpristagaren i litteratur, Gunnar Ekelöf.",
+    "med_3": "Röda Rummet är en restaurang på Barnhusgatan 20 i Stockholm.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem grundade Nobelpriset?",
+    "utan_text": "Nobelprize.org, Nobelpriset i kemi 1956 för \"för deras upptäckter rörande nukleinsyror och deras roll i DNA-replikation\".",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem uppfann dynamiten?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem målade Mona Lisa?",
+    "utan_text": "Mona Lisa är en målning av den italienske renässanskonstnären Tizian.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem grundade IKEA?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken svensk popgrupp vann Eurovision 1974?",
+    "utan_text": "Eurovision 1974 var den svenska Eurovision Song Contest 1974.",
+    "med_3": "Benny Andersson och Bj\n\nAv de fem deltagarna som var med i tävlingen var det bara Benny Andersson som vann.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges valuta?",
+    "utan_text": "Sveriges valuta är en svensk valutan som används i Sverige.",
+    "med_3": "Valutan heter Sveriges valuta.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket datum är Sveriges nationaldag?",
+    "utan_text": "Sveriges nationaldag är Sveriges nationaldag sedan den 7 juni.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges kung?",
+    "utan_text": "Sveriges kung heter Carl XVI Gustaf.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter den svenska högtiden den 24 december?",
+    "utan_text": "Den 24 december heter den svenska högtiden som firas till minne av att Sverige blev självständigt från Danmark och Norge 1814.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket nummer ringer man i Sverige vid en nödsituation?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket djur kallas skogens konung?",
+    "utan_text": "Skogens konung är ett djur som står i begrepp att vara en skogens konung.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är den kemiska beteckningen för vatten?",
+    "utan_text": "Den kemiska beteckningen för vatten är C5H10O.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är den kemiska beteckningen för guld?",
+    "utan_text": "Guld är en legering av guld, silver och koppar.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket grundämne har den kemiska beteckningen Fe?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken planet är närmast solen?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är den största planeten i solsystemet?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken planet kallas den röda planeten?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många ben har en spindel?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många ben har en insekt?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vid hur många grader Celsius kokar vatten?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas processen där växter omvandlar solljus till energi?",
+    "utan_text": "Det är en process som kallas för fotosyntesen.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket organ pumpar runt blodet i kroppen?",
+    "utan_text": "Det är inte en organisk förening, men det har ett brett spektrum av funktioner och användningsområden.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många dagar har ett skottår?",
+    "utan_text": "Ett skottår har 365 dagar och ett skottår har 366.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är världens största djur?",
+    "utan_text": "Världens största djur är inte världens största djur, men det finns många andra arter som har en liknande utbredning.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken gas behöver vi andas in för att överleva?",
+    "utan_text": "Det är en gas som behövs för att överleva.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter vår galax?",
+    "utan_text": "Vår galax är en kosmisk nebulosa som ligger i den norra delen av stjärnbilden Stora björnen.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken färg får man om man blandar blått och gult?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad står VPN för?",
+    "utan_text": "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server. Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans.",
+    "med_3": "OpenVPN står för Open VPN.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas bedrägerier där man luras att lämna ut uppgifter via falska mejl?",
+    "utan_text": " bedrägerier där man luras att lämna ut uppgifter via falska mejl är bedrägeri, eftersom det inte finns någon garanti för att uppgifterna kommer från dig.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas skadlig kod som krypterar filer och kräver en lösensumma?",
+    "utan_text": "Skydda dina system och tjänster med en skadlig kod.",
+    "med_3": "Sabotageprogram, skadlig kod som krypterar filer och kräver en lösensumma är oönskade datorprogram eller delar av datorprogram som har utvecklats i syfte att störa IT-systemet, för att samla in information i smyg, eller utnyttja datorn för ändamål som",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas en attack där många datorer överbelastar en server?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas ett nätverk av kapade datorer?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas program som i hemlighet spionerar på användaren?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas ett säkerhetshål som tillverkaren ännu inte känner till?",
+    "utan_text": "Ett säkerhetshål som tillverkaren ännu inte känner till är ett säkerhetshål som tillverkaren ännu inte känner till.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas skyddet som filtrerar trafiken in till ett nätverk?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Det står inte i texten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas inloggning som kräver både lösenord och en kod i telefonen?",
+    "utan_text": "Lösenord läcker och gissas hela tiden. Meddelandet är ofta brådskande eller med en kort utgång.",
+    "med_3": "POP3 är ett kommunikationsprotokoll som används i spel med rent linjär handling.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad står bokstaven S för i HTTPS?",
+    "utan_text": "Det står inte i texten.",
+    "med_3": "Ž är den tjugofjärde bokstaven i det moderna latinska alfabetet.",
+    "ratt_3": false
+   }
+  ],
+  "samtal": {
+   "Hej! Vem är du?": "Jag är Lennart, en svensk språkmodell som tränats på svensk text och samtal. Jag kan svara på frågor och prata om det mesta, men jag kan också hjälpa dig att formulera texter om till exempel cybersäkerhet och IT-säkerhet.",
+   "Hur mår du?": "Jag mår bra, tack! Jag är ett program, så jag har inga känslor som en människa, men jag är redo att hjälpa till. Hur mår du själv?",
+   "Vad är nätfiske?": "Nätfiske, eller phishing, är när en angripare skickar falska meddelanden som ser ut att komma från en betrodd avsändare för att lura dig att lämna ut lösenord, kortuppgifter eller klicka på skadliga länkar.",
+   "Ge mig tips för att sova bättre.": "Försök gå och lägga dig och vakna ungefär samma tid varje dag.",
+   "Någon har hackat mitt konto, vad gör jag?": "Byt lösenordet direkt om du fortfarande kommer åt kontot, och slå på tvåfaktorsautentisering. Logga ut alla andra sessioner, kontrollera att e-post och telefonnummer för återställning är dina, och varna dina kontakter om kont"
+  }
+ }
+}

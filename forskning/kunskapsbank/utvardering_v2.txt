@@ -1,0 +1,7 @@
+Lennart 3.4 läsare v2 {'utan_text': 0.25, '1_traff': 0.103, '3_traffar': 0.015}
+   Hej! Vem är du? → 'Jag är Lennart, en svensk språkmodell som tränats på svensk text och samtal. Jag kan svara på frågor och prata om det me'
+   Hur mår du? → 'Jag mår bra, tack! Jag är ett program, så jag har inga känslor som en människa, men jag är redo att hjälpa till. Hur mår'
+   Vad är nätfiske? → 'Nätfiske, eller phishing, är när en angripare skickar falska meddelanden som ser ut att komma från en betrodd avsändare '
+   Ge mig tips för att sova bättre. → 'Försök gå och lägga dig och vakna ungefär samma tid varje dag.'
+   Någon har hackat mitt konto, vad gör jag? → 'Byt lösenordet direkt om du fortfarande kommer åt kontot, och slå på tvåfaktorsautentisering. Logga ut alla andra sessio'
+läsare v2: rätt artikel 45%, fel artikels titel 2% (framåt 24/28, bakåt 3/32)

@@ -12,7 +12,7 @@ vanlig processor (4 kärnor). Kod och rådata ligger i respektive mapp under `fo
 | 3 | Vet Lennart när han inte vet? | **Ja, förvånansvärt bra.** Hans egen säkerhet förutsäger rätt/fel med AUROC 0,85. Svar över gränsen är rätt i 71 % av fallen, under gränsen i 11 %. Nu finns det i appen som "Osäker – dubbelkolla gärna". |
 | 4 | Var i modellen "bestämmer" han sig? | **Sent.** Halvvägs (lager 11 av 21) stämmer gissningen med slutsvaret bara i 28 % av fallen. Tidiga lager kan inte skissa åt de sena utan att träningen ändras. |
 | 5 | Kan ett uppslagsverk ersätta minnet? | Sökning i svenska Wikipedia hittar svaret i 40–65 % av fallen, **men Lennart 3.4 kan inte läsa** (31 % med text, 32 % utan). |
-| 6 | Kan han lära sig läsa? | **Inte så snabbt.** 35 minuters lästräning lärde ut svarets *form*, inte förståelsen. På riktiga frågor blev det säkert framförda fel (15 % mot 37 %). Lärdomen styr hur Lennart 4 ska tränas. |
+| 6 | Kan han lära sig läsa? | **Inte med malldata.** Två försök med 35 minuters lästräning lärde ut beteenden, inte förståelsen. Version 1 hittade på i rätt form (15 % mot 37 %), version 2 svarade "det står inte i texten" i 72 % av fallen. Lärdomen styr hur Lennart 4 ska tränas. |
 | 7 | Vilken arkitektur för Lennart 4? | **Modern + självskiss.** RoPE, RMSNorm och SwiGLU når Lennart 3-arkitekturens nivå med ~57 % av datan (1,7× effektivare). En extra förlust på mittlagret gör att första halvan gissar rätt i 85 % av fallen, utan kvalitetsförlust. |
 
 **Den stora insikten:** för en liten modell är flaskhalsen inte beräkningen och inte att formulera sig.
@@ -140,6 +140,15 @@ artikel betydligt oftare. På riktiga frågor har han i stället lärt sig malle
 [frågans ord]", och då blir det säkert framförda fel: "Uurainen är huvudstad i Finland",
 "Storvätteshågna är Sveriges högsta berg" (Kebnekaise stod i texten). Han glömde också en del av det han
 kunde, så träffsäkerheten utan text sjönk från 32 % till 25 %.
+
+**Version 2** rättade det diagnosen pekade på. Den hade alltid två vilseledande artiklar, en fjärdedel
+övningar där svaret *inte* fanns i texten ("Det står inte i texten.") och en tredjedel repetition utan text.
+Resultatet blev 1,5 % rätt med tre träffar: i 49 av 68 fall svarade den att det inte står i texten, trots att
+svaret fanns där i ungefär två fall av tre. När den väl svarade använde den samma genväg som förut. På
+övningar av träningens slag valde den rätt artikel i 45 % av fallen.
+
+Version 1 lärde sig alltså att hitta på i rätt form, och version 2 lärde sig att avstå. **Ingen av dem lärde
+sig läsa.** Mallgenererad data lär ut beteenden, inte förståelse.
 
 **Lärdom till Lennart 4:** läsning måste tränas med *varierade* frågor där svaret står mitt i texten, med
 övningar där texten *inte* innehåller svaret ("det står inte i texten") och med vanlig data inblandad så att

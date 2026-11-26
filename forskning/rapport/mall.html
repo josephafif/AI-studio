@@ -164,7 +164,7 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
 
 <section aria-labelledby="s5">
   <h2 id="s5"><span class="n">05–06</span>Ett uppslagsverk, och att lära sig läsa</h2>
-  <p>En egen sökmotor (BM25 med svensk ordstamning) över 727 000 artikelinledningar i svenska Wikipedia hittar svaret i första träffen i 40 % av fallen och bland de tre första i 65 %. Men Lennart 3.4 har aldrig fått öva på att läsa. Därför skapades 3 000 läsövningar automatiskt ur Wikipedia, med vilseledande artiklar inblandade, och han finjusterades på dem i 300 steg på processorn.</p>
+  <p>En egen sökmotor (BM25 med svensk ordstamning) över 727 000 artikelinledningar i svenska Wikipedia hittar svaret i första träffen i 40 % av fallen och bland de tre första i 65 %. Men Lennart 3.4 har aldrig fått öva på att läsa. Därför skapades läsövningar automatiskt ur Wikipedia, med vilseledande artiklar inblandade, och han finjusterades på dem i två omgångar om 300 steg på processorn.</p>
   <figure>
     <figcaption>Andel rätt på frågebanken med 0, 1 eller 3 Wikipedia-träffar i frågan</figcaption>
     <div class="legend" id="las-legend"></div>
@@ -178,6 +178,7 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
   </figure>
   <p><b>Han lärde sig läsa, men bara i övningarnas form.</b> På riktiga frågor har han i stället lärt sig mallen ”[namn ur texten] är [frågans ord]”. Det ger säkert framförda fel, där rätt namn ofta stod i texten:</p>
   <div class="examples" id="las-ex"></div>
+  <p><b>Version 2</b> rättade det diagnosen pekade på. Den hade alltid två vilseledande artiklar, en fjärdedel övningar där svaret <i>inte</i> fanns i texten och en tredjedel repetition. Då slutade den hitta på, men gick för långt åt andra hållet: i 49 av 68 fall svarade den ”Det står inte i texten”, trots att svaret fanns där i ungefär två fall av tre. Version 1 lärde sig alltså att hitta på i rätt form och version 2 att avstå. <b>Ingen av dem lärde sig läsa.</b></p>
   <p><b>Lärdom till Lennart 4:</b> läsning måste tränas med varierade frågor där svaret står mitt i texten, med övningar där svaret <i>inte</i> finns i texten, och med vanlig data inblandad så att han inte glömmer. Han tappade från 32 till 25 % utan text. Ett uppslagsverk hjälper ändå lite redan nu: vanliga Lennart 3.4 går från 32 till 37 % med tre träffar i frågan.</p>
 </section>
 
@@ -384,8 +385,8 @@ const findings = [
 ];
 if (lasBase && lasReader) {
   const b = lasBase["3_traffar"] * 100, r = lasReader["3_traffar"] * 100;
-  findings.push(["06", "nej", "Snabb lästräning lär ut formen, inte förståelsen.",
-    `På övningar som liknar träningen valde han rätt artikel i 62 % av fallen (före 37 %), men på riktiga frågor sjönk han till ${fmt(r)} % (före ${fmt(b)} %): han hittar på svar i rätt form.`]);
+  findings.push(["06", "nej", "Mallgenererad lästräning lär ut beteenden, inte förståelse.",
+    `Version 1 hittade på svar i rätt form (${fmt(r)} % rätt mot ${fmt(b)} % före). Version 2, med övningar utan svar i texten, svarade ”det står inte i texten” i 49 av 68 fall.`]);
 } else findings.push(["06", "mix", "Lästräningen pågår.", "Resultatet fylls i när finjusteringen är klar."]);
 if (pilot["lennart3"] && pilot["modern"]) {
   const a = lastBpb("lennart3"), bb = lastBpb("modern");

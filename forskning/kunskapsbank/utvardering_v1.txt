@@ -1,0 +1,12 @@
+Lennart 3.4 {'utan_text': 0.324, '1_traff': 0.353, '3_traffar': 0.368}
+   Hej! Vem är du? → 'Jag är Lennart. Jag kan svara på frågor och prata om det mesta, men jag kan också svara på frågor och dela din kunskap m'
+   Hur mår du? → 'Tack som frågar! Jag är ett datorprogram, så jag har inga känslor, men jag är redo att hjälpa till. Hur mår du själv?'
+   Vad är nätfiske? → 'Nätfiske, eller phishing, är när en angripare skickar falska meddelanden som ser ut att komma från en betrodd avsändare '
+   Ge mig tips för att sova bättre. → 'Försök gå och lägga dig och vakna ungefär samma tid varje dag. Undvik skärmar och koffein sent på kvällen, håll sovrumme'
+   Någon har hackat mitt konto, vad gör jag? → 'Byt lösenordet direkt om du fortfarande kommer åt kontot, och slå på tvåfaktorsautentisering. Logga ut alla andra sessio'
+Lennart 3.4 läsare {'utan_text': 0.25, '1_traff': 0.132, '3_traffar': 0.147}
+   Hej! Vem är du? → 'Jag är Lennart, en svensk språkmodell. Jag kan svara på frågor och prata om det mesta, och jag kan extra mycket om cyber'
+   Hur mår du? → 'Jag mår bra, tack! Jag är ett program, så jag har inga känslor som en människa, men jag är redo att hjälpa till. Hur mår'
+   Vad är nätfiske? → 'Nätfiske, eller phishing, är när en angripare skickar falska meddelanden som ser ut att komma från en betrodd avsändare.'
+   Ge mig tips för att sova bättre. → 'Försök gå och lägga dig och vakna ungefär samma tid varje dag. Undvik skärmar och koffein sent på kvällen, håll sovrumme'
+   Någon har hackat mitt konto, vad gör jag? → 'Byt lösenordet direkt om du fortfarande kommer åt kontot, och slå på tvåfaktorsautentisering. Logga ut alla andra sessio'
