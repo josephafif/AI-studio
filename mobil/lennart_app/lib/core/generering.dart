@@ -51,7 +51,11 @@ void generera(Motor model, BpeTokenizer tok, Map m, void Function(Map) send, boo
     }
     prompt = tok.encodeChat(turns);
   }
-  if (prompt.length > budget) prompt = prompt.sublist(prompt.length - budget);
+  if (prompt.length > budget) {
+    prompt = prompt.sublist(prompt.length - budget);
+    // LFM2 behöver starttecknet först – utan det blir modellen nästan slumpmässig.
+    if (tok.bosId >= 0) prompt[0] = tok.bosId;
+  }
   final sw = Stopwatch()..start();
   model.reset();
   model.eval(prompt);

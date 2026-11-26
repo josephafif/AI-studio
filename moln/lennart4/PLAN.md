@@ -1,7 +1,50 @@
 # Lennart 4.0 – plan
 
-Ingen träning och ingen datagenerering är startad än. Det här är underlaget: vilka data vi ska använda,
-hur Lennart ska låta och vad som ska göra honom smartare än 3.x inom samma GPU-budget.
+**Läge 26 nov (kväll):** Lennart 4.0 bygger på LFM2.5-350M (se nästa avsnitt), och en träningspilot körs på
+Kaggle. Avsnitten längre ned beskriver det tidigare upplägget, där en modell skulle tränas från grunden.
+Data, stil, utvärdering och agentförmåga gäller fortfarande. Storlek och tidplan för en modell från grunden
+gäller inte längre.
+
+## Vägval: Lennart 4.0 = LFM2.5-350M + svenska
+
+Grunden är [LFM2.5-350M](https://huggingface.co/LiquidAI/LFM2.5-350M) från Liquid AI. Den har 354,5 M
+parametrar och en blandning av korta faltningar och grupperad attention, och den är förtränad på 28 biljoner
+tokens. Det är ungefär 5 000 gånger mer än vi har råd att träna själva (Lennart 3: 2,1 miljarder).
+
+**Vad den kan och inte kan (mätt 26 nov):**
+
+| | |
+|---|---|
+| Engelska | Mycket bra: förlust 2,4 på en vanlig mening, bra svar om nätfiske och lösenord |
+| Svenska | Svag: förlust 6,9 på en vanlig svensk mening. Den hittar på ("Rosenborg" är Sveriges huvudstad) och byter till tyska mitt i svar |
+| Tokeniserare | 3,1 tecken per token på svenska, mot 5,0 för Lennart 3:s svenska tokeniserare. Svenska svar blir alltså ~1,6× fler tokens |
+| I appen | Motorn kör formatet (`tools/exportera_lfm2.py`). int8 med en skala per 64 vikter: KL 0,0034 mot originalet, samma topptoken i 97 %. 19 token/s med 8 trådar, 6 token/s i webbläsaren |
+| Starttecken | `<|startoftext|>` måste stå först i varje sekvens. Utan det blir förlusten 9,5 i stället för 2,4 |
+
+**Licens:** LFM Open License v1.0, som bygger på Apache 2.0.
+- Vidareträning och spridning är tillåtna.
+- Licensen ska följa med, och ändringar ska anges. Exportskriptet och träningsskriptet lägger med båda.
+- Kommersiell användning kräver omsättning under 10 miljoner dollar per år.
+- Namnen LFM och Liquid får bara användas för att beskriva ursprunget, så "Lennart 4.0" som namn går bra.
+
+**Träning** (`moln/lennart4/lfm_trana.py`, Kaggle 2× T4):
+
+| Fas | Vad | Data | Förlust på |
+|---|---|---|---|
+| 1. Svenska (fortsatt förträning) | Lära modellen svenska utan att glömma resten | 70 % FineWeb2-HQ `swe_Latn` (64,6 GB parquet, ~15 miljarder tokens), 15 % svenska Wikipedia, 15 % engelsk FineWeb-Edu som repetition | Allt |
+| 2. Samtal | Svara på svenska i ChatML, som Lennart | OpenHermes-2.5-sv (84 765 samtal, maskinöversatta), Lennarts egna stil- och identitetssamtal | Bara Lennarts svar |
+| 3. Stil, verktyg, ärlighet | Fräck ton, verktygsanrop, "det vet jag inte" | Stildatan och agentdatan nedan, truthy-dpo-sv | Svaren, sedan DPO |
+
+- Varje sekvens börjar med starttecknet.
+- Inlärningstakten följer WSD (uppvärmning, platå, nedtrappning) och trappas ned i tid före tidsgränsen.
+- Svensk och engelsk förlust mäts på text som aldrig tränas på, så att glömska syns direkt.
+- Samtalen kodas exakt som appen och originalets mall (kontrollerat token för token).
+
+**Risker:**
+- Engelskan och resonemangen kan försämras. Det mäts med engelsk förlust under hela fas 1.
+- OpenHermes-sv är maskinöversatt.
+- Tokeniseraren är ineffektiv på svenska. En möjlig 4.1 är en utökad svensk tokeniserare, där nya ord
+  initieras från delordens inbäddningar.
 
 ## Utgångsläge
 
@@ -430,8 +473,8 @@ verktyg eller ett test. Öppna resonemang, avvägningar och slutsatser stannar h
 - swedish-facts-v1 för faktakunskap. Den ska aldrig hamna i träningsdatan.
 
 ## Beslut som är dina
-1. Storlek: ~350 M (som 3.x i telefonen) eller ~150 M (dubbelt så snabb, mindre kunnig)?
-2. Ny arkitektur från grunden, eller fortsätta 3.x-linjen med ny data och stil?
+1. ~~Storlek och arkitektur~~ Avgjort 26 nov: LFM2.5-350M.
+2. Hur mycket av GPU-kvoten fas 1 får. 2× T4 ger grovt 1 miljard tokens per 30 timmar (mäts i piloten).
 3. Hur fräck: "lite glimt" (förebilderna ovan) eller ännu kaxigare?
 4. Grundmodell för 4.x: Qwen3.5-4B, Gemma 4 E4B eller någon annan i tabellen? Mitt förslag är att låta
    svensktestet avgöra mellan de två första. Båda har Apache 2.0.

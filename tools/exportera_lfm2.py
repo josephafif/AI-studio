@@ -145,7 +145,7 @@ def main() -> int:
     (a.out / "LICENS-LFM.txt").write_text(licens + "\n\n" + andringar, encoding="utf-8")
     params = sum(t.numel() for t in sd.values())
     entry = {
-        "id": a.id, "name": a.namn, "description": a.beskrivning, "params": params, "context": a.ctx, "vocab": vocab,
+        "id": a.id, "name": a.namn, "description": a.beskrivning, "params": params, "steps": 0, "context": a.ctx, "vocab": vocab,
         "quant": ["float32", "int8", "int8-g64"][lage], "temperature": 0.3, "max_tokens": 300, "top_k": 40, "hue": a.hue, "badge": a.badge,
         "arkitektur": "lfm2", "kalla": f"https://huggingface.co/{a.kalla}",
         "licens": "LFM Open License v1.0", "licens_text": licens, "andringar": andringar,

@@ -17,20 +17,24 @@ class ModelInfo {
   final bool builtin;
   final Map<String, dynamic> json;
 
+  /// Bara id krävs; övriga fält får standardvärden. Modeller från andra håll (t.ex. LFM2.5) saknar fält
+  /// som Lennarts egna har, som antal träningssteg – det får aldrig hindra appen från att starta.
   ModelInfo.fromJson(Map<String, dynamic> j, {this.builtin = true})
     : id = j['id'] as String,
-      name = j['name'] as String,
+      name = (j['name'] as String?) ?? (j['id'] as String),
       description = (j['description'] as String?) ?? '',
-      quant = j['quant'] as String,
-      params = j['params'] as int,
-      steps = j['steps'] as int,
-      context = j['context'] as int,
-      vocab = j['vocab'] as int,
-      maxTokens = j['max_tokens'] as int,
-      topK = j['top_k'] as int,
-      temperature = (j['temperature'] as num).toDouble(),
+      quant = (j['quant'] as String?) ?? 'int8',
+      params = _heltal(j['params'], 0),
+      steps = _heltal(j['steps'], 0),
+      context = _heltal(j['context'], 512),
+      vocab = _heltal(j['vocab'], 0),
+      maxTokens = _heltal(j['max_tokens'], 200),
+      topK = _heltal(j['top_k'], 40),
+      temperature = ((j['temperature'] as num?) ?? 0.7).toDouble(),
       hue = ((j['hue'] as num?) ?? 152).toDouble(),
       json = j;
+
+  static int _heltal(Object? v, int standard) => v is num ? v.toInt() : (v is String ? int.tryParse(v) ?? standard : standard);
 
   Color get color => HSLColor.fromAHSL(1, hue % 360, 0.85, 0.62).toColor();
 
@@ -106,9 +110,19 @@ class Catalog {
   Future<void> _refresh() async {
     final user = <ModelInfo>[];
     if (await _userManifest.exists()) {
-      for (final m in jsonDecode(await _userManifest.readAsString()) as List) {
-        final info = ModelInfo.fromJson(m as Map<String, dynamic>, builtin: false);
-        if (await File(modelPath(info)).exists()) user.add(info);
+      List lista;
+      try {
+        lista = jsonDecode(await _userManifest.readAsString()) as List;
+      } catch (_) {
+        lista = []; // trasig fil – appen ska starta ändå
+      }
+      for (final m in lista) {
+        try {
+          final info = ModelInfo.fromJson((m as Map).cast<String, dynamic>(), builtin: false);
+          if (await File(modelPath(info)).exists()) user.add(info);
+        } catch (_) {
+          /* en trasig modellbeskrivning hoppas över i stället för att stoppa appen */
+        }
       }
     }
     final ids = user.map((m) => m.id).toSet();
@@ -126,6 +140,7 @@ class Catalog {
   /// Installerar ett modellpaket (.lennart) och returnerar modellen.
   Future<ModelInfo> importPackage(String path) async {
     final res = await installPackage(path, dir.path);
+    ModelInfo.fromJson(res.entry, builtin: false); // kontrollera beskrivningen innan den sparas
     final list = await _userManifest.exists() ? jsonDecode(await _userManifest.readAsString()) as List : [];
     list.removeWhere((m) => (m as Map)['id'] == res.entry['id']);
     list.add(res.entry);
