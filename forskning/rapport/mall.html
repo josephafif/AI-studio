@@ -145,6 +145,7 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
     <div class="chart" id="kal"></div>
     <details><summary>Visa siffror</summary><div class="tbl" id="kal-tbl"></div></details>
   </figure>
+  <p>Varför kan poängen varna men inte välja? Mellan frågor styrs den av hur <i>bekant</i> ämnet är för modellen, och bekanta ämnen besvaras oftare rätt. Inom en fråga skiljer sig utkasten mest i formulering, och där belönar poängen flyt, inte sanning. <b>Modellens säkerhet mäter förtrogenhet, inte korrekthet.</b></p>
   <p><b>Inbyggt i appen nu:</b> svar under gränsen får markeringen ”Osäker – dubbelkolla gärna”.</p>
 </section>
 
@@ -169,8 +170,14 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
     <div class="chart" id="las"></div>
     <details><summary>Visa siffror</summary><div class="tbl" id="las-tbl"></div></details>
   </figure>
+  <figure>
+    <figcaption>Nya läsövningar av samma slag som träningen (60 st): andel där rätt artikel valdes</figcaption>
+    <div class="legend" id="diag-legend"></div>
+    <div class="chart" id="diag"></div>
+  </figure>
+  <p><b>Han lärde sig läsa, men bara i övningarnas form.</b> På riktiga frågor har han i stället lärt sig mallen ”[namn ur texten] är [frågans ord]”. Det ger säkert framförda fel, där rätt namn ofta stod i texten:</p>
   <div class="examples" id="las-ex"></div>
-  <p id="las-text"></p>
+  <p><b>Lärdom till Lennart 4:</b> läsning måste tränas med varierade frågor där svaret står mitt i texten, med övningar där svaret <i>inte</i> finns i texten, och med vanlig data inblandad så att han inte glömmer. Han tappade från 32 till 25 % utan text. Ett uppslagsverk hjälper ändå lite redan nu: vanliga Lennart 3.4 går från 32 till 37 % med tre träffar i frågan.</p>
 </section>
 
 <section aria-labelledby="s7">
@@ -223,6 +230,7 @@ function el(tag, attrs = {}, parent) {
 function text(parent, x, y, s, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = s; return t; }
 function legend(id, series) {
   const box = document.getElementById(id); if (!box) return;
+  box.replaceChildren();
   for (const s of series) {
     const sp = document.createElement("span"); const i = document.createElement("i");
     i.style.background = s.color; sp.appendChild(i); sp.appendChild(document.createTextNode(s.name)); box.appendChild(sp);
@@ -230,6 +238,7 @@ function legend(id, series) {
 }
 function table(id, headers, rows) {
   const box = document.getElementById(id); if (!box) return;
+  box.replaceChildren();
   const t = document.createElement("table"); const tr = document.createElement("tr");
   headers.forEach(h => { const th = document.createElement("th"); th.textContent = h; tr.appendChild(th); });
   t.appendChild(tr);
@@ -260,7 +269,7 @@ function niceMax(v) { const p = Math.pow(10, Math.floor(Math.log10(v))); for (co
 /* Grupperade staplar */
 function columns(id, { cats, series, unit = "", max, decimals = 1 }) {
   const chart = document.getElementById(id); if (!chart) return;
-  const W = 640, H = 260, L = 44, R = 8, T = 18, B = 30;
+  const W = Math.max(300, chart.clientWidth || 640), H = 250, L = 40, R = 8, T = 18, B = 30;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, chart);
   const tip = tipFor(chart);
   max = max || niceMax(Math.max(...series.flatMap(s => s.values)));
@@ -292,11 +301,12 @@ function columns(id, { cats, series, unit = "", max, decimals = 1 }) {
 /* Liggande staplar, en serie */
 function hbars(id, { rows, max = 60, ref }) {
   const chart = document.getElementById(id); if (!chart) return;
-  const rowH = 30, T = 8, B = 26, L = 190, R = 48, W = 640, H = T + rows.length * rowH + B;
+  const W = Math.max(300, chart.clientWidth || 640), rowH = 30, T = 8, B = 26, L = Math.min(190, Math.round(W * 0.46)), R = 52, H = T + rows.length * rowH + B;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, chart);
   const tip = tipFor(chart);
   const x = v => L + (W - L - R) * v / max;
-  for (let v = 0; v <= max; v += 10) {
+  const step = W < 520 ? 20 : 10;
+  for (let v = 0; v <= max; v += step) {
     el("line", { x1: x(v), x2: x(v), y1: T, y2: H - B, style: "stroke:var(--grid);stroke-width:1" }, svg);
     text(svg, x(v), H - 8, v + " %", { "text-anchor": "middle" });
   }
@@ -318,7 +328,7 @@ function hbars(id, { rows, max = 60, ref }) {
 /* Linjediagram */
 function lines(id, { x, series, ymin = 0, ymax, xlabel = "", unit = "", decimals = 1, xfmt = v => v }) {
   const chart = document.getElementById(id); if (!chart) return;
-  const W = 640, H = 260, L = 44, R = 16, T = 14, B = 40;
+  const W = Math.max(300, chart.clientWidth || 640), H = 250, L = 44, R = 16, T = 14, B = 40;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, chart);
   const tip = tipFor(chart);
   const allX = series.flatMap(s => s.points.map(p => p[0]));
@@ -370,9 +380,9 @@ const findings = [
   ["05", "mix", "Uppslagsverket har svaren, men han kan inte läsa.", "Sökningen hittar svaret i 40–65 % av fallen. Lennart 3.4 svarar lika dåligt med som utan text."],
 ];
 if (lasBase && lasReader) {
-  const b = lasBase["3_traffar"] * 100, r = lasReader["3_traffar"] * 100, b0 = lasBase["utan_text"] * 100;
-  findings.push(["06", r > b + 8 ? "ja" : (r > b ? "mix" : "nej"), r > b + 8 ? "Han kan lära sig läsa." : "Att lära honom läsa gav mindre än väntat.",
-    `Efter 300 steg lästräning på processorn: ${fmt(r)} % rätt med tre Wikipedia-träffar, mot ${fmt(b)} % före (${fmt(b0)} % utan text).`]);
+  const b = lasBase["3_traffar"] * 100, r = lasReader["3_traffar"] * 100;
+  findings.push(["06", "nej", "Snabb lästräning lär ut formen, inte förståelsen.",
+    `På övningar som liknar träningen valde han rätt artikel i 62 % av fallen (före 37 %), men på riktiga frågor sjönk han till ${fmt(r)} % (före ${fmt(b)} %): han hittar på svar i rätt form.`]);
 } else findings.push(["06", "mix", "Lästräningen pågår.", "Resultatet fylls i när finjusteringen är klar."]);
 if (pilot["lennart3"] && pilot["modern"]) {
   const a = lastBpb("lennart3"), bb = lastBpb("modern"), cc = lastBpb("modern+skiss");
@@ -391,6 +401,8 @@ for (const [k, v, head, body] of findings) {
   d.appendChild(tag); d.appendChild(b); d.appendChild(document.createTextNode(" " + body)); li.appendChild(d); ol.appendChild(li);
 }
 
+function drawAll() {
+document.querySelectorAll(".chart").forEach(c => c.replaceChildren());
 /* 01 */
 const eko = [{ name: "Utan ekodekodning", color: C1, values: DATA.eko.utan }, { name: "Med ekodekodning", color: C2, values: DATA.eko.med }];
 legend("eko-legend", eko); columns("eko", { cats: DATA.eko.niva, series: eko, unit: " s" });
@@ -424,17 +436,21 @@ if (lasBase) {
   const ser = lasNames.map((n, i) => ({ name: n, color: [C1, C2][i], values: keys.map(k => 100 * las[n][k]) }));
   legend("las-legend", ser); columns("las", { cats, series: ser, unit: " %", max: 100, decimals: 0 });
   table("las-tbl", ["Modell", ...cats], lasNames.map(n => [n, ...keys.map(k => fmt(100 * las[n][k]) + " %")]));
-  const exBox = document.getElementById("las-ex");
+  const exBox = document.getElementById("las-ex"); exBox.replaceChildren();
   (DATA.las_exempel || []).forEach(e => {
     const d = document.createElement("div"); d.className = "ex";
     const q = document.createElement("div"); q.className = "q"; q.textContent = e.fraga; d.appendChild(q);
-    for (const [tag, t] of [["före", e.fore], ["läsare", e.efter]]) {
+    for (const [tag, t] of [["före", e.fore], ["läsaren", e.efter]]) {
       const r = document.createElement("div"); r.className = "row";
       const a = document.createElement("span"); a.className = "tag"; a.textContent = tag;
       const b = document.createElement("span"); b.textContent = t; r.appendChild(a); r.appendChild(b); d.appendChild(r);
     }
     exBox.appendChild(d);
   });
+}
+if (DATA.diag) {
+  const ds = DATA.diag.map((d, i) => ({ name: d[0], color: [C1, C2][i], values: [d[1], d[2]] }));
+  legend("diag-legend", ds); columns("diag", { cats: ["Alla frågor", "Baklängesfrågor"], series: ds, unit: " %", max: 100, decimals: 0 });
 }
 /* 07 */
 const names = { "lennart3": "A · som Lennart 3", "modern": "B · modern", "modern+skiss": "C · modern + självskiss" };
@@ -450,4 +466,11 @@ if (pser.length) {
   const rows = []; Object.keys(pilot).forEach(v => pilot[v].forEach(r => rows.push([names[v], fmt(r[0], 2), fmt(r[1], 3), fmt(r[2]) + " %", r[3]])));
   table("pilot-tbl", ["Variant", "M tokens", "bits per byte", "mittlager = slut", "tokens/s"], rows);
 }
+}
+drawAll();
+let lastW = window.innerWidth, rt;
+window.addEventListener("resize", () => {
+  if (Math.abs(window.innerWidth - lastW) < 8) return;
+  lastW = window.innerWidth; clearTimeout(rt); rt = setTimeout(drawAll, 150);
+});
 </script>

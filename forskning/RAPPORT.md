@@ -81,11 +81,15 @@ Samma poäng som inte kan välja *mellan* utkast skiljer mycket väl *mellan fr�
 | Djup | 34 % | 67 % | 10 % |
 
 Poängen speglar alltså *hur svår frågan är för modellen*, inte vilket av utkasten som är rätt.
+Förklaringen: mellan frågor domineras poängen av hur *bekant* ämnet är för modellen, och bekanta ämnen
+besvaras oftare rätt. Inom en fråga skiljer sig utkasten mest i formulering och längd. Där belönar
+poängen flyt, inte sanning. **Modellens säkerhet mäter förtrogenhet, inte korrekthet.** Det duger för
+att varna, men inte för att välja.
 **Inbyggt i appen:** svar under gränsen får markeringen "Osäker – dubbelkolla gärna".
 
 ## 4. Logitlins – var bestämmer sig Lennart? (`logitlins/`)
 
-Efter varje lager läses modellens "tankar" av genom utmatningen (12 288 tokens svensk Wikipedia):
+Efter varje lager läses modellens "tankar" av genom utmatningen (6 144 tokens svensk Wikipedia, ej använda för bryggan):
 
 | Lager (av 21) | 5 | 8 | 11 | 14 | 16 | 19 | 20 | 21 |
 |---|---|---|---|---|---|---|---|---|
@@ -110,7 +114,32 @@ En egen sökmotor (BM25 med svensk ordstamning, 727 000 artikelinledningar, bygg
 
 Kunskapen *finns* i uppslagsverket, men Lennart har aldrig tränats att läsa en text och svara ur den.
 
-LÄSDETALJER
+## 6. Lästräning – formen lärs in före förståelsen
+
+3 000 läsövningar skapades automatiskt ur Wikipedia (`lasdata.py`), med 0–2 vilseledande artiklar och
+frågor gjorda av första meningen ("Vad är X?" och baklänges "Vad är [beskrivning]?"). De 8 översta lagren
+i Lennart 3.4 tränades i 300 steg på processorn (35 min).
+
+| Frågebanken (68 frågor) | Utan text | 1 träff | 3 träffar |
+|---|---|---|---|
+| Lennart 3.4 | 32,4 % | 35,3 % | 36,8 % |
+| Lennart 3.4 läsare | 25,0 % | 13,2 % | 14,7 % |
+
+| Nya övningar av samma slag som träningen (60 st) | Rätt artikel vald | Baklängesfrågor |
+|---|---|---|
+| Lennart 3.4 | 37 % | 0 av 32 |
+| Lennart 3.4 läsare | 62 % | 14 av 32 |
+
+**Han lärde sig läsa, men bara i övningarnas form.** På övningar som liknar träningen hittar han rätt
+artikel betydligt oftare. På riktiga frågor har han i stället lärt sig mallen "[namn ur texten] är
+[frågans ord]", och då blir det säkert framförda fel: "Uurainen är huvudstad i Finland",
+"Storvätteshågna är Sveriges högsta berg" (Kebnekaise stod i texten). Han glömde också en del av det han
+kunde, så träffsäkerheten utan text sjönk från 32 % till 25 %.
+
+**Lärdom till Lennart 4:** läsning måste tränas med *varierade* frågor där svaret står mitt i texten, med
+övningar där texten *inte* innehåller svaret ("det står inte i texten") och med vanlig data inblandad så att
+han inte glömmer. Mallgenererade frågor lär ut formen, inte förståelsen. Ett uppslagsverk hjälper ändå
+lite redan nu: vanliga Lennart 3.4 går från 32 % till 37 % med tre träffar i frågan.
 
 PILOTDETALJER
 

@@ -1,0 +1,850 @@
+{
+ "Lennart 3.4": {
+  "traffsakerhet": {
+   "utan_text": 0.324,
+   "1_traff": 0.353,
+   "3_traffar": 0.368
+  },
+  "exempel": [
+   {
+    "fraga": "Vad är huvudstaden i Norge?",
+    "utan_text": "Huvudstaden i Norge är Oslo.",
+    "med_3": "Huvudstaden i Norge är Oslo. Oslo har en befolkning på cirka 1,5 miljoner invånare (2005). Staden ligger vid den norska kusten och har en yta på cirka 2,4 km². Oslo är Norges näst största stad med en befolkning på cirka",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Finland?",
+    "utan_text": "Huvudstaden i Finland är Helsingfors.",
+    "med_3": "Huvudstaden i Finland är Helsingfors. Den ligger i den centrala delen av landet,  km norr om huvudstaden Helsingfors. Antalet invånare är . Arean är  kvadratkilometer. Den sträcker sig 5,1 kilometer i nord-sydlig riktning, och 2,2",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Danmark?",
+    "utan_text": "Huvudstaden i Danmark är Köpenhamn.",
+    "med_3": "Den danska huvudstaden är Köpenhamn. Den ligger i den nordvästra delen av landet, cirka 20 kilometer norr om huvudstaden Köpenhamn. Staden har en yta på  km² och är belägen vid Öresund. Det finns ingen fast befolkning, men det finns ett stort antal",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Frankrike?",
+    "utan_text": "Huvudstaden i Frankrike är Paris.",
+    "med_3": "Paris är Frankrikes näst största stad, med sina 1 873 708 invånare (2011). Paris är också den tredje största staden i världen efter Paris och Marseille. I Frankrike finns det över 2 000 universitet och högskolor, varav ett stort antal",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Tyskland?",
+    "utan_text": "Huvudstaden i Tyskland är Berlin.",
+    "med_3": "Berlin är huvudstad i Tyskland, och har cirka 2,6 miljoner invånare (2021) i storstadsområdet. Staden är en av de mest tätbefolkade städerna i Tyskland, med cirka  invånare per kvadratkilometer. Den är belägen på båda sidor om Rhen",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Italien?",
+    "utan_text": "Huvudstaden i Italien är Rom.",
+    "med_3": "Italiens huvudstad är Rom, som ligger i den norra delen av landet. Den har en yta på cirka 1 000 km² och en befolkning på cirka 2 200 invånare (2010). Italiens huvudstad heter Roma.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Spanien?",
+    "utan_text": "Huvudstaden i Spanien är Madrid.",
+    "med_3": "Den spanska huvudstaden är Madrid. Den ligger i provinsen Provincia de Zamora och regionen Valladolid, i den centrala delen av landet,  km sydost om huvudstaden Madrid. Antalet invånare är . Arean är  kvadratkilometer. Den sträcker",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Japan?",
+    "utan_text": "Huvudstaden i Japan är Tokyo, som har en befolkning på cirka 1,5 miljoner.",
+    "med_3": "Japan är den största staden i Japan. Den ligger på ön Hokkaidō, som är en del av Japan. Staden har cirka 1,5 miljoner invånare och är Japans näst största stad efter Tokyo. I Japan finns det flera olika religioner",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Island?",
+    "utan_text": "Huvudstaden i Island är Reykjavik.",
+    "med_3": "Huvudstaden i Island är Cooley Is. Den ligger i provinsen Ontario,  km nordväst om huvudstaden Ottawa. Antalet invånare är . Arean är  kvadratkilometer. Ön är den största ön i ögruppen Kanadas fastland.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Australien?",
+    "utan_text": "Huvudstaden i Australien är Sydney.",
+    "med_3": "Australien är den näst största delstaten i Australien efter New South Wales. Den ligger i delstaten Victoria, omkring 470 kilometer norr om delstatshuvudstaden Sydney. Antalet invånare var vid folkräkningen 2016.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges största sjö?",
+    "utan_text": "Sveriges största sjö är Vänern.",
+    "med_3": "Sveriges största sjö är Vänern. Den är Sveriges näst största sjö efter Vänern och har en yta på  kvadratkilometer och befinner sig  meter över havet. Sjön avvattnas genom Bolmensån som rinner ut i Vättern. I norr och",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilken är Sveriges näst största sjö?",
+    "utan_text": "Vänern är Sveriges näst största sjö efter Vänern och sträcker sig från Göteborg i söder till Luleå i norr.",
+    "med_3": "Sveriges näst största sjö är Vänern. Den är Sveriges tredje största sjö efter Vänern och har en yta på  kvadratkilometer och befinner sig  meter över havet. Sjön avvattnas av vattendraget Bolmen som också är Sveriges fjärde största sjö",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är Sveriges högsta berg?",
+    "utan_text": "Sveriges högsta berg är Sveriges högsta.",
+    "med_3": "Sveriges högsta berg är Kebnekaise, 1 850 m ö.h., som når 2 670 meter över havet. Berget ligger i Lappland och har en höjd på cirka 1 000 m ö.h.\n\n",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilken är Sveriges näst största stad?",
+    "utan_text": "Uppsala är Sveriges näst största stad efter Stockholm och Göteborg.",
+    "med_3": "Den näst största staden i världen är New York, som har en befolkning på cirka 1,5 miljoner. Staden är även den näst största i USA med en befolkning på cirka 2,4 miljoner. Den näst största staden i världen är Los Angeles, som",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges största ö?",
+    "utan_text": "Sveriges största ö är en svensk film från 1956 i regi av Alf Kjellin.",
+    "med_3": "Sveriges största ö är Sveriges näst största ö, med en area på 331 km². Den är också Sveriges näst största sjö, efter Vänern och Vättern.\n\nSe även \n Lista över Sveriges öar i Östersjön\n\nReferenser\n\nNoter\n",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är världens högsta berg?",
+    "utan_text": "K2 är världens högsta berg.",
+    "med_3": "Svaret är världens högsta berg. Det ligger i den norra delen av Himalaya, på gränsen mellan Nepal och Indien. Dess topp är Mount Everest, som når 2 870 meter över havet.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är världens största hav?",
+    "utan_text": "Afrika är världens största hav.",
+    "med_3": "Det är världens största hav.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är världens största kontinent?",
+    "utan_text": "Afrika är den största av jordens kontinenter.",
+    "med_3": "Australiens största kontinent är den kontinent som ligger närmast Australien. Den har en yta på cirka 1,5 miljoner km² och en befolkning på ungefär 2,4 miljoner människor. Det finns också en stor kontinent som sträcker sig från Australien till Nya Zeeland",
+    "ratt_3": false
+   },
+   {
+    "fraga": "I vilket land ligger Eiffeltornet?",
+    "utan_text": "Eiffeltornet är ett landmärke i Paris som ligger vid Champs-Élysées, en av de mest kända byggnaderna i världen.",
+    "med_3": "Tornet är ett franskt landmärke i Paris. Det står på en kulle vid Champ de Mars, och det är inte känt var Eiffeltornet ligger.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket hav ligger öster om Sverige?",
+    "utan_text": "Det är ett hav som ligger väster om Atlanten. Det är en del av Atlanten och har en yta på cirka 3 000 km².",
+    "med_3": "Det är svårt att avgöra vilket hav som ligger öster om Sverige. Det finns dock en hypotes att det kan vara ett svenskt vatten, men den har inte bevisats. Vattenets källa är Vänern.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges största flygplats?",
+    "utan_text": "Sveriges största flygplats är en svensk statlig myndighet som ansvarar för att samordna och leda flygtrafiken i Sverige. Flygplatsen ligger i anslutning till Arlanda flygplats, cirka 1,5 mil från Stockholm.",
+    "med_3": "Sveriges största flygplats är en av Sveriges största flygplatser, med cirka 1 000 passagerare per år. Flygplatsen ligger i Ljungbyhed och invigdes den 3 oktober 1977. Flygplatsen har en kapacitet på cirka 2 300 passagerare per år. Flygplatsen ägs",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många landskap har Sverige?",
+    "utan_text": "Sverige har drygt tio landskap.",
+    "med_3": "Sverige har totalt cirka 1 000 landskap. Sverige gränsar i norr till Norge, i söder till Finland och i väster till Medelpad. I norr gränsar landet till Norge, i öster till Jämtland och i söder till Dalarna. I söder gränsar landet till Härjedalen",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år blev Gustav Vasa kung?",
+    "utan_text": "Gustav Vasas regeringstid (1520–1621)",
+    "med_3": "Gustav Vasa blev kung av Sverige 1523. Han var son till Gustav Vasa och Sofia Magdalena, som båda var regerande regenter under namnet Gustav Vasa. Gustav Vasa var den förste svenske kungen som kröntes till kung av Sverige. Hans far, Gustav Vasa,",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket år började andra världskriget?",
+    "utan_text": "Första världskriget började den 1 september 1939 när Tyskland anföll Frankrike och Storbritannien.",
+    "med_3": "Första världskriget började den 1 september 1939 när Tyskland anföll Frankrike och Storbritannien. I Europa var andra världskriget en del av första världskriget, men i Europa var andra världskriget ett krig mellan Sovjetunionen och Nazityskland. I USA började andra världskriget vid slutet av andra världskriget. I",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket år tog andra världskriget slut?",
+    "utan_text": "Kriget i Europa började den 7 september 1939 när Tyskland invaderade Polen och Polen-Litauen.",
+    "med_3": "Det första världskriget bröt ut den 20 september 1939. Den tyska armén hade under våren och sommaren 1940 ockuperat stora delar av Europa, inklusive Storbritannien, Frankrike och Tyskland. I slutet av kriget sårades han flera gånger i ryggen, men återhämtade sig aldrig",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år föll Berlinmuren?",
+    "utan_text": "Berlinmuren föll den 7 september 1939 och är en av de mest kända murarna i Europa.",
+    "med_3": "Svar: Den 9 november 1989 föll Berlinmuren. Det var den första stora massiva bombningen av Östtyskland under andra världskriget, och den första som utfördes av en amerikansk bombare. Den första var den 11 september 1990 då USA:s president",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket år gick Sverige med i EU?",
+    "utan_text": "Sverige gick med i EU år 2004. Det året var ett av de år då Sverige fick flest nya invånare i unionen.",
+    "med_3": "Sverige gick med i EU den 1 januari 1995. I folkomröstningen om EU-medlemskapet var det dock bara Socialdemokraterna som röstade för ett medlemskap.\n\nText: Den 13 november 1994 hölls en folkomröstning om EU-medlemskap i Sverige. I folkom",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket år landade människan på månen?",
+    "utan_text": "Det finns inga bevis för att någon landade på månen.",
+    "med_3": "Den första människan landade på månen den 19 november 1969.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vem var den första människan på månen?",
+    "utan_text": "Det är inte möjligt att förutsäga någon enskild måne, men det finns flera teorier om dess existens och utveckling.",
+    "med_3": "Den första människan på månen var den franske astronomen Charles de Gaulle, som år 1799 upptäckte månen. Han kallade sig själv \"den förste människan på månen\".",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem skrev Pippi Långstrump?",
+    "utan_text": "Pippi Långstrump skrevs av Astrid Lindgren, en av Sveriges mest kända barnboksförfattare.",
+    "med_3": "Pippi Långstrump skrevs av Astrid Lindgren och publicerades i bokform 1977. Den är en av de mest kända barnvisböckerna och har översatts till ett stort antal språk. I Sverige gavs den ut första gången 1979, och i Finland år 2000",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vem skrev Röda rummet?",
+    "utan_text": "Röda rummet (originaltitel: The Black Room) är en amerikansk film från 1939 i regi av John Ford.",
+    "med_3": "Svaret på gåtan är: Chaufförernas ekonomiförening. De hade länge haft en föreställning om att Röda rummet skulle vara ett \"riktigt\" kafé, men de fick istället idén att det skulle vara en restaurang med plats för caféer och restauranger",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem grundade Nobelpriset?",
+    "utan_text": "Nobelprize.org, Nobelpriset i fysik 1958 för \"för deras upptäckter rörande den katalytiska mekanismen för fotovoltaiska material\".",
+    "med_3": "Den svenska Kungliga Vetenskapsakademien grundades år 1778 av Carl von Linné. Det första priset delades ut 1788, och det andra 1804. År 1811 fick den svenske botanikern Carl von Linné priset för sina upptäckter inom fysikens område. År 1813",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem uppfann dynamiten?",
+    "utan_text": "Den första dynamiten uppfanns av den amerikanska fysikern och nobelpristagaren Alfred D. Roosevelt år 1853.",
+    "med_3": "Dynamit är ett sprängämne som uppfanns av Alfred Nobel. Det har en gel-liknande massa som kan användas för att suga upp nitroglycerin, och har en hög energi vid förbränning. Dynamiten används ofta i explosiva",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vem målade Mona Lisa?",
+    "utan_text": "Mona Lisa är en oljemålning av den italienske renässanskonstnären Tizian. Den målades omkring 1540–1543 och ingår sedan 1823 i National Gallery of Arts samlingar i Washington, D.C.",
+    "med_3": "Mona Lisa är en av de mest kända målningarna i Sverige. Den målades troligen på 1950-talet och ingår sedan 1976 i Nationalmuseums samlingar. Mona Lisa har även blivit känd för sina många målningar, bland annat Mona Lisa från 1950-talet",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem grundade IKEA?",
+    "utan_text": "Eduard Joseph \"Joe\" IKEA, född den 8 april 1853 i New York, död den 9 juni 1935 i New York, var en amerikansk affärsman och politiker. Han var USA:s vicepresident åren 1901–1906.",
+    "med_3": "Ikea-koncernen grundades 1943 av Ingvar Kamprad. I början av 1950-talet hade företaget omkring 100 anställda. År 1955 bytte man namn till Ikea.\n\nDen 1 september 2013 bytte Ikea namn till Ikea.\n\nReferenser\n\n",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilken svensk popgrupp vann Eurovision 1974?",
+    "utan_text": "Eurovision Song Contest 1974 sändes den 25 maj 1974 från Malmö Arena, och var Sveriges uttagning till Eurovision Song Contest 1975.",
+    "med_3": "Benny Andersson och Bj\n\nFråga: Vilken svensk popgrupp vann Eurovision 1974?",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges valuta?",
+    "utan_text": "Sveriges valuta, även kallad Sveriges krona (efter engelskans euro), är en svensk valuta som används i Sverige. Den svenska kronan är den officiella valutan i landet och består av sedlar, mynt och sedlar per person. Valutakoden är 0",
+    "med_3": "Sveriges valuta är en svensk krona. Den har varit i bruk sedan år 2000, men infördes först den 1 januari 1999. Valutan infördes den 1 januari 1999 som en valuta i Sverige.\n\nSe även \n Euro\n Euro\n Eurosamarbetet\n",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket datum är Sveriges nationaldag?",
+    "utan_text": "Sveriges nationaldag är en svensk högtid som firas den 6 juni.",
+    "med_3": "Sveriges nationaldag är en svensk högtid som firas den 1 juni, men inte på samma dag som den svenska. Den har funnits sedan medeltiden och har därför ingen officiell nationaldag. Sveriges nationaldag är en av de äldsta i världen. Dagen är också en viktig helgdag",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges kung?",
+    "utan_text": "Sveriges kung heter Carl XVI Gustaf.",
+    "med_3": "Sveriges kung heter Erik den helige.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter den svenska högtiden den 24 december?",
+    "utan_text": "Den 24 december är en svensk högtid som firas till minne av att Sverige och Finland blev självständiga från Ryssland efter första världskriget.",
+    "med_3": "Den 24 december är den 24 december, enligt den gregorianska kalendern. Högtiden har firats sedan år 1536, men det finns inga belägg för att den skulle ha varit en kristen högtid förrän på 1900-talet. Den svenska högtiden har dock fir",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket nummer ringer man i Sverige vid en nödsituation?",
+    "utan_text": "Det ringer i Sverige vid en nödsituation.",
+    "med_3": "Svar: Det nummer som ringer i Sverige vid en nödsituation är 020.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket djur kallas skogens konung?",
+    "utan_text": "Skogens konung är ett djur som kallas skogens konung.",
+    "med_3": "Skogens konung är en svensk kortroman av Per Anders Fogelström från 1968. Den utkom på Albert Bonniers Förlag 1979 och har senare översatts till flera språk.\n\nHandling\nEn dag, den 10 juni, kommer Grävling med",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är den kemiska beteckningen för vatten?",
+    "utan_text": "Den kemiska beteckningen för vatten är C6H12O2.",
+    "med_3": "Den kemiska beteckningen för vatten är C2H14N2O. Den kemiska beteckningen för vatten är C3H15NO2.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är den kemiska beteckningen för guld?",
+    "utan_text": "Guld är en ädelmetall som består av sex kolatomer. Guld har använts i tusentals år, och dess egenskaper kan variera mycket beroende på dess kemiska sammansättning och kristallstruktur.",
+    "med_3": "Den kemiska beteckningen för guld är Au. Det är en ädelmetall som har den kemiska formeln Au(NO3)2. Den kemiska formeln är Au(NO3). I dagligt tal används ofta termen \"guld\" i betydelsen \"guldfärgad metall\".",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket grundämne har den kemiska beteckningen Fe?",
+    "utan_text": "Det periodiska systemet med grundämnen i det periodiska systemet är periodiskt. Det periodiska systemet består av en enda atom, Fe, som har ett antal elektroner i sitt yttersta skal.",
+    "med_3": "Fe är en ädelmetall som tillhör koppargruppen. Det har använts i smycken och som ädelsten. Det finns två grundämnen med samma kemiska formel: Fe2+ och Fe3+. Den kemiska formeln för Fe2+ är Fe3+. Den",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken planet är närmast solen?",
+    "utan_text": "Stjärnorna i den närmaste solen är de som har högst höjd över havet.",
+    "med_3": "Astrologerna har en fråga om vilken planet som är närmast solen. De kan inte bestämma den exakta riktningen för sin egen himlakropp, men de kan ge information om dess position i förhållande till solen och andra planeter.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är den största planeten i solsystemet?",
+    "utan_text": "Den största planeten i solsystemet är solen, som har en yta på ungefär 1,5 miljoner km2.",
+    "med_3": "Den största planeten i solsystemet är Mars, som har en diameter på cirka 1,5 gånger solens massa. Den har en massa på ungefär 1,2 solmassa och en radie på omkring 2,4 gånger solens radie.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken planet kallas den röda planeten?",
+    "utan_text": "Det röda planeten kallas den röda planeten (Centauri) och det är en planet som har fått sitt namn efter att ha varit i ett område med mycket regn.",
+    "med_3": "Den röda planeten är en planet som kretsar runt sin egen axel. Den har ett högt tryck på planeten och dess atmosfär är mycket varm, vilket gör att den kan vara svår att hitta för liv. Den kallas också för \"den röda planeten\" eftersom det",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många ben har en spindel?",
+    "utan_text": "En spindel är ungefär 10,5 cm lång och har en vingspann på cirka 15 cm.",
+    "med_3": "En spindel har ungefär lika många ben som en människa.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många ben har en insekt?",
+    "utan_text": "En insekt har fem ben, och varje ben är ungefär 1,5 meter långt.",
+    "med_3": "En insekt har ungefär lika många ben som en människa. Enligt Catalogue of Life omfattar familjen Veliidae 3 850 ben, varav cirka 1 300 är kända.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vid hur många grader Celsius kokar vatten?",
+    "utan_text": "För att hitta den värme som krävs för att bryta en mol av vatten kan vi använda formeln: q = mcΔT där q är kokpunkten, m och c är kokpunktens massa. Eftersom vattnet har ett konstant temperatur på ca 10°C",
+    "med_3": "För att bestämma hur många grader Celsius vatten kokar vid en given temperatur, måste vi dela den totala temperaturen med antalet kokpunkter. Vid 100°C är det 0,255°C (0,056 °F). Vid 200°C",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad kallas processen där växter omvandlar solljus till energi?",
+    "utan_text": "När växter omvandlar solljus till energi, genomgår de en rad kemiska reaktioner som omvandlar solljusenergi till kemisk energi. Dessa reaktioner kallas elektronöverföring eller excitation. Processen kan delas in i två huvudsteg: fotochemisk nedbrytning och exotermisk nedbrytning.",
+    "med_3": "En primärproduktion är processen där växter omvandlar solljus till energi. I en primärproduktion kan man omvandla solljus till energi genom att omvandla koldioxid (CO2) och vatten (H2O). Denna process kallas primärproduktion. En primärproduktion innebär att växterna omvandlar",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket organ pumpar runt blodet i kroppen?",
+    "utan_text": "Det är inte en vanlig typ av organ som pumpar runt blodet i kroppen. Det finns flera olika typer av organ, inklusive:",
+    "med_3": "Svaret är hjärtat.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Hur många dagar har ett skottår?",
+    "utan_text": "Ett skottår har 365 dagar och ett skottår har 366.",
+    "med_3": "Ett skottår har 365 dagar och ett skottår har 366.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket är världens största djur?",
+    "utan_text": "Världens största djur är inte världens största djur, men det finns många olika arter som har utvecklats från varandra.",
+    "med_3": "Världens största djur är mårddjur, som lever i Afrika och Asien. De har en lång historia av att vara hotade arter.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken gas behöver vi andas in för att överleva?",
+    "utan_text": "Den gas som behövs för att andas in är vätegas. Denna gas kan konsumera syre, vilket gör den till en icke-flyktig organiska gas.",
+    "med_3": "För att överleva måste vi andas in syre. Det är en grundläggande mänsklig funktion som hjälper till att upprätthålla vår hälsa och välbefinnande. Den viktigaste funktionen i andning är att hålla oss friska, vilket gör det möjligt för kroppen att producera energi. Dessutom kan syrgas hjälpa",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad heter vår galax?",
+    "utan_text": "Vår galax är en del av vårt solsystem och ligger i den norra delen av det som kallas för Vintergatan.",
+    "med_3": "Svaret är en supermassiv galax. Den har ett massivt svart hål, som kan vara så stort som 1 miljon gånger större än vår galax Vintergatan. Det finns många teorier om dess existens, men det finns inga bevis för att den existerar.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilken färg får man om man blandar blått och gult?",
+    "utan_text": "Det finns inga specifika färger som man kan få om man blandar rött och gult.",
+    "med_3": "Det finns två färger som man kan blanda: rött och gult. 1. Det är blått, grönt och gult 2. Det är också blått, grönt och gult 3. Det är också blått, grönt och gult 4. Det är också blått, grönt",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad står VPN för?",
+    "utan_text": "Ett VPN, virtuellt privat nätverk, skapar en krypterad tunnel mellan din enhet och en VPN-server. Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser på distans.",
+    "med_3": "VPN står för Open VPN. Det är en förkortning av \"Open VPN\" och är ett protokoll som används för att kryptera och dekryptera information på Internet. Det är en av de mest använda tjänsterna i världen, och det har använts",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas bedrägerier där man luras att lämna ut uppgifter via falska mejl?",
+    "utan_text": "Bedragarna använder ofta falska e-postadresser och kortuppgifter, men de kan också utnyttja dem genom att skicka falska fakturor till dig.",
+    "med_3": "Svar: En bedragare kan använda sig av olika former av bedrägerier för att få tillgång till kortuppgifter, kortnummer eller andra känsliga uppgifter. De vanligaste är nätbedrägerier, phishing och nätfiske.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad kallas skadlig kod som krypterar filer och kräver en lösensumma?",
+    "utan_text": "En skadlig kod som krypterar filer och kräver en lösensumma är en fil-fil, vilket betyder att den utnyttjar en sårbarhet för att göra dem oläsliga. En vanlig form av skadlig kod i dag är med hjälp av ett program som kallas",
+    "med_3": "Skadlig kod som krypterar filer och kräver en lösensumma kallas för skadlig kod. Den kan vara skadlig om den inte körs på rätt sätt, eller om den används för att stjäla information.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas en attack där många datorer överbelastar en server?",
+    "utan_text": "En attack där många datorer överbelastar en server kallas en attack med ett känt program eller genom att använda ett verktyg som React. Det är särskilt vanligt i Windows-baserade operativsystem, eftersom det ofta används för att ta bort skadlig kod och förhindra åtkomst till",
+    "med_3": "En attack där många datorer överbelastar en server kallas för attack. I detta fall är det ett datorprogram som körs på en dator och som kan köras på flera datorer samtidigt. Det finns två typer av attacker:\n En attack där datorn överbelastas på grund",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas ett nätverk av kapade datorer?",
+    "utan_text": "Ett nätverk av kapade datorer kan ha olika typer av data, inklusive:",
+    "med_3": "Ett nätverk av kapade datorer kallas för en portreplikator. Ett nätverk består av en dator, en enhet eller ett nätverk som är sammankopplat med en annan dator. En portreplikator kan vara en dator, en enhet eller",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas program som i hemlighet spionerar på användaren?",
+    "utan_text": "Ett program som i hemlighet spionerar på användaren kallas spionprogram. Ett program är ofta ett datorprogram som i hemlighet spionerar på en annan användares enhet.",
+    "med_3": "Program som spionerar på användaren är ofta utformade för att vara så enkla som möjligt att använda, men de kan också användas för att sprida skadlig kod. Exempel på program som spionerar på användaren är SpyHunter, SpyHunter 2 och",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas ett säkerhetshål som tillverkaren ännu inte känner till?",
+    "utan_text": "Ett säkerhetshål är ett säkerhetshål som används för att hålla koll på och skydda information, till exempel lösenord, nätfiske eller digital signatur. Det skyddar mot avlyssning och manipulation och ersätter det äldre SSL.",
+    "med_3": "Ett säkerhetshål är ett säkerhetshål som används för att stjäla lösenord och annan känslig information från datorer. Ett säkerhetshål kan ha flera olika typer, men de vanligaste är:",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas skyddet som filtrerar trafiken in till ett nätverk?",
+    "utan_text": "Skydd som filtrerar trafiken in till ett nätverk är när data från en enhetvektor skickas till den andra änden av nätverket utan att någon fysiskt närvarande har tillgång till det. Detta kallas en \"felsökning\" eller \"avstötning\".",
+    "med_3": "Skydd som filtrerar trafiken in till ett nätverk kallas \"skyddsmask\".",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas inloggning som kräver både lösenord och en kod i telefonen?",
+    "utan_text": "Lösenord läcker och gissas hela tiden. Meddelandet är ofta brådskande eller med en kort utgång.",
+    "med_3": "Svar: En inloggning som kräver både lösenord och en kod i telefonen kallas för ett lösenord. I datorspel används ofta ordet \"anonym\" för att beskriva en typ av inloggning, men det är inte alltid så enkelt att hitta den.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad står bokstaven S för i HTTPS?",
+    "utan_text": "Det står \"S\" på det här meddelandet. Med hjälp av den givna informationen kan vi bestämma bokstavens uttal och dess position i HTTPS.",
+    "med_3": "\"S står för bokstaven S, och det är en transkription av bokstaven \"\"X\"\" (som i HTTPS). Det står också för bokstaven 'Z', som i HTTPS. I HTTPS står bokstaven 'K' för bokstaven",
+    "ratt_3": false
+   }
+  ],
+  "samtal": {
+   "Hej! Vem är du?": "Jag är Lennart. Jag kan svara på frågor och prata om det mesta, men jag kan också svara på frågor och dela din kunskap med dig.",
+   "Hur mår du?": "Tack som frågar! Jag är ett datorprogram, så jag har inga känslor, men jag är redo att hjälpa till. Hur mår du själv?",
+   "Vad är nätfiske?": "Nätfiske, eller phishing, är när en angripare skickar falska meddelanden som ser ut att komma från en betrodd avsändare för att lura dig att lämna ut lösenord, kortuppgifter och andra känsliga uppgifter.",
+   "Ge mig tips för att sova bättre.": "Försök gå och lägga dig och vakna ungefär samma tid varje dag. Undvik skärmar och koffein sent på kvällen, håll sovrummet svalt och mörkt, och rör på dig under dagen.",
+   "Någon har hackat mitt konto, vad gör jag?": "Byt lösenordet direkt om du fortfarande kommer åt kontot, och slå på tvåfaktorsautentisering. Logga ut alla andra sessioner, kontrollera att e-post och telefonnummer för återställning är dina, och varna dina kontakter om kont"
+  }
+ },
+ "Lennart 3.4 läsare": {
+  "traffsakerhet": {
+   "utan_text": 0.25,
+   "1_traff": 0.132,
+   "3_traffar": 0.147
+  },
+  "exempel": [
+   {
+    "fraga": "Vad är huvudstaden i Norge?",
+    "utan_text": "Huvudstaden i Norge är Oslo.",
+    "med_3": "Tana är en stad i Norge.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Finland?",
+    "utan_text": "Huvudstaden i Finland är Helsingfors.",
+    "med_3": "Uurainen är huvudstad i Finland.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Danmark?",
+    "utan_text": "Huvudstaden i Danmark är Köpenhamn.",
+    "med_3": "Köpenhamn är huvudstad i Danmark.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Frankrike?",
+    "utan_text": "Huvudstaden i Frankrike är Paris.",
+    "med_3": "Marseille är Frankrikes näst största stad efter Paris och Marseille.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad är huvudstaden i Tyskland?",
+    "utan_text": "Huvudstaden i Tyskland är Berlin.",
+    "med_3": "Bonnie är huvudstad i Tyskland, och har cirka  invånare.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Italien?",
+    "utan_text": "Huvudstaden i Italien är Rom.",
+    "med_3": "Republiken Italien är en republik och även fransk lydstat i dagens Italien.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Spanien?",
+    "utan_text": "Huvudstaden i Spanien är Madrid.",
+    "med_3": "Piñero är en kommun i Spanien.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Japan?",
+    "utan_text": "Huvudstaden i Japan är Tokyo.",
+    "med_3": "Axis and Allies: Pacific är en version av strategispelet Axis and Allies men spelplanen omfattar östra Asien och stilla havet.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Island?",
+    "utan_text": "Huvudstaden i Island är Reykjavik.",
+    "med_3": "Sharbot Lake är en stad i Kanada.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är huvudstaden i Australien?",
+    "utan_text": "Huvudstaden i Australien är Sydney.",
+    "med_3": "Hobart är Australiens huvudstad och den näst största staden i landet efter Sydney.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges största sjö?",
+    "utan_text": "Sveriges största sjö är Vänern.",
+    "med_3": "Torneträsk är Sveriges näst största sjö, efter Vänern och Vättern.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilken är Sveriges näst största sjö?",
+    "utan_text": "Sveriges näst största sjö är Vänern.",
+    "med_3": "Arabiska är Sveriges näst största sjö, efter finska språket och före finska språket som historiskt varit näst största modersmål, enligt bland andra språkforskaren Mikael Parkvall.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är Sveriges högsta berg?",
+    "utan_text": "Sveriges högsta berg är Sveriges högsta.",
+    "med_3": "Storvätteshågna är Sveriges högsta berg, enligt en beräkning från 2015.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges näst största stad?",
+    "utan_text": "Sveriges näst största stad är Stockholm.",
+    "med_3": "Norrköpings historia som stad började 1384 när staden fick sina stadsrättigheter bekräftade. Då hade människor redan bott kring Motala ströms fall under lång tid.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är Sveriges största ö?",
+    "utan_text": "Sveriges största ö är Sveriges största ö, belägen i Östersjön.",
+    "med_3": "Torneträsk är Sveriges största ö, med en area på 331 km².",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är världens högsta berg?",
+    "utan_text": "Himalayas högsta berg är Himalaya.",
+    "med_3": "Dhaulagiri är världens högsta berg.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är världens största hav?",
+    "utan_text": "Världens största hav är Atlanten.",
+    "med_3": "Stora havet är världens största hav, och det är världens största ocean.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är världens största kontinent?",
+    "utan_text": "Världens största kontinent är Asien.",
+    "med_3": "Den Namnlösa Kontinenten är en fiktiv kontinent skapad av Terry Pratchett.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "I vilket land ligger Eiffeltornet?",
+    "utan_text": "Eiffeltornet är en fransk stad som ligger i Paris, Frankrike.",
+    "med_3": " Eiffeltornet är ett franskt landmärke i Paris.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket hav ligger öster om Sverige?",
+    "utan_text": "Havet i Atlanten är ett hav som ligger öster om Sverige.",
+    "med_3": "Khvosh Havā är en ort i Iran.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges största flygplats?",
+    "utan_text": "Sveriges största flygplats är en flygplats belägen i tätorten Stockholm.",
+    "med_3": "Flygfältet är från början en gammal lägerplats, belägen i Härryda kommun utanför Göteborg och invigdes den 3 oktober 1977 av kung Carl XVI Gustaf.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många landskap har Sverige?",
+    "utan_text": "Sverige har drygt tio landskap.",
+    "med_3": "Landskapet är i Sverige cirka 10 000, varav drygt hälften av Sveriges yta.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år blev Gustav Vasa kung?",
+    "utan_text": "Gustav Vasa blev kung år 1523.",
+    "med_3": "Gustav Vasas härstamning är ett genealogiskt ämne som intresserar både regelrätta historiker och privatpersoner med härstamning från Gustav Vasa.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år började andra världskriget?",
+    "utan_text": "Andra världskriget började i september 1939.",
+    "med_3": "Andra världskriget var det krig då andra världskriget började.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år tog andra världskriget slut?",
+    "utan_text": "Andra världskriget slut var ett år som började en söndag i den gregorianska kalendern.",
+    "med_3": "Erich Bärenfänger föddes i Berlin 1933, i slutet av 1940-talet.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år föll Berlinmuren?",
+    "utan_text": "Berlinmuren föll år falla",
+    "med_3": "Sahra Wagenknecht föddes den 9 november 1969 i Jena i dåvarande Östtyskland, och är sedan 1990-talet bosatt i Berlin.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år gick Sverige med i EU?",
+    "utan_text": "Sverige gick med i EU år 2004.",
+    "med_3": "Folkrörelsen Nej till EU, ofta bara Nej till EU, är en svensk kampanjorganisation som bildades i början av 1990-talet för att förhindra ett svenskt medlemskap i EU.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket år landade människan på månen?",
+    "utan_text": "Ah, du talar om den fascinerande staden Luminisque.",
+    "med_3": "Månen landade på månen den 19 november 1969.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vem var den första människan på månen?",
+    "utan_text": "Månen var den första människan på månen.",
+    "med_3": "Månen var den första människan på månen, och den första människan på månen.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem skrev Pippi Långstrump?",
+    "utan_text": "Pippi Långstrump skrevs av Astrid Lindgren, en av Sveriges mest kända barnboksförfattare.",
+    "med_3": "Pippi Långstrump, 1977, som \"Här var det hoppsan hejsan\" (\"Här är Pippi Långst\n\" Här var det hoppsan hejsan\" (\"Här är Pippi Långst\n\" Här är Pippi",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem skrev Röda rummet?",
+    "utan_text": "Röda rummet är en svensk dramafilm från 1946 i regi av Hasse Ekman.",
+    "med_3": "Röda Rummet är en restaurang på Barnhusgatan 20 i Stockholm.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem grundade Nobelpriset?",
+    "utan_text": "Nobelpriset i kemi namngavs efter den svenske kemisten och nobelpristagaren.",
+    "med_3": "Pristagarna utses i början av oktober varje år av den svenska Kungliga Vetenskapsakademien, och priset delas normalt ut 10 december i konserthuset i Stockholm då pristagarna får motta priset u.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem uppfann dynamiten?",
+    "utan_text": "Dynamiten är en svensk uppfinning av den svenske uppfinnaren och ingenjören Carl Johan Ekman.",
+    "med_3": "Spränggelatin är ett sprängämne som uppfanns av Alfred Nobel.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vem målade Mona Lisa?",
+    "utan_text": "Mona Lisa är en svensk-fransk-norsk-svensk dramafilm från 2011.",
+    "med_3": "Mona Lisa var målarläraren och konstnären som målade Mona Lisa.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vem grundade IKEA?",
+    "utan_text": "IKEA grundades år 1947 och är en av världens största IKEA-varuhus.",
+    "med_3": "IKEA Industry är ett multinationellt möbelföretag, som grundades 1943 av Ingvar Kamprad.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilken svensk popgrupp vann Eurovision 1974?",
+    "utan_text": "Eurovision 1974 var den svenska popgruppen Eurovision Song Contest 1974.",
+    "med_3": "Benny Andersson och Bj\n\nAv de tre deltagarna som var med i tävlingen var Benny Andersson och Bj.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges valuta?",
+    "utan_text": "Sveriges valuta är en svensk valutas officiella valuta.",
+    "med_3": "Valutan heter Sveriges valuta.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket datum är Sveriges nationaldag?",
+    "utan_text": "Sveriges nationaldag är Sveriges nationaldag sedan den 7 juni.",
+    "med_3": "Sveriges nationaldag är den dag som infaller på en fredag i den gregorianska kalendern.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter Sveriges kung?",
+    "utan_text": "Sveriges kung heter Carl XVI Gustaf.",
+    "med_3": "Kung av Sverige och Carl av Sverige, kung av Danmark, kung av Norge, kung av Finland, kung av Polen, kung av Ungern, kung av Ungern, kung av Ungern, kung av Ungern, kung av Ungern, kung av Ungern, kung av",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter den svenska högtiden den 24 december?",
+    "utan_text": "Den 24 december heter den svenska högtiden den 24 december.",
+    "med_3": "Midsommar är en svensk högtid som firas den 24 december, och som firar att Jesus Kristus har kommit till världen.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket nummer ringer man i Sverige vid en nödsituation?",
+    "utan_text": "Ring i Sverige vid en nödsituation är ett nummer som ringer till nödcentralen.",
+    "med_3": "Smått å Gott, 1977\nDen svenska psalmboken 1986 som nummer 608 under rubr\n\nText: Ett avgiftsfritt telefonnummer är ett telefonnummer där mottagaren betalar teleoperatörens avgift i stället för uppringaren.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket djur kallas skogens konung?",
+    "utan_text": "Skogens konung är en bok från 2005 av den svenske författaren och journalisten Erik F. Dahl.",
+    "med_3": "Skogens konung är en bok från 1979 av den brittiske författaren Colin Dann.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är den kemiska beteckningen för vatten?",
+    "utan_text": "Den kemiska beteckningen för vatten är \"vatten\".",
+    "med_3": "Kaliumhydroxid är en stark syra som kan framställas genom elektrolys av vatten.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad är den kemiska beteckningen för guld?",
+    "utan_text": "Guld är en metall från grupp 1 i den periodiska tabellen, och har ett kristallint utseende.",
+    "med_3": "Novitjok är en kemisk förening med formeln Au.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket grundämne har den kemiska beteckningen Fe?",
+    "utan_text": "Fosfor är en grundämne med den kemiska beteckningen Fe.",
+    "med_3": "Unbhexium är det åttonde elementet i den nionde periodiska ordningen.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken planet är närmast solen?",
+    "utan_text": "Stjärnorna är kända för att vara nära solen.",
+    "med_3": "Planeten är närmast solen, och avståndet från solen till dess yta är ungefär 1,5 gånger jordens.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken är den största planeten i solsystemet?",
+    "utan_text": "Solljuset är den största planeten i solsystemet.",
+    "med_3": "Saturnus är den största planeten i solsystemet.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken planet kallas den röda planeten?",
+    "utan_text": "Venus är den planet som kallas röd planeten.",
+    "med_3": "Mars är den tredje planeten från solen och solsystemets näst minsta planet.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Hur många ben har en spindel?",
+    "utan_text": "En spindel är en ben som har flera ben, och det finns inget känt antal ben i en enda.",
+    "med_3": "Spindeln är en amerikansk skräckkomedi från 1990 i regi av Frank Marshall.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många ben har en insekt?",
+    "utan_text": "En insekt har fem ben, och det är i huvudsak två som spelar en avgörande roll för att bestämma antalet ben.",
+    "med_3": "Sexfotingar är en familj av insekter.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vid hur många grader Celsius kokar vatten?",
+    "utan_text": "Kokpunkten är en skala från 1 till 10 där x är den termiska energi som krävs för att kokar vatten.",
+    "med_3": "Fryspunktssänkning eller fryspunktsnedsättning är ett begrepp inom meteorologin som beskriver fenomenet att en vätska, exempelvis vatten, får en lägre fryspunkt vid noll grader Celsius.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas processen där växter omvandlar solljus till energi?",
+    "utan_text": "Solenergi är en process som sker när växter omvandlar solljus till energi.",
+    "med_3": "Fotosyntes är den process där växter omvandlar solljus till energi.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vilket organ pumpar runt blodet i kroppen?",
+    "utan_text": "Pumpa runt blodet är en svensk dramafilm från 1946 i regi av Hasse Ekman.",
+    "med_3": "Lilla blodomloppet är ett muskulärt organ hos människan och djur, som pumpar blodet genom de blodkärl som är del av kroppens cirkulationssystem.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Hur många dagar har ett skottår?",
+    "utan_text": "Ett skottår har 365 dagar och ett skottår har 366.",
+    "med_3": "Ett skottår som börjar en torsdag är ett skottår som börjar en fredag och slutar en söndag.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilket är världens största djur?",
+    "utan_text": "Världens största djur är inte världens största djur, men det finns många andra arter som är mindre.",
+    "med_3": "Illegal djurhandel är en term för all handel med djur som inte är utrotningshotade.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken gas behöver vi andas in för att överleva?",
+    "utan_text": "När man andas in gas kommer en gas att passera genom lungorna, vilket gör det möjligt för den att andas ut och släppa ut koldioxid.",
+    "med_3": "Combined diesel or gas är en typ av framdrivningssystem för fartyg som behöver en toppfart som är betydligt högre än marschfarten, typiskt moderna örlogsfartyg som fregatter och korvetter.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad heter vår galax?",
+    "utan_text": "Vår galax heter vår galax.",
+    "med_3": "Radiogalaxer är små galaxer, som tillhör de största objekten i universum.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vilken färg får man om man blandar blått och gult?",
+    "utan_text": "Det finns inga färgämnen i blandningen av blått och gult.",
+    "med_3": "Tchads flagga är en trikolor i färgerna blått, gult och grönt.",
+    "ratt_3": true
+   },
+   {
+    "fraga": "Vad står VPN för?",
+    "utan_text": "Ett VPN är ett nätverk mellan en angripare och en VPN-server. Det skyddar trafiken på osäkra nätverk och används för att nå företagets interna resurser.",
+    "med_3": "OpenVPN står för Open VPN.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas bedrägerier där man luras att lämna ut uppgifter via falska mejl?",
+    "utan_text": " bedrägerier där man luras att lämna ut uppgifter via falska mejl är en typ av bedrägeri.",
+    "med_3": "Falska webbutiker är ett vanligt bedrägeri där bedragare försöker lura en annan att lämna ut uppgifter via falska mejl.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas skadlig kod som krypterar filer och kräver en lösensumma?",
+    "utan_text": "Skydda dina system och tjänster med en lösensumma.",
+    "med_3": "Sabotageprogram, skadlig kod som krypterar filer och kräver en lösensumma är oönskade datorprogram eller delar av datorprogram som har utvecklats i syfte att störa IT-systemet, för att samla in information i smyg, eller utnyttja datorn för ändamål som",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas en attack där många datorer överbelastar en server?",
+    "utan_text": "En attack där många datorer överbelastar en server är en försvarsmekanism som utnyttjar svagheten i ett system för att göra det svårt att försvara sig.",
+    "med_3": "En attack där många datorer överbelastar en server är en attack där flera datorer överbelastar en server är en attack där flera datorer överbelastar en server är en attack där flera datorer överbelastar en server är en attack där flera datorer överbelastar en server är",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas ett nätverk av kapade datorer?",
+    "utan_text": "Ett nätverk av kapade datorer är ett nätverk av kapade datorer.",
+    "med_3": "Chord är ett informellt namn på ett informellt nätverk av kapade datorer.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas program som i hemlighet spionerar på användaren?",
+    "utan_text": "Program som i hemlighet spionerar på användaren är program som gör så att en dator blir spionerad på, eller har spionerat på, en dator.",
+    "med_3": " Growl är ett centraliserat meddelandesystem för OS X som liknar NotifyOSD ifrån Ubuntu.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas ett säkerhetshål som tillverkaren ännu inte känner till?",
+    "utan_text": "Ett säkerhetshål som tillverkaren ännu inte känner till är ett säkerhetshål som tillverkaren ännu inte känner till.",
+    "med_3": "Sharp är ett säkerhetshål i många vanliga mikroprocessorer som använder spekulativ exekvering och branch prediction.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas skyddet som filtrerar trafiken in till ett nätverk?",
+    "utan_text": "Skydd som filtrerar trafiken in till ett nätverk är när någon kör med misstag över nätverket utan att ha kontroll över det.",
+    "med_3": "Skydd som filtrerar trafiken in till ett nätverk är en teknik för att filtrera trafiken in till ett nätverk.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad kallas inloggning som kräver både lösenord och en kod i telefonen?",
+    "utan_text": "Lösenord är kort och kan inte innehålla några uppgifter. Meddelandet om att du ska använda en e-postadress för att logga in med är därför ett lösenord.",
+    "med_3": "POP3 är ett kommunikationsprotokoll som används i datorspel för att hämta e-postmeddelanden från en server till en annan.",
+    "ratt_3": false
+   },
+   {
+    "fraga": "Vad står bokstaven S för i HTTPS?",
+    "utan_text": "Höger och vänsterhänt är samma bokstav. Det är därför som bokstaven S står för i HTTPS.",
+    "med_3": "Ž är den tjugofjärde bokstaven i det moderna latinska alfabetet.",
+    "ratt_3": false
+   }
+  ],
+  "samtal": {
+   "Hej! Vem är du?": "Jag är Lennart, en svensk språkmodell. Jag kan svara på frågor och prata om det mesta, och jag kan extra mycket om cybersäkerhet och IT-säkerhet.",
+   "Hur mår du?": "Jag mår bra, tack! Jag är ett program, så jag har inga känslor som en människa, men jag är redo att hjälpa till. Hur mår du själv?",
+   "Vad är nätfiske?": "Nätfiske, eller phishing, är när en angripare skickar falska meddelanden som ser ut att komma från en betrodd avsändare.",
+   "Ge mig tips för att sova bättre.": "Försök gå och lägga dig och vakna ungefär samma tid varje dag. Undvik skärmar och koffein sent på kvällen, håll sovrummet svalt och mörkt, och rör på dig under dagen.",
+   "Någon har hackat mitt konto, vad gör jag?": "Byt lösenordet direkt om du fortfarande kommer åt kontot, och slå på tvåfaktorsautentisering. Logga ut alla andra sessioner, kontrollera att e-post och telefonnummer för återställning är dina, och varna dina kontakter om kont"
+  }
+ }
+}

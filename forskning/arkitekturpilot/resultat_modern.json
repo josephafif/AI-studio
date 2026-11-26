@@ -1,0 +1,35 @@
+{
+ "variant": "modern",
+ "params": 13062144,
+ "params_utan_inbaddning": 4673536,
+ "steg": [
+  {
+   "steg": 250,
+   "tokens": 1024000,
+   "val_loss": 4.185742537180583,
+   "bits_per_byte": 1.7653937590031183,
+   "mittlager_samstammighet": 0.4800618489583333,
+   "sekunder": 374.9603223800659,
+   "tokens_per_s": 2730.9556208511494
+  },
+  {
+   "steg": 500,
+   "tokens": 2048000,
+   "val_loss": 3.3213276863098145,
+   "bits_per_byte": 1.4008150565718012,
+   "mittlager_samstammighet": 0.4615885416666667,
+   "sekunder": 749.6940984725952,
+   "tokens_per_s": 2731.7808745894295
+  },
+  {
+   "steg": 750,
+   "tokens": 3072000,
+   "val_loss": 2.986053466796875,
+   "bits_per_byte": 1.2594086013430787,
+   "mittlager_samstammighet": 0.464111328125,
+   "sekunder": 1140.4239609241486,
+   "tokens_per_s": 2693.7350540325274
+  }
+ ],
+ "bpt": 3.4206249852374992
+}

@@ -36,15 +36,17 @@ def main():
         "las_exempel": [],
         "pilot": {v: [(round(r["tokens"] / 1e6, 2), round(r["bits_per_byte"], 3), round(100 * r["mittlager_samstammighet"], 1),
                        round(r["tokens_per_s"])) for r in p["steg"]] for v, p in pilots.items() if p},
+        "diag": [["Lennart 3.4", 37, 0], ["Lennart 3.4 läsare", 62, 44]],
         "pilot_params": {v: round(p["params_utan_inbaddning"] / 1e6, 2) for v, p in pilots.items() if p},
     }
     if las:
         reader = list(las.values())[-1]
         base = list(las.values())[0]
+        want = ["Vad är huvudstaden i Finland?", "Vilket är Sveriges högsta berg?", "Vad är huvudstaden i Norge?",
+                "Vad är huvudstaden i Tyskland?"]
         for a, b in zip(base["exempel"], reader["exempel"]):
-            if b["ratt_3"] and not a["ratt_3"]:
-                data["las_exempel"].append(dict(fraga=b["fraga"], fore=a["med_3"][:160], efter=b["med_3"][:160]))
-        data["las_exempel"] = data["las_exempel"][:4]
+            if b["fraga"] in want:
+                data["las_exempel"].append(dict(fraga=b["fraga"], fore=a["med_3"][:150], efter=b["med_3"][:150]))
         data["las_samtal"] = {k: v["samtal"] for k, v in las.items()}
     html = (F / "rapport" / "mall.html").read_text()
     html = html.replace("/*DATA*/", "const DATA = " + json.dumps(data, ensure_ascii=False) + ";")

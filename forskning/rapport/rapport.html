@@ -145,6 +145,7 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
     <div class="chart" id="kal"></div>
     <details><summary>Visa siffror</summary><div class="tbl" id="kal-tbl"></div></details>
   </figure>
+  <p>Varför kan poängen varna men inte välja? Mellan frågor styrs den av hur <i>bekant</i> ämnet är för modellen, och bekanta ämnen besvaras oftare rätt. Inom en fråga skiljer sig utkasten mest i formulering, och där belönar poängen flyt, inte sanning. <b>Modellens säkerhet mäter förtrogenhet, inte korrekthet.</b></p>
   <p><b>Inbyggt i appen nu:</b> svar under gränsen får markeringen ”Osäker – dubbelkolla gärna”.</p>
 </section>
 
@@ -169,8 +170,14 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
     <div class="chart" id="las"></div>
     <details><summary>Visa siffror</summary><div class="tbl" id="las-tbl"></div></details>
   </figure>
+  <figure>
+    <figcaption>Nya läsövningar av samma slag som träningen (60 st): andel där rätt artikel valdes</figcaption>
+    <div class="legend" id="diag-legend"></div>
+    <div class="chart" id="diag"></div>
+  </figure>
+  <p><b>Han lärde sig läsa, men bara i övningarnas form.</b> På riktiga frågor har han i stället lärt sig mallen ”[namn ur texten] är [frågans ord]”. Det ger säkert framförda fel, där rätt namn ofta stod i texten:</p>
   <div class="examples" id="las-ex"></div>
-  <p id="las-text"></p>
+  <p><b>Lärdom till Lennart 4:</b> läsning måste tränas med varierade frågor där svaret står mitt i texten, med övningar där svaret <i>inte</i> finns i texten, och med vanlig data inblandad så att han inte glömmer. Han tappade från 32 till 25 % utan text. Ett uppslagsverk hjälper ändå lite redan nu: vanliga Lennart 3.4 går från 32 till 37 % med tre träffar i frågan.</p>
 </section>
 
 <section aria-labelledby="s7">
@@ -209,7 +216,7 @@ ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 6px; max-width: 
 </div>
 
 <script>
-const DATA = {"eko": {"niva": ["Snabb", "Medel", "Djup"], "utan": [19.4, 51.8, 102.2], "med": [21.6, 39.8, 74.0]}, "kostnad": {"k": [1, 2, 4, 8], "fore": [1.0, 1.28, 1.96, 3.34], "efter": [1.0, 1.2, 1.28, 1.93]}, "urval": [["Ett svar (Snabb)", 30.9], ["Girigt svar", 32.4], ["Appens poäng, 3 utkast", 28.7], ["Appens poäng, 6 utkast", 29.4], ["Frågevinst", 30.9], ["Bakåtkontroll", 30.1], ["Wikipedia som domare", 31.6], ["Konsensus, 6 utkast", 33.1], ["Lärd domare", 34.6], ["Orakel: något utkast rätt", 55.1]], "kalib": {"niva": ["Snabb", "Medel", "Djup"], "over": [70, 71, 67], "under": [21, 11, 10], "andel": [20, 30, 34]}, "lins": {"lager": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "utan": [1.4, 6.5, 3.8, 4.4, 6.1, 6.4, 8.0, 9.6, 16.7, 18.2, 23.3, 27.8, 30.9, 38.1, 44.3, 48.7, 54.7, 59.6, 63.6, 70.6, 77.2, 100.0], "brygga": [1.4, 13.1, 14.6, 16.9, 17.7, 18.3, 20.1, 21.9, 25.7, 28.0, 33.2, 37.9, 41.9, 48.4, 54.0, 58.3, 64.7, 68.9, 74.4, 80.5, 86.4, 100.0]}, "las": {}, "las_exempel": [], "pilot": {"lennart3": [[1.02, 1.856, 67.9, 2855], [2.05, 1.616, 59.1, 2848], [3.07, 1.386, 50.1, 2843], [4.1, 1.303, 44.5, 2825], [5.12, 1.237, 43.1, 2827], [6.14, 1.185, 42.9, 2836], [7.17, 1.158, 42.2, 2836], [8.19, 1.128, 42.3, 2843], [9.22, 1.114, 41.7, 2842], [10.24, 1.104, 41.1, 2845]]}, "pilot_params": {"lennart3": 4.79}};
+const DATA = {"eko": {"niva": ["Snabb", "Medel", "Djup"], "utan": [19.4, 51.8, 102.2], "med": [21.6, 39.8, 74.0]}, "kostnad": {"k": [1, 2, 4, 8], "fore": [1.0, 1.28, 1.96, 3.34], "efter": [1.0, 1.2, 1.28, 1.93]}, "urval": [["Ett svar (Snabb)", 30.9], ["Girigt svar", 32.4], ["Appens poäng, 3 utkast", 28.7], ["Appens poäng, 6 utkast", 29.4], ["Frågevinst", 30.9], ["Bakåtkontroll", 30.1], ["Wikipedia som domare", 31.6], ["Konsensus, 6 utkast", 33.1], ["Lärd domare", 34.6], ["Orakel: något utkast rätt", 55.1]], "kalib": {"niva": ["Snabb", "Medel", "Djup"], "over": [70, 71, 67], "under": [21, 11, 10], "andel": [20, 30, 34]}, "lins": {"lager": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21], "utan": [1.4, 6.5, 3.8, 4.4, 6.1, 6.4, 8.0, 9.6, 16.7, 18.2, 23.3, 27.8, 30.9, 38.1, 44.3, 48.7, 54.7, 59.6, 63.6, 70.6, 77.2, 100.0], "brygga": [1.4, 13.1, 14.6, 16.9, 17.7, 18.3, 20.1, 21.9, 25.7, 28.0, 33.2, 37.9, 41.9, 48.4, 54.0, 58.3, 64.7, 68.9, 74.4, 80.5, 86.4, 100.0]}, "las": {"Lennart 3.4": {"utan_text": 0.324, "1_traff": 0.353, "3_traffar": 0.368}, "Lennart 3.4 läsare": {"utan_text": 0.25, "1_traff": 0.132, "3_traffar": 0.147}}, "las_exempel": [{"fraga": "Vad är huvudstaden i Norge?", "fore": "Huvudstaden i Norge är Oslo. Oslo har en befolkning på cirka 1,5 miljoner invånare (2005). Staden ligger vid den norska kusten och har en yta på cirka", "efter": "Tana är en stad i Norge."}, {"fraga": "Vad är huvudstaden i Finland?", "fore": "Huvudstaden i Finland är Helsingfors. Den ligger i den centrala delen av landet,  km norr om huvudstaden Helsingfors. Antalet invånare är . Arean är  ", "efter": "Uurainen är huvudstad i Finland."}, {"fraga": "Vad är huvudstaden i Tyskland?", "fore": "Berlin är huvudstad i Tyskland, och har cirka 2,6 miljoner invånare (2021) i storstadsområdet. Staden är en av de mest tätbefolkade städerna i Tysklan", "efter": "Bonnie är huvudstad i Tyskland, och har cirka  invånare."}, {"fraga": "Vilket är Sveriges högsta berg?", "fore": "Sveriges högsta berg är Kebnekaise, 1 850 m ö.h., som når 2 670 meter över havet. Berget ligger i Lappland och har en höjd på cirka 1 000 m ö.h.\n\n", "efter": "Storvätteshågna är Sveriges högsta berg, enligt en beräkning från 2015."}], "pilot": {"lennart3": [[1.02, 1.856, 67.9, 2855], [2.05, 1.616, 59.1, 2848], [3.07, 1.386, 50.1, 2843], [4.1, 1.303, 44.5, 2825], [5.12, 1.237, 43.1, 2827], [6.14, 1.185, 42.9, 2836], [7.17, 1.158, 42.2, 2836], [8.19, 1.128, 42.3, 2843], [9.22, 1.114, 41.7, 2842], [10.24, 1.104, 41.1, 2845]], "modern": [[1.02, 1.765, 48.0, 2731], [2.05, 1.401, 46.2, 2732], [3.07, 1.259, 46.4, 2694]]}, "diag": [["Lennart 3.4", 37, 0], ["Lennart 3.4 läsare", 62, 44]], "pilot_params": {"lennart3": 4.79, "modern": 4.67}, "las_samtal": {"Lennart 3.4": {"Hej! Vem är du?": "Jag är Lennart. Jag kan svara på frågor och prata om det mesta, men jag kan också svara på frågor och dela din kunskap med dig.", "Hur mår du?": "Tack som frågar! Jag är ett datorprogram, så jag har inga känslor, men jag är redo att hjälpa till. Hur mår du själv?", "Vad är nätfiske?": "Nätfiske, eller phishing, är när en angripare skickar falska meddelanden som ser ut att komma från en betrodd avsändare för att lura dig att lämna ut lösenord, kortuppgifter och andra känsliga uppgifter.", "Ge mig tips för att sova bättre.": "Försök gå och lägga dig och vakna ungefär samma tid varje dag. Undvik skärmar och koffein sent på kvällen, håll sovrummet svalt och mörkt, och rör på dig under dagen.", "Någon har hackat mitt konto, vad gör jag?": "Byt lösenordet direkt om du fortfarande kommer åt kontot, och slå på tvåfaktorsautentisering. Logga ut alla andra sessioner, kontrollera att e-post och telefonnummer för återställning är dina, och varna dina kontakter om kont"}, "Lennart 3.4 läsare": {"Hej! Vem är du?": "Jag är Lennart, en svensk språkmodell. Jag kan svara på frågor och prata om det mesta, och jag kan extra mycket om cybersäkerhet och IT-säkerhet.", "Hur mår du?": "Jag mår bra, tack! Jag är ett program, så jag har inga känslor som en människa, men jag är redo att hjälpa till. Hur mår du själv?", "Vad är nätfiske?": "Nätfiske, eller phishing, är när en angripare skickar falska meddelanden som ser ut att komma från en betrodd avsändare.", "Ge mig tips för att sova bättre.": "Försök gå och lägga dig och vakna ungefär samma tid varje dag. Undvik skärmar och koffein sent på kvällen, håll sovrummet svalt och mörkt, och rör på dig under dagen.", "Någon har hackat mitt konto, vad gör jag?": "Byt lösenordet direkt om du fortfarande kommer åt kontot, och slå på tvåfaktorsautentisering. Logga ut alla andra sessioner, kontrollera att e-post och telefonnummer för återställning är dina, och varna dina kontakter om kont"}}};
 const NS = "http://www.w3.org/2000/svg";
 const fmt = (v, d = 1) => v.toLocaleString("sv-SE", { minimumFractionDigits: d, maximumFractionDigits: d });
 function el(tag, attrs = {}, parent) {
@@ -223,6 +230,7 @@ function el(tag, attrs = {}, parent) {
 function text(parent, x, y, s, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = s; return t; }
 function legend(id, series) {
   const box = document.getElementById(id); if (!box) return;
+  box.replaceChildren();
   for (const s of series) {
     const sp = document.createElement("span"); const i = document.createElement("i");
     i.style.background = s.color; sp.appendChild(i); sp.appendChild(document.createTextNode(s.name)); box.appendChild(sp);
@@ -230,6 +238,7 @@ function legend(id, series) {
 }
 function table(id, headers, rows) {
   const box = document.getElementById(id); if (!box) return;
+  box.replaceChildren();
   const t = document.createElement("table"); const tr = document.createElement("tr");
   headers.forEach(h => { const th = document.createElement("th"); th.textContent = h; tr.appendChild(th); });
   t.appendChild(tr);
@@ -260,7 +269,7 @@ function niceMax(v) { const p = Math.pow(10, Math.floor(Math.log10(v))); for (co
 /* Grupperade staplar */
 function columns(id, { cats, series, unit = "", max, decimals = 1 }) {
   const chart = document.getElementById(id); if (!chart) return;
-  const W = 640, H = 260, L = 44, R = 8, T = 18, B = 30;
+  const W = Math.max(300, chart.clientWidth || 640), H = 250, L = 40, R = 8, T = 18, B = 30;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, chart);
   const tip = tipFor(chart);
   max = max || niceMax(Math.max(...series.flatMap(s => s.values)));
@@ -292,11 +301,12 @@ function columns(id, { cats, series, unit = "", max, decimals = 1 }) {
 /* Liggande staplar, en serie */
 function hbars(id, { rows, max = 60, ref }) {
   const chart = document.getElementById(id); if (!chart) return;
-  const rowH = 30, T = 8, B = 26, L = 190, R = 48, W = 640, H = T + rows.length * rowH + B;
+  const W = Math.max(300, chart.clientWidth || 640), rowH = 30, T = 8, B = 26, L = Math.min(190, Math.round(W * 0.46)), R = 52, H = T + rows.length * rowH + B;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, chart);
   const tip = tipFor(chart);
   const x = v => L + (W - L - R) * v / max;
-  for (let v = 0; v <= max; v += 10) {
+  const step = W < 520 ? 20 : 10;
+  for (let v = 0; v <= max; v += step) {
     el("line", { x1: x(v), x2: x(v), y1: T, y2: H - B, style: "stroke:var(--grid);stroke-width:1" }, svg);
     text(svg, x(v), H - 8, v + " %", { "text-anchor": "middle" });
   }
@@ -318,7 +328,7 @@ function hbars(id, { rows, max = 60, ref }) {
 /* Linjediagram */
 function lines(id, { x, series, ymin = 0, ymax, xlabel = "", unit = "", decimals = 1, xfmt = v => v }) {
   const chart = document.getElementById(id); if (!chart) return;
-  const W = 640, H = 260, L = 44, R = 16, T = 14, B = 40;
+  const W = Math.max(300, chart.clientWidth || 640), H = 250, L = 44, R = 16, T = 14, B = 40;
   const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img" }, chart);
   const tip = tipFor(chart);
   const allX = series.flatMap(s => s.points.map(p => p[0]));
@@ -370,9 +380,9 @@ const findings = [
   ["05", "mix", "Uppslagsverket har svaren, men han kan inte läsa.", "Sökningen hittar svaret i 40–65 % av fallen. Lennart 3.4 svarar lika dåligt med som utan text."],
 ];
 if (lasBase && lasReader) {
-  const b = lasBase["3_traffar"] * 100, r = lasReader["3_traffar"] * 100, b0 = lasBase["utan_text"] * 100;
-  findings.push(["06", r > b + 8 ? "ja" : (r > b ? "mix" : "nej"), r > b + 8 ? "Han kan lära sig läsa." : "Att lära honom läsa gav mindre än väntat.",
-    `Efter 300 steg lästräning på processorn: ${fmt(r)} % rätt med tre Wikipedia-träffar, mot ${fmt(b)} % före (${fmt(b0)} % utan text).`]);
+  const b = lasBase["3_traffar"] * 100, r = lasReader["3_traffar"] * 100;
+  findings.push(["06", "nej", "Snabb lästräning lär ut formen, inte förståelsen.",
+    `På övningar som liknar träningen valde han rätt artikel i 62 % av fallen (före 37 %), men på riktiga frågor sjönk han till ${fmt(r)} % (före ${fmt(b)} %): han hittar på svar i rätt form.`]);
 } else findings.push(["06", "mix", "Lästräningen pågår.", "Resultatet fylls i när finjusteringen är klar."]);
 if (pilot["lennart3"] && pilot["modern"]) {
   const a = lastBpb("lennart3"), bb = lastBpb("modern"), cc = lastBpb("modern+skiss");
@@ -391,6 +401,8 @@ for (const [k, v, head, body] of findings) {
   d.appendChild(tag); d.appendChild(b); d.appendChild(document.createTextNode(" " + body)); li.appendChild(d); ol.appendChild(li);
 }
 
+function drawAll() {
+document.querySelectorAll(".chart").forEach(c => c.replaceChildren());
 /* 01 */
 const eko = [{ name: "Utan ekodekodning", color: C1, values: DATA.eko.utan }, { name: "Med ekodekodning", color: C2, values: DATA.eko.med }];
 legend("eko-legend", eko); columns("eko", { cats: DATA.eko.niva, series: eko, unit: " s" });
@@ -424,17 +436,21 @@ if (lasBase) {
   const ser = lasNames.map((n, i) => ({ name: n, color: [C1, C2][i], values: keys.map(k => 100 * las[n][k]) }));
   legend("las-legend", ser); columns("las", { cats, series: ser, unit: " %", max: 100, decimals: 0 });
   table("las-tbl", ["Modell", ...cats], lasNames.map(n => [n, ...keys.map(k => fmt(100 * las[n][k]) + " %")]));
-  const exBox = document.getElementById("las-ex");
+  const exBox = document.getElementById("las-ex"); exBox.replaceChildren();
   (DATA.las_exempel || []).forEach(e => {
     const d = document.createElement("div"); d.className = "ex";
     const q = document.createElement("div"); q.className = "q"; q.textContent = e.fraga; d.appendChild(q);
-    for (const [tag, t] of [["före", e.fore], ["läsare", e.efter]]) {
+    for (const [tag, t] of [["före", e.fore], ["läsaren", e.efter]]) {
       const r = document.createElement("div"); r.className = "row";
       const a = document.createElement("span"); a.className = "tag"; a.textContent = tag;
       const b = document.createElement("span"); b.textContent = t; r.appendChild(a); r.appendChild(b); d.appendChild(r);
     }
     exBox.appendChild(d);
   });
+}
+if (DATA.diag) {
+  const ds = DATA.diag.map((d, i) => ({ name: d[0], color: [C1, C2][i], values: [d[1], d[2]] }));
+  legend("diag-legend", ds); columns("diag", { cats: ["Alla frågor", "Baklängesfrågor"], series: ds, unit: " %", max: 100, decimals: 0 });
 }
 /* 07 */
 const names = { "lennart3": "A · som Lennart 3", "modern": "B · modern", "modern+skiss": "C · modern + självskiss" };
@@ -450,4 +466,11 @@ if (pser.length) {
   const rows = []; Object.keys(pilot).forEach(v => pilot[v].forEach(r => rows.push([names[v], fmt(r[0], 2), fmt(r[1], 3), fmt(r[2]) + " %", r[3]])));
   table("pilot-tbl", ["Variant", "M tokens", "bits per byte", "mittlager = slut", "tokens/s"], rows);
 }
+}
+drawAll();
+let lastW = window.innerWidth, rt;
+window.addEventListener("resize", () => {
+  if (Math.abs(window.innerWidth - lastW) < 8) return;
+  lastW = window.innerWidth; clearTimeout(rt); rt = setTimeout(drawAll, 150);
+});
 </script>

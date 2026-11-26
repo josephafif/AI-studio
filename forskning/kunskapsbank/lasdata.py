@@ -25,6 +25,7 @@ PERSON = re.compile(r"\b(född|författare|politiker|skådespelare|musiker|konst
                     r"fotbollsspelare|ishockeyspelare|präst|forskare|uppfinnare|kompositör|journalist|ämbetsman)\b")
 BANNED_KEYS = {k for _, keys in FRAGOR for k in keys if len(k) >= 4 and not k.isdigit()}
 PROMPT = "Läs texten och svara kort på frågan.\n\n{ctx}\n\nFråga: {q}"
+V2 = __import__("os").environ.get("LAS_V2") == "1"
 
 
 def first_sentence(lead):
@@ -58,9 +59,16 @@ def make(ix, rng, d):
         q = f"{who} {verb} {rest}?"
         q = q[0].upper() + q[1:]
     # vilseledande artiklar: det sökmotorn hittar för frågan (utom den rätta)
-    others = [i for i, (t, _, _) in enumerate(ix.search(q, 4)) if t != title]
-    hits = [h for h in ix.search(q, 4) if h[0] != title]
-    n_other = int(rng.integers(0, 3))
+    hits = [h for h in ix.search(q, 5) if h[0] != title]
+    if V2:
+        # version 2: alltid två vilseledande artiklar, och var fjärde gång finns svaret inte alls i texten
+        if rng.random() < 0.25 and len(hits) >= 3:
+            passages = [h[1][:450] for h in hits[:3]]
+            return dict(user=PROMPT.format(ctx="\n\n".join(f"Text: {p}" for p in passages), q=q),
+                        assistant="Det står inte i texten.", titel=title, typ="saknas")
+        n_other = 2
+    else:
+        n_other = int(rng.integers(0, 3))
     passages = [lead[:450]] + [h[1][:450] for h in hits[:n_other]]
     rng.shuffle(passages)
     return dict(user=PROMPT.format(ctx="\n\n".join(f"Text: {p}" for p in passages), q=q), assistant=s,
@@ -81,6 +89,19 @@ def main():
                 print(f"{len(out)} exempel (av {tried} försök)", flush=True)
         if len(out) >= n:
             break
+    if V2:
+        # repetition av det Lennart redan kan: vanliga frågor utan text, svar = artikelns första mening
+        rep = 0
+        for d in rng.permutation(ix.N):
+            sent = first_sentence(ix.leads[int(d)])
+            t = ix.titles[int(d)]
+            if sent and sent.startswith(t) and "(" not in t and "  " not in ix.leads[int(d)]:
+                out.append(dict(user=f"Vad är {t}?" if rng.random() < 0.6 else f"Berätta om {t}.", assistant=sent,
+                                titel=t, typ="repetition"))
+                rep += 1
+            if rep >= n // 3:
+                break
+        rng.shuffle(out)
     with open(sys.argv[2], "w") as f:
         for ex in out:
             f.write(json.dumps(ex, ensure_ascii=False) + "\n")
