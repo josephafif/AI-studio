@@ -58,7 +58,7 @@ void generera(Motor model, BpeTokenizer tok, Map m, void Function(Map) send, boo
   final p0 = model.pos;
   final saved = Float32List.fromList(model.logits);
   final limit = maxTokens.clamp(1, ctx - p0);
-  final banned = {tok.padId, tok.userId, tok.assistantId};
+  final banned = tok.banned;
   final genStart = sw.elapsedMicroseconds;
   final passesStart = model.passes;
   final rng = math.Random();
@@ -235,13 +235,14 @@ class _Draft {
     _endLp = row[endId] - _lse(row);
   }
 
-  /// Andel upprepade tre-tokenföljder – små modeller fastnar gärna i slingor.
+  /// Andel upprepade tre-tokenföljder – små modeller fastnar gärna i slingor. Nyckeln är exakt även i
+  /// JavaScript (under 2^53) för ordförråd upp till 65 536.
   double get repetition {
     if (tokens.length < 6) return 0;
     final seen = <int>{};
     var dup = 0;
     for (var i = 0; i + 2 < tokens.length; i++) {
-      if (!seen.add(tokens[i] * 1000003 * 1000003 + tokens[i + 1] * 1000003 + tokens[i + 2])) dup++;
+      if (!seen.add((tokens[i] * 65536 + tokens[i + 1]) * 65536 + tokens[i + 2])) dup++;
     }
     return dup / (tokens.length - 2);
   }
@@ -419,7 +420,7 @@ double _repetition(List<int> t) {
   final seen = <int>{};
   var dup = 0;
   for (var i = 0; i + 2 < t.length; i++) {
-    if (!seen.add(t[i] * 1000003 * 1000003 + t[i + 1] * 1000003 + t[i + 2])) dup++;
+    if (!seen.add((t[i] * 65536 + t[i + 1]) * 65536 + t[i + 2])) dup++;
   }
   return dup / (t.length - 2);
 }

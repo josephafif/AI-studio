@@ -1,5 +1,11 @@
 // Byte-nivå BPE-tokenizer, samma algoritm som i AI Control Center och Lennart 3-träningen.
-// Läser <id>.tok.json från tools/exportera_mobil.py.
+// Läser <id>.tok.json från tools/exportera_mobil.py eller tools/exportera_lfm2.py.
+//
+// Två samtalsmallar: Lennarts egen (<|user|>…<|assistant|>…<|end|>) och ChatML för LFM2-modellerna
+// (<|startoftext|><|im_start|>user\n…<|im_end|>\n<|im_start|>assistant\n).
+//
+// Nycklarna för sammanslagningar räknas med multiplikation, inte bitskift: i webbversionen (dart2js) är
+// bitoperationer 32-bitars, och a << 20 skulle få par med stora token-id att krocka.
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -12,12 +18,22 @@ class ChatTurn {
 class BpeTokenizer {
   final RegExp _pattern;
   final List<int> _byteToId;
-  final Map<int, int> _rank = {}; // (a << 20 | b) -> rang
+  final Map<int, int> _rank = {}; // a * 2^20 + b -> rang
   final List<int> _result = [];
   final List<Uint8List> _tokens;
   final bool _escape;
   final Map<String, List<int>> _cache = {};
   late final int padId, userId, assistantId, endId;
+
+  /// Samtalsmall: 'lennart' eller 'chatml'.
+  String chat = 'lennart';
+
+  /// Starttecken före samtalet (ChatML), annars -1.
+  int bosId = -1;
+  final Set<int> _bannedExtra = {};
+
+  /// Tokens som aldrig får skrivas i ett svar.
+  Set<int> get banned => {padId, userId, assistantId, if (bosId >= 0) bosId, ..._bannedExtra};
 
   BpeTokenizer._(this._pattern, this._byteToId, this._tokens, this._escape);
 
@@ -33,7 +49,7 @@ class BpeTokenizer {
     final merges = j['merges'] as List;
     for (var i = 0; i < merges.length; i++) {
       final m = (merges[i] as List).cast<int>();
-      tok._rank[(m[0] << 20) | m[1]] = i;
+      tok._rank[m[0] * 1048576 + m[1]] = i;
       tok._result.add(m[2]);
     }
     final s = j['special'] as Map<String, dynamic>;
@@ -41,6 +57,9 @@ class BpeTokenizer {
     tok.userId = s['user'] as int;
     tok.assistantId = s['assistant'] as int;
     tok.endId = s['end'] as int;
+    tok.bosId = (s['bos'] as int?) ?? -1;
+    tok.chat = (j['chat'] as String?) ?? 'lennart';
+    tok._bannedExtra.addAll(((j['banned'] as List?) ?? const []).cast<int>());
     return tok;
   }
 
@@ -49,7 +68,7 @@ class BpeTokenizer {
     while (ids.length > 1) {
       var bestRank = -1, bestA = 0, bestB = 0;
       for (var i = 0; i < ids.length - 1; i++) {
-        final r = _rank[(ids[i] << 20) | ids[i + 1]];
+        final r = _rank[ids[i] * 1048576 + ids[i + 1]];
         if (r != null && (bestRank < 0 || r < bestRank)) {
           bestRank = r;
           bestA = ids[i];
@@ -86,7 +105,22 @@ class BpeTokenizer {
   }
 
   /// <|user|>fråga<|assistant|>svar<|end|> … och till sist <|assistant|> för nästa svar.
+  /// ChatML: <|startoftext|><|im_start|>user\nfråga<|im_end|>\n … <|im_start|>assistant\n
   List<int> encodeChat(List<ChatTurn> turns) {
+    if (chat == 'chatml') {
+      final out = <int>[if (bosId >= 0) bosId];
+      final radbyte = encode('\n');
+      for (final t in turns) {
+        out
+          ..add(userId) // <|im_start|>
+          ..addAll(encode('${t.fromUser ? 'user' : 'assistant'}\n${t.text.trim()}'))
+          ..add(endId) // <|im_end|>
+          ..addAll(radbyte);
+      }
+      return out
+        ..add(assistantId)
+        ..addAll(encode('assistant\n'));
+    }
     final out = <int>[];
     for (final t in turns) {
       if (t.fromUser) {

@@ -35,6 +35,9 @@ class ModelInfo {
   Color get color => HSLColor.fromAHSL(1, hue % 360, 0.85, 0.62).toColor();
 
   String get paramsLabel => params >= 1e6 ? '${(params / 1e6).round()} M' : '${(params / 1e3).round()} k';
+
+  /// Texten i modellens ikon: "badge" i beskrivningen (t.ex. LFM), annars versionsnumret i namnet.
+  String get badge => (json['badge'] as String?) ?? RegExp(r'\d+(\.\d+)?').firstMatch(name)?.group(0) ?? '1';
 }
 
 class Catalog {

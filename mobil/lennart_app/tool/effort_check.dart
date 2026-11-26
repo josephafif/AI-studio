@@ -23,7 +23,7 @@ Future<void> main(List<String> a) async {
       final scores = <int, String>{};
       final answer = StringBuffer();
       GenDone? done;
-      await for (final e in engine.generate([ChatTurn(true, q)], GenSettings(temperature: 0.7, maxTokens: 120, topK: 40, effort: effort))) {
+      await for (final e in engine.generate([ChatTurn(true, q)], GenSettings(temperature: double.parse(Platform.environment["TEMP"] ?? "0.7"), maxTokens: 120, topK: 40, effort: effort))) {
         switch (e) {
           case GenToken(:final text):
             answer.write(text);

@@ -342,6 +342,7 @@ const idb = (() => {
 })();
 
 const version = (namn) => (String(namn).match(/(\d+(?:\.\d+)*)\s*$/) || [null, '1'])[1];
+const bricka = (e) => e.badge || version(e.name);
 const versionTal = (namn) => version(namn).split('.').map(Number);
 const nyans = (e) => (Number.isFinite(e && e.hue) ? e.hue : [...String(e && e.id)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 360, 7));
 function parametrar(n) {
@@ -595,7 +596,7 @@ const naraBotten = () => { const l = $('#logg'); return l.scrollHeight - l.scrol
 function renderAllt(rulla) {
   const m = aktivModell();
   document.documentElement.style.setProperty('--h', m ? nyans(m.entry) : 290);
-  $('#chipBadge').textContent = m ? version(m.entry.name) : '+';
+  $('#chipBadge').textContent = m ? bricka(m.entry) : '+';
   $('#loggaBadge').textContent = 'L';
   $('#chipNamn').textContent = m ? m.entry.name : 'Lägg till modell';
   $('#chipNiva').textContent = m ? (NIVAER.find((n) => n.id === pref.niva) || NIVAER[1]).namn : '';
@@ -736,7 +737,7 @@ function oppnaModellval() {
   if (!lista.length) v.append(E('p', null, 'Inga modeller än. Lägg till en .lennart-fil, till exempel Lennart 3.4 från Kaggle.'));
   lista.forEach((m, i) => {
     const b = E('div', 'val'); b.setAttribute('role', 'menuitemradio'); b.tabIndex = 0; b.setAttribute('aria-checked', String(m.id === pref.modell));
-    const badge = E('span', 'mbadge', version(m.entry.name));
+    const badge = E('span', 'mbadge', bricka(m.entry));
     badge.style.cssText = `--acc: hsl(${nyans(m.entry)} 80% 62%); --acc2: hsl(${nyans(m.entry) + 40} 80% 60%); --glow: hsl(${nyans(m.entry)} 80% 55% / .2)`;
     const t = E('div', 't'), nb = E('b', null, m.entry.name);
     if (i === 0 && lista.length > 1) nb.append(E('span', 'nyast', 'nyast'));

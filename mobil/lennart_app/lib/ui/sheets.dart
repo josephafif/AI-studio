@@ -119,7 +119,7 @@ Future<ModelPick?> pickModel(
           _section(ctx, 'Modell'),
           for (final m in models.reversed)
             _Row(
-              leading: ModelIcon(size: 36, color: m.color, label: ModelIcon.labelFor(m.name)),
+              leading: ModelIcon(size: 36, color: m.color, label: m.badge),
               title: m.name,
               badge: m == models.last ? 'nyast' : null,
               subtitle: '${m.paramsLabel} parametrar · ${m.description}',

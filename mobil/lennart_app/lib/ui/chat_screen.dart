@@ -58,7 +58,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   GenSettings _defaults(ModelInfo m) => GenSettings(temperature: m.temperature, maxTokens: m.maxTokens, topK: m.topK, effort: Prefs.effort);
   Color get _color => _model.color;
-  String _label(ModelInfo m) => ModelIcon.labelFor(m.name);
+  String _label(ModelInfo m) => m.badge;
 
   @override
   void initState() {

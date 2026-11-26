@@ -6,6 +6,10 @@
  *   - panelens GPT (Lennart, Lennart 2): bias i linjära lager, exakt GELU
  *   - Lennart 3-formatet (Lennart 3, 3.1): utan bias, GELU med tanh
  * Vikterna kan vara float32 eller int8 med en skalfaktor per rad. Beräkningen parallelliseras med OpenMP.
+ *
+ * Formatversion 2 (arkitektur 1) är LFM2 (Liquid AI): korta faltningar och grupperad attention (GQA) i
+ * blandade lager, RMSNorm, SwiGLU och RoPE. Faltningslagrens indata sparas per position, precis som
+ * attention-cachen, så att lm_rewind fungerar för utkast och ekodekodning.
  */
 #include <math.h>
 #include <stdint.h>
@@ -32,12 +36,15 @@
 #define ALIGN 64
 
 typedef struct {
-    int quant;            /* 0 = float32, 1 = int8 + skala per rad */
+    int quant;            /* 0 = float32, 1 = int8 */
     int rows, cols;
     const float *f;       /* float32-vikter */
     const int8_t *q;      /* int8-vikter */
-    const float *scale;   /* skala per rad */
+    const float *scale;   /* skala per rad, eller per grupp om gs > 0 */
+    int gs;               /* gruppstorlek (kvantläge 2: 64 vikter per skala), 0 = en skala per rad */
 } Mat;
+
+#define LM_GROUP 64
 
 typedef struct {
     const float *ln1_w, *ln1_b, *ln2_w, *ln2_b;
@@ -45,8 +52,27 @@ typedef struct {
     const float *qkv_b, *proj_b, *fc_b, *out_b; /* NULL utan bias */
 } Layer;
 
+/* LFM2-lager: antingen attention eller kort faltning, alltid följt av SwiGLU. */
+typedef struct {
+    const float *norm1, *norm2;      /* operator_norm och ffn_norm (RMSNorm) */
+    int attn, slot;                  /* attention eller faltning; plats i respektive cache */
+    Mat q, k, v, o;                  /* attention */
+    const float *qn, *kn;            /* RMSNorm per huvud för q och k */
+    Mat in, out;                     /* faltning: in_proj [3d][d] och out_proj [d][d] */
+    const float *convw;              /* faltningskärnan [d][L] */
+    Mat w1, w3, w2;                  /* SwiGLU: w2(silu(w1 x) * w3 x) */
+} LfmLayer;
+
+#define LFM_CHUNK 32 /* tokens per bit när en lång prompt läses in */
+
 typedef struct LM {
     int vocab, d, layers, heads, ctx, has_bias, gelu_tanh, quant;
+    int arch;                 /* 0 = GPT (Lennart 1–3), 1 = LFM2 */
+    int kv_heads, ffdim, conv_L; /* LFM2 */
+    float rope_theta, eps;
+    LfmLayer *F;
+    float *ccache;            /* faltningarnas indata (B·x) [faltningslager][ctx][d] */
+    float *rope_cos, *rope_sin, *ff2;
     void *map;
     size_t map_size;
     int owned; /* 1 = map är ett minnesblock från malloc (lm_load_mem), 0 = filmappning */
@@ -70,10 +96,10 @@ static const float *take_f(LM *m, size_t *off, size_t n) {
 }
 
 static Mat take_mat(LM *m, size_t *off, int rows, int cols) {
-    Mat w = {m->quant, rows, cols, NULL, NULL, NULL};
+    Mat w = {m->quant ? 1 : 0, rows, cols, NULL, NULL, NULL, m->quant == 2 ? LM_GROUP : 0};
     if (m->quant) {
         w.q = (const int8_t *)((const char *)m->map + take(off, (size_t)rows * cols));
-        w.scale = take_f(m, off, rows);
+        w.scale = take_f(m, off, w.gs ? (size_t)rows * (cols / w.gs) : (size_t)rows);
     } else {
         w.f = take_f(m, off, (size_t)rows * cols);
     }
@@ -130,12 +156,14 @@ EXPORT void lm_free(LM *m) {
         if (m->owned) free(m->map);
         else unmap_file(m->map, m->map_size);
     }
-    free(m->L); free(m->kcache); free(m->vcache);
+    free(m->L); free(m->F); free(m->ccache); free(m->rope_cos); free(m->rope_sin); free(m->ff2);
+    free(m->kcache); free(m->vcache);
     free(m->x); free(m->h); free(m->qkv); free(m->att); free(m->ff); free(m->logits); free(m->scores);
     free(m);
 }
 
 static LM *load_from(void *map, size_t fsize, int owned, char *err, int errlen);
+static LM *load_lfm(LM *m, const int32_t *hd, char *err, int errlen);
 
 EXPORT LM *lm_load(const char *path, int nthreads, char *err, int errlen) {
 #ifdef _OPENMP
@@ -167,11 +195,12 @@ static LM *load_from(void *map, size_t fsize, int owned, char *err, int errlen) 
     m->map_size = fsize;
     m->owned = owned;
     const int32_t *hd = (const int32_t *)((const char *)map + 8);
+    if (hd[0] == 2) return load_lfm(m, hd, err, errlen);
     /* hd[0]=version, vocab, d, layers, heads, ctx, has_bias, gelu_tanh, quant */
     m->vocab = hd[1]; m->d = hd[2]; m->layers = hd[3]; m->heads = hd[4]; m->ctx = hd[5];
     m->has_bias = hd[6]; m->gelu_tanh = hd[7]; m->quant = hd[8];
     int d = m->d;
-    if (hd[0] != 1 || d <= 0 || d % m->heads || m->ctx <= 0 || m->vocab <= 0) {
+    if (hd[0] != 1 || d <= 0 || m->heads <= 0 || d % m->heads || m->ctx <= 0 || m->vocab <= 0) {
         lm_free(m); snprintf(err, errlen, "ogiltigt huvud i .lmod"); return NULL;
     }
     size_t off = 64;
@@ -207,7 +236,7 @@ static LM *load_from(void *map, size_t fsize, int owned, char *err, int errlen) 
 
 EXPORT void lm_info(LM *m, int32_t *out) {
     out[0] = m->vocab; out[1] = m->d; out[2] = m->layers; out[3] = m->heads; out[4] = m->ctx;
-    out[5] = m->quant; out[6] = m->has_bias;
+    out[5] = m->quant; out[6] = m->has_bias; out[7] = m->arch;
 }
 
 EXPORT void lm_reset(LM *m) { m->pos = 0; }
@@ -252,7 +281,30 @@ static void matmul(float *out, const float *in, int n, const Mat *W, const float
         #pragma omp for schedule(static)
         for (int r = 0; r < rows; r++) {
             const float b = bias ? bias[r] : 0.0f;
-            if (W->quant) {
+            if (W->quant && W->gs) {
+                /* Kvantläge 2: en skala per grupp om gs vikter. */
+                const int8_t *q = W->q + (size_t)r * cols;
+                const int gs = W->gs, ng = cols / gs;
+                const float *sc = W->scale + (size_t)r * ng;
+                if (n == 1) {
+                    float acc = 0;
+                    for (int g = 0; g < ng; g++) {
+                        const int8_t *qg = q + (size_t)g * gs;
+                        const float *xg = in + (size_t)g * gs;
+                        float a = 0;
+                        #pragma omp simd reduction(+:a)
+                        for (int k = 0; k < gs; k++) a += (float)qg[k] * xg[k];
+                        acc += a * sc[g];
+                    }
+                    out[r] = acc + b;
+                    continue;
+                }
+                for (int g = 0; g < ng; g++) {
+                    const float sg = sc[g];
+                    #pragma omp simd
+                    for (int k = 0; k < gs; k++) wrow[g * gs + k] = (float)q[g * gs + k] * sg;
+                }
+            } else if (W->quant) {
                 const int8_t *q = W->q + (size_t)r * cols;
                 const float s = W->scale[r];
                 if (n == 1) {
@@ -307,8 +359,234 @@ static float gelu(float x, int tanh_approx) {
     return 0.5f * x * (1.0f + erff(x * 0.70710678f));
 }
 
+
+/* ---------------------------------------------------------------- LFM2 (formatversion 2) */
+/* hd: 2, vocab, d, lager, heads, ctx, kv-heads, ff, kvant, arkitektur (1), faltningslängd L,
+ * lagertyper (bit l = attention), rope_theta (float), eps (float). Vikterna i ordning: inbäddning,
+ * för varje lager norm1, norm2, (q, k, v, o, qnorm, knorm) eller (in, kärna [d][L], out), w1, w3, w2,
+ * och sist slutnormen. Utmatningslagret delar vikter med inbäddningen. */
+static LM *load_lfm(LM *m, const int32_t *hd, char *err, int errlen) {
+    m->arch = 1;
+    m->vocab = hd[1]; m->d = hd[2]; m->layers = hd[3]; m->heads = hd[4]; m->ctx = hd[5];
+    m->kv_heads = hd[6]; m->ffdim = hd[7]; m->quant = hd[8]; m->conv_L = hd[10];
+    const uint32_t typer = (uint32_t)hd[11];
+    memcpy(&m->rope_theta, &hd[12], 4);
+    memcpy(&m->eps, &hd[13], 4);
+    const int d = m->d, H = m->heads;
+    if (hd[9] != 1 || d <= 0 || H <= 0 || d % H || m->kv_heads <= 0 || H % m->kv_heads || m->ctx <= 0 ||
+        m->vocab <= 0 || m->ffdim <= 0 || m->conv_L < 1 || m->conv_L > 16 || m->layers <= 0 || m->layers > 32 ||
+        (d / H) % 2 || !(m->eps > 0) || !(m->rope_theta > 0) || m->quant < 0 || m->quant > 2 ||
+        (m->quant == 2 && (d % LM_GROUP || m->ffdim % LM_GROUP))) {
+        lm_free(m); snprintf(err, errlen, "ogiltigt huvud i .lmod (LFM2)"); return NULL;
+    }
+    const int hdim = d / H, kvd = m->kv_heads * hdim, T = m->ctx, L = m->conv_L, h2 = hdim / 2;
+    size_t off = 64;
+    m->wte = take_mat(m, &off, m->vocab, d);
+    m->F = calloc(m->layers, sizeof(LfmLayer));
+    if (!m->F) { lm_free(m); snprintf(err, errlen, "för lite minne"); return NULL; }
+    int na = 0, nc = 0;
+    for (int l = 0; l < m->layers; l++) {
+        LfmLayer *y = &m->F[l];
+        y->attn = (typer >> l) & 1u;
+        y->norm1 = take_f(m, &off, d);
+        y->norm2 = take_f(m, &off, d);
+        if (y->attn) {
+            y->slot = na++;
+            y->q = take_mat(m, &off, d, d); y->k = take_mat(m, &off, kvd, d);
+            y->v = take_mat(m, &off, kvd, d); y->o = take_mat(m, &off, d, d);
+            y->qn = take_f(m, &off, hdim); y->kn = take_f(m, &off, hdim);
+        } else {
+            y->slot = nc++;
+            y->in = take_mat(m, &off, 3 * d, d);
+            y->convw = take_f(m, &off, (size_t)d * L);
+            y->out = take_mat(m, &off, d, d);
+        }
+        y->w1 = take_mat(m, &off, m->ffdim, d);
+        y->w3 = take_mat(m, &off, m->ffdim, d);
+        y->w2 = take_mat(m, &off, d, m->ffdim);
+    }
+    m->lnf_w = take_f(m, &off, d);
+    if (off > m->map_size) { lm_free(m); snprintf(err, errlen, "filen är för kort"); return NULL; }
+    const size_t C = LFM_CHUNK < T ? LFM_CHUNK : T;
+    m->kcache = calloc((size_t)(na ? na : 1) * T * kvd, sizeof(float));
+    m->vcache = calloc((size_t)(na ? na : 1) * T * kvd, sizeof(float));
+    m->ccache = calloc((size_t)(nc ? nc : 1) * T * d, sizeof(float));
+    m->x = malloc(C * d * sizeof(float));
+    m->h = malloc(C * d * sizeof(float));
+    m->att = malloc(C * d * sizeof(float));
+    m->qkv = malloc(C * 3 * d * sizeof(float)); /* q + k + v ryms, liksom faltningens B, C, x */
+    m->ff = malloc(C * m->ffdim * sizeof(float));
+    m->ff2 = malloc(C * m->ffdim * sizeof(float));
+    m->logits = malloc((size_t)m->vocab * sizeof(float));
+    m->scores = malloc(C * H * (size_t)T * sizeof(float));
+    m->rope_cos = malloc((size_t)T * h2 * sizeof(float));
+    m->rope_sin = malloc((size_t)T * h2 * sizeof(float));
+    if (!m->kcache || !m->vcache || !m->ccache || !m->x || !m->h || !m->att || !m->qkv || !m->ff || !m->ff2 ||
+        !m->logits || !m->scores || !m->rope_cos || !m->rope_sin) {
+        lm_free(m); snprintf(err, errlen, "för lite minne"); return NULL;
+    }
+    /* RoPE som i referensen: frekvenserna i float32, vinkeln pos · frekvens i float32. */
+    for (int i = 0; i < h2; i++) {
+        const float inv = 1.0f / powf(m->rope_theta, (float)(2 * i) / (float)hdim);
+        for (int p = 0; p < T; p++) {
+            const float a = (float)p * inv;
+            m->rope_cos[(size_t)p * h2 + i] = (float)cos((double)a);
+            m->rope_sin[(size_t)p * h2 + i] = (float)sin((double)a);
+        }
+    }
+    return m;
+}
+
+static void rmsnorm(float *o, const float *x, const float *w, int n, float eps) {
+    float ss = 0;
+    for (int i = 0; i < n; i++) ss += x[i] * x[i];
+    const float inv = 1.0f / sqrtf(ss / n + eps);
+    for (int i = 0; i < n; i++) o[i] = w[i] * (x[i] * inv);
+}
+
+/* RoPE med rotate_half: första och andra halvan av huvudet bildar paren. */
+static void rope(float *v, const float *c, const float *s, int hd) {
+    const int h2 = hd / 2;
+    for (int i = 0; i < h2; i++) {
+        const float a = v[i], b = v[i + h2];
+        v[i] = a * c[i] - b * s[i];
+        v[i + h2] = b * c[i] + a * s[i];
+    }
+}
+
+static float silu(float x) { return x / (1.0f + expf(-x)); }
+
+/* Matar in n tokens i bitar om LFM_CHUNK. Med all != NULL skrivs logits för varje position dit. */
+static int eval_lfm(LM *m, const int32_t *toks, int n, float *all) {
+    const int d = m->d, H = m->heads, KV = m->kv_heads, hd = d / H, kvd = KV * hd, T = m->ctx;
+    const int L = m->conv_L, F = m->ffdim, V = m->vocab, grp = H / KV, h2 = hd / 2;
+    const float inv_sqrt = 1.0f / sqrtf((float)hd);
+    if (n <= 0 || m->pos + n > T) return -1;
+    for (int i = 0; i < n; i++) if (toks[i] < 0 || toks[i] >= V) return -2;
+    const int CH = LFM_CHUNK < T ? LFM_CHUNK : T;
+    float *x = m->x, *h = m->h;
+    int c = 0;
+    for (int start = 0; start < n; start += CH) {
+        c = n - start < CH ? n - start : CH;
+        const int p0 = m->pos;
+        for (int i = 0; i < c; i++) {
+            const int t = toks[start + i];
+            float *xi = x + (size_t)i * d;
+            if (m->wte.quant && m->wte.gs) {
+                const int8_t *q = m->wte.q + (size_t)t * d;
+                const float *sc = m->wte.scale + (size_t)t * (d / m->wte.gs);
+                for (int k = 0; k < d; k++) xi[k] = q[k] * sc[k / m->wte.gs];
+            } else if (m->wte.quant) {
+                const int8_t *q = m->wte.q + (size_t)t * d;
+                const float sc = m->wte.scale[t];
+                for (int k = 0; k < d; k++) xi[k] = q[k] * sc;
+            } else {
+                memcpy(xi, m->wte.f + (size_t)t * d, d * sizeof(float));
+            }
+        }
+        for (int l = 0; l < m->layers; l++) {
+            const LfmLayer *y = &m->F[l];
+            for (int i = 0; i < c; i++) rmsnorm(h + (size_t)i * d, x + (size_t)i * d, y->norm1, d, m->eps);
+            if (y->attn) {
+                float *K = m->kcache + (size_t)y->slot * T * kvd, *Vc = m->vcache + (size_t)y->slot * T * kvd;
+                float *q = m->qkv, *kb = q + (size_t)c * d, *vb = kb + (size_t)c * kvd;
+                matmul(q, h, c, &y->q, NULL);
+                matmul(kb, h, c, &y->k, NULL);
+                matmul(vb, h, c, &y->v, NULL);
+                for (int i = 0; i < c; i++) {
+                    const int pos = p0 + i;
+                    const float *cs = m->rope_cos + (size_t)pos * h2, *sn = m->rope_sin + (size_t)pos * h2;
+                    for (int a = 0; a < H; a++) {
+                        float *v = q + (size_t)i * d + a * hd;
+                        rmsnorm(v, v, y->qn, hd, m->eps);
+                        rope(v, cs, sn, hd);
+                    }
+                    for (int a = 0; a < KV; a++) {
+                        float *v = kb + (size_t)i * kvd + a * hd;
+                        rmsnorm(v, v, y->kn, hd, m->eps);
+                        rope(v, cs, sn, hd);
+                    }
+                    memcpy(K + (size_t)pos * kvd, kb + (size_t)i * kvd, kvd * sizeof(float));
+                    memcpy(Vc + (size_t)pos * kvd, vb + (size_t)i * kvd, kvd * sizeof(float));
+                }
+                #pragma omp parallel for collapse(2) schedule(dynamic)
+                for (int i = 0; i < c; i++) {
+                    for (int a = 0; a < H; a++) {
+                        const float *qv = q + (size_t)i * d + a * hd;
+                        const int kvh = a / grp, last = p0 + i;
+                        float *sc = m->scores + ((size_t)i * H + a) * T;
+                        float mx = -1e30f;
+                        for (int j = 0; j <= last; j++) {
+                            const float *kv = K + (size_t)j * kvd + kvh * hd;
+                            float s = 0;
+                            #pragma omp simd reduction(+:s)
+                            for (int e = 0; e < hd; e++) s += qv[e] * kv[e];
+                            s *= inv_sqrt;
+                            sc[j] = s;
+                            if (s > mx) mx = s;
+                        }
+                        float sum = 0;
+                        for (int j = 0; j <= last; j++) { sc[j] = expf(sc[j] - mx); sum += sc[j]; }
+                        float *o = m->att + (size_t)i * d + a * hd;
+                        for (int e = 0; e < hd; e++) o[e] = 0;
+                        for (int j = 0; j <= last; j++) {
+                            const float pj = sc[j] / sum;
+                            const float *vv = Vc + (size_t)j * kvd + kvh * hd;
+                            for (int e = 0; e < hd; e++) o[e] += pj * vv[e];
+                        }
+                    }
+                }
+                matmul(h, m->att, c, &y->o, NULL);
+            } else {
+                /* Kort faltning: in_proj ger B, C och x; B·x faltas kausalt och multipliceras med C. */
+                float *Cc = m->ccache + (size_t)y->slot * T * d, *bcx = m->qkv;
+                matmul(bcx, h, c, &y->in, NULL);
+                for (int i = 0; i < c; i++) {
+                    const float *B = bcx + (size_t)i * 3 * d, *X = B + 2 * d;
+                    float *dst = Cc + (size_t)(p0 + i) * d;
+                    for (int k = 0; k < d; k++) dst[k] = B[k] * X[k];
+                }
+                for (int i = 0; i < c; i++) {
+                    const int pos = p0 + i;
+                    const float *Cg = bcx + (size_t)i * 3 * d + d;
+                    float *o = m->att + (size_t)i * d;
+                    for (int k = 0; k < d; k++) {
+                        float s = 0;
+                        for (int t = 0; t < L; t++) {
+                            const int pp = pos - (L - 1) + t;
+                            if (pp >= 0) s += y->convw[(size_t)k * L + t] * Cc[(size_t)pp * d + k];
+                        }
+                        o[k] = Cg[k] * s;
+                    }
+                }
+                matmul(h, m->att, c, &y->out, NULL);
+            }
+            for (size_t k = 0; k < (size_t)c * d; k++) x[k] += h[k];
+            for (int i = 0; i < c; i++) rmsnorm(h + (size_t)i * d, x + (size_t)i * d, y->norm2, d, m->eps);
+            matmul(m->ff, h, c, &y->w1, NULL);
+            matmul(m->ff2, h, c, &y->w3, NULL);
+            for (size_t k = 0; k < (size_t)c * F; k++) m->ff[k] = silu(m->ff[k]) * m->ff2[k];
+            matmul(h, m->ff, c, &y->w2, NULL);
+            for (size_t k = 0; k < (size_t)c * d; k++) x[k] += h[k];
+        }
+        m->pos = p0 + c;
+        if (all) {
+            for (int i = 0; i < c; i++) rmsnorm(h + (size_t)i * d, x + (size_t)i * d, m->lnf_w, d, m->eps);
+            matmul(all + (size_t)start * V, h, c, &m->wte, NULL);
+        }
+    }
+    if (all) {
+        memcpy(m->logits, all + (size_t)(n - 1) * V, (size_t)V * sizeof(float));
+    } else {
+        rmsnorm(h, x + (size_t)(c - 1) * d, m->lnf_w, d, m->eps);
+        matmul(m->logits, h, 1, &m->wte, NULL); /* delade vikter med inbäddningen */
+    }
+    return 0;
+}
+
 /* Matar in n tokens efter det som redan finns i cachen. Returnerar 0, eller -1 om kontexten tar slut. */
 EXPORT int lm_eval(LM *m, const int32_t *toks, int n) {
+    if (m->arch == 1) return eval_lfm(m, toks, n, NULL);
     const int d = m->d, H = m->heads, hd = d / H, T = m->ctx, p0 = m->pos;
     if (n <= 0 || p0 + n > T) return -1;
     for (int i = 0; i < n; i++) {
@@ -380,6 +658,7 @@ EXPORT int lm_eval(LM *m, const int32_t *toks, int n) {
  * Används för att kontrollera flera föreslagna tokens i ett enda pass: vikterna läses en gång
  * för alla n tokens, vilket är det som kostar på en telefon. */
 EXPORT int lm_eval_all(LM *m, const int32_t *toks, int n, float *out) {
+    if (m->arch == 1) return eval_lfm(m, toks, n, out);
     const int rc = lm_eval(m, toks, n);
     if (rc != 0) return rc;
     const int d = m->d;

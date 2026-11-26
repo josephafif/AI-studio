@@ -1,7 +1,8 @@
 # Lennart – appen
 
 Svensk AI som körs helt lokalt, på Android och Windows, med samma kod. Modellerna körs av den egna
-motorn `../engine/lmengine.c` via `dart:ffi`.
+motorn `../engine/lmengine.c` via `dart:ffi`. Motorn kan två arkitekturer: Lennarts egen GPT (Lennart 1–3.x) och LFM2 från Liquid AI
+(t.ex. LFM2.5-350M, grunden för Lennart 4.0), som görs om med `tools/exportera_lfm2.py`.
 
 ## Delar
 

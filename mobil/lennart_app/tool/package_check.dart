@@ -14,6 +14,7 @@ Future<void> main(List<String> a) async {
   final b = StringBuffer();
   await for (final ev in e.generate([const ChatTurn(true, 'Vad är en brandvägg?')], const GenSettings(temperature: 0, maxTokens: 60, topK: 0))) {
     if (ev is GenToken) b.write(ev.text);
+    if (ev is GenChosen) b.write(ev.text);
   }
   stdout.writeln('Svar: ${b.toString().trim()}');
   try {
