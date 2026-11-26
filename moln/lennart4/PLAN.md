@@ -140,6 +140,21 @@ Avstår: Flashback, Reddit och undertexter. Licensen är oklar, tonen svår att 
 | 3–4 | 2 × 30 h | Förträning (fas 1–2) |
 | 5 | ~30 h | Fas 3: samtal + stil + DPO → Lennart 4.0 |
 
+## Ändringar efter nattforskningen (26 nov)
+
+Se `forskning/RAPPORT.md`. Det viktigaste för Lennart 4:
+
+1. **Lär honom läsa, inte bara minnas.** Lennart 3.4 kommer ofta på rätt svar (55 % bland 6 utkast) men kan
+   varken känna igen det eller läsa det ur en text. Lennart 4 får **läsövningar** i fas 2–3: fråga + 1–3
+   Wikipedia-inledningar (med vilseledande artiklar) → svar ur texten. Skriptet finns
+   (`forskning/kunskapsbank/lasdata.py`). Appen får ett **uppslagsverk** på telefonen: sökindex över de
+   viktigaste ~100 000 artiklarnas inledningar (~50 MB).
+2. **Osäkerhet som egen förmåga.** Modellens egen poäng förutsäger rätt/fel (AUROC 0,85). Lennart 4 tränas
+   dessutom på "det vet jag inte"-svar för frågor där läraren ser att modellen gissar.
+3. **Självskiss inbyggd från början.** Extra förlust på mittlagret (pilotens variant C), så att första halvan
+   av modellen kan skissa ord som hela modellen kontrollerar. Det ger ekodekodning även i nivån Snabb.
+4. **Ekodekodning och blockad matmul** finns redan i motorn och följer med till Lennart 4.
+
 ## Utvärdering
 - Valideringsförlust på samma webb- och samtalsdata som 3.x, med tokenizer-oberoende mått (bits per byte),
   eftersom tokenizern byts.

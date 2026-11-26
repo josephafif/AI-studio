@@ -76,6 +76,8 @@ class Engine:
     def eval_all(self, toks):
         n = len(toks)
         a = (C.c_int32 * n)(*toks)
+        if n > len(self._buf):
+            self._buf = np.zeros((n, self.vocab), dtype=np.float32)
         out = self._buf[:n]
         assert self.L.lm_eval_all(self.h, a, n, out.ctypes.data_as(C.POINTER(C.c_float))) == 0
         self.passes += 1

@@ -76,7 +76,12 @@ class GenDone extends GenEvent {
   final int promptTokens;
   final int drafts;
   final int passes; // framåtpass för svaret (färre än tokens när ekodekodningen träffar)
-  GenDone(this.tokens, this.seconds, this.promptTokens, this.drafts, {this.passes = 0});
+  final double? score; // modellens egen säkerhet för svaret (se _Draft.score)
+  GenDone(this.tokens, this.seconds, this.promptTokens, this.drafts, {this.passes = 0, this.score});
+
+  /// Lennart är osäker: i mätningar (forskning/tankeskalning) var bara ~11–21 % av svaren under
+  /// den här gränsen rätt, mot ~70 % över den.
+  bool get uncertain => score != null && score! < -0.5;
   double get tokensPerSecond => seconds > 0 ? tokens / seconds : 0;
 }
 
@@ -138,7 +143,7 @@ class LennartEngine {
           out.add(GenChosen(m['i'] as int, m['text'] as String));
         case 'done':
           out.add(GenDone(m['tokens'] as int, (m['seconds'] as num).toDouble(), m['prompt'] as int, m['drafts'] as int,
-              passes: (m['passes'] as int?) ?? 0));
+              passes: (m['passes'] as int?) ?? 0, score: (m['score'] as num?)?.toDouble()));
           sub.cancel();
           out.close();
         case 'genError':
@@ -223,12 +228,14 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
   // Ekodekodning: frågan och tidigare utkast används som förslag (se forskning/ekodekodning/).
   final sources = <List<int>>[prompt];
   var total = 0, written = 0;
+  double? chosenScore;
 
   if (drafts <= 1) {
     final d = _Draft.write(model, tok, rng, prompt, sources, limit, temperature, topK, banned, stop, echo,
         onPiece: (p) => toUi.send({'type': 'token', 'text': p}));
     total = d.tokens.length;
     written = 1;
+    chosenScore = d.score;
   } else {
     _Draft? best;
     var bestIndex = 0;
@@ -251,12 +258,15 @@ void _generate(NativeModel model, BpeTokenizer tok, Map m, SendPort toUi) {
         bestIndex = i;
       }
     }
-    if (best != null) toUi.send({'type': 'chosen', 'i': bestIndex, 'text': best.text});
+    if (best != null) {
+      chosenScore = best.score;
+      toUi.send({'type': 'chosen', 'i': bestIndex, 'text': best.text});
+    }
   }
   final secs = (sw.elapsedMicroseconds - genStart) / 1e6;
   toUi.send({
     'type': 'done', 'tokens': total, 'seconds': secs, 'prompt': prompt.length, 'drafts': written,
-    'passes': model.passes - passesStart, 'echoAccepted': echo.accepted,
+    'passes': model.passes - passesStart, 'echoAccepted': echo.accepted, 'score': chosenScore,
   });
 }
 

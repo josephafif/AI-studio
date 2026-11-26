@@ -39,7 +39,29 @@ mycket det kostar.
 
 ## Resultat på Lennart 3.4
 
-RESULTAT
+20 frågor på varje tänkandenivå, samma frö (`resultat_k4.txt`). Tid på en processor med 4 kärnor:
+
+| Nivå | Tid utan | Tid med | Pass | Tokens per pass |
+|---|---|---|---|---|
+| Snabb | 19,4 s | 21,6 s | 691 → 682 | 1,01 |
+| Medel | 51,8 s | **39,8 s (−23 %)** | 1826 → 1360 | 1,33 |
+| Djup | 102,2 s | **74,0 s (−28 %)** | 3693 → 2595 | 1,45 |
+
+**Motorn först.** I första försöket kostade ett pass med 8 tokens 3,3× ett vanligt pass. Det gjorde Djup
+*långsammare* trots 42 % färre pass. Matmul för flera tokens läste om varje vikt för varje token. Med
+registerblockning (4 och 2 tokens per vikt-läsning, `lmengine.c`) blev kostnaden:
+
+| Tokens per pass | 1 | 2 | 4 | 8 |
+|---|---|---|---|---|
+| Före | 1,00× | 1,28× | 1,96× | 3,34× |
+| Efter | 1,00× | 1,20× | 1,28× | 1,93× |
+
+Därför föreslås högst 4 tokens åt gången. Samma ändring gör att prompten läses in 1,4–1,6× snabbare
+(`prefill.py`: 384 tokens 4,6 s → 3,4 s).
+
+**Svarsminne** (`svarsminne.py`): svar på 15 frågor sparades, sedan ställdes omformulerade varianter.
+Det gav 1,21 tokens per pass, alltså ~12 % snabbare per token. Det är blygsamt, eftersom en liten modell formulerar
+sig olika varje gång. Tekniken gör mest nytta *inom* ett tänkande, där utkasten verkligen ekar varandra.
 
 ## Filer
 | Fil | Vad |

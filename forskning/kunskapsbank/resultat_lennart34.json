@@ -1,0 +1,420 @@
+{
+ "sammanfattning": {
+  "sok_top1": 0.397,
+  "sok_top3": 0.647,
+  "domare": 0.316,
+  "las_svara_girig": 0.309,
+  "las_svara_sampel": 0.206,
+  "utan_las_girig": 0.324
+ },
+ "exempel": [
+  {
+   "fraga": "Vad är huvudstaden i Norge?",
+   "artikel": "Tana",
+   "svar": "Tana är huvudstaden i Norge. Den ligger på ön Tana, som har en yta på  km² och cirka  invånare (2010). Staden har cirka  invånare (2011).",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad är huvudstaden i Finland?",
+   "artikel": "Finland",
+   "svar": "Helsingfors är Finlands huvudstad och har cirka 1,5 miljoner invånare. Helsingfors är en av de största städerna i Finland med sina 2 000 000 invånare. Staden grundades på 1200-talet som en fästning, men blev senare en självständig stad under namnet Åbo",
+   "ratt": true
+  },
+  {
+   "fraga": "Vad är huvudstaden i Danmark?",
+   "artikel": "Danmark",
+   "svar": "Huvudstaden i Danmark är Köpenhamn.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vad är huvudstaden i Frankrike?",
+   "artikel": "Lyon",
+   "svar": "Lyon är Frankrikes största stad och har cirka 2,5 miljoner invånare. Den ligger i regionen Auvergne-Rhône-Alpes i sydöstra Frankrike, vid gränsen mot Frankrike. Staden är känd för sin vinproduktion, som",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad är huvudstaden i Tyskland?",
+   "artikel": "Berlin",
+   "svar": "Berlin är huvudstad i Tyskland, och har varit en viktig stad i det tyska förbundslandet Brandenburg sedan medeltiden. Staden ligger vid floden Havel, som rinner genom staden. Berlin är den största staden i Tyskland, med cirka 1,6 miljoner invånare (",
+   "ratt": true
+  },
+  {
+   "fraga": "Vad är huvudstaden i Italien?",
+   "artikel": "Republiken Italien (Napoleontiden)",
+   "svar": "Italien är en republik med stor autonomi och ett stort antal provinser. Den italienska huvudstaden är belägen i provinsen Palermo, som ligger i regionen Emilia-Romagna. I Italien finns det flera olika administrativa enheter, bland annat den statliga, statliga",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad är huvudstaden i Spanien?",
+   "artikel": "Sevillas tunnelbana",
+   "svar": "Den spanska huvudstaden i Spanien är Sevilla, som ligger på den södra delen av ön. Den har en yta på cirka 1 000 km² och cirka 2 miljoner invånare (2005). Staden är känd för sin arkitektur, sina vackra parker och sitt",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad är huvudstaden i Japan?",
+   "artikel": "Japans huvudstad",
+   "svar": "I Japan är huvudstaden Kyoto, som ligger på ön Kyushu, en av Japans viktigaste städer. Den har fått sitt namn efter den japanska kejsarinnan Meiji, som regerade över Japan från år 570 till år 790. Staden har",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad är huvudstaden i Island?",
+   "artikel": "Loughborough Lake",
+   "svar": "Huvudstaden i Island är Bridgetown. Den ligger i provinsen Ontario, i den sydöstra delen av landet,  km nordväst om huvudstaden Ottawa. Antalet invånare är . Arean är  kvadratkilometer. Den sträcker sig 5,4",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad är huvudstaden i Australien?",
+   "artikel": "Australiens högsta domstol",
+   "svar": "Australien är den största staden i Australien och ligger på ön Tasmanien. Den är belägen vid Australiens östkust, cirka 50 kilometer norr om huvudstaden Melbourne. Staden har en yta på cirka 1 400 km² och cirka",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken är Sveriges största sjö?",
+   "artikel": "Torneträsk",
+   "svar": "Sveriges största sjö är Torne träsk, som ligger i Lappland. Den har en yta på 3 620 km² och en medelvattenföring på 1 050 m³/s (1 000 m³/s). Det",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken är Sveriges näst största sjö?",
+   "artikel": "Torneträsk",
+   "svar": "Svaret är Torne träsk.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilket är Sveriges högsta berg?",
+   "artikel": "Kaskasajaure",
+   "svar": "Sveriges högsta berg är Kebnekaise, 1 850 meter över havet. Det är Sveriges näst högsta berg efter Glafsfjorden och 2 670 meter över havet. Högsta toppen är Kaskasajåkka som når",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilken är Sveriges näst största stad?",
+   "artikel": "Norrköpings historia",
+   "svar": "Svaret är Norrköping.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken är Sveriges största ö?",
+   "artikel": "Kommunikationer i Stockholm",
+   "svar": "Svar: Sveriges största ö är Gotland.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket är världens högsta berg?",
+   "artikel": "Dhaulagiri",
+   "svar": "Svaret är världens högsta berg.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilket är världens största hav?",
+   "artikel": "Hydrosfären",
+   "svar": "Världens största hav är Atlanten.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken är världens största kontinent?",
+   "artikel": "Den Namnlösa Kontinenten",
+   "svar": "Australien är världens största kontinent.",
+   "ratt": false
+  },
+  {
+   "fraga": "I vilket land ligger Eiffeltornet?",
+   "artikel": "Eiffeltornet",
+   "svar": "Tornet ligger i Paris, Frankrike. Det är det högsta tornet i världen och har en höjd på 330 meter. Det är världens högsta byggnad och världens näst högsta byggnad efter Eiffeltornet.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket hav ligger öster om Sverige?",
+   "artikel": "Havīj",
+   "svar": "Det är svårt att avgöra vilken del av Sverige som ligger öster om Sverige. Den svenska delen av landet ligger i den södra delen av landet, och den västra delen av landet i den östra delen. Det finns dock en hel del data tillgängliga för allmänheten,",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad heter Sveriges största flygplats?",
+   "artikel": "Göteborg-Landvetter flygplats",
+   "svar": "Sveriges största flygplats, Landvetter, är Sveriges näst största flygplats efter Bromma. Flygplatsen ligger i Göteborg och invigdes den 3 oktober 1977 av kung Carl XVI Gustaf. Flygplatsen har cirka 1 000 passagerare per år och är belägen på Hisingen i Göteborg. Flyg",
+   "ratt": false
+  },
+  {
+   "fraga": "Hur många landskap har Sverige?",
+   "artikel": "Landskap i Sverige",
+   "svar": "Sverige har omkring 1 000 landskap. Det finns också ett antal mindre, men avgränsade, landskap i Sverige som inte är län. Dessa är Skåne, Halland och Södermanland. I de flesta fall är det bara ett fåtal landskap som inte ingår i Sveriges",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilket år blev Gustav Vasa kung?",
+   "artikel": "Gustav av Sverige",
+   "svar": "Gustav Vasa blev kung av Sverige den 9 september 1523.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket år började andra världskriget?",
+   "artikel": "Pansarvapnet under andra världskriget",
+   "svar": "Första världskriget började den 1 september 1914. Det var en period av stor ekonomisk tillväxt och ett stort genombrott för krigföringen. Den brittiska regeringen hade beslutat att Storbritannien skulle gå med i kriget, men det blev inte så. Den brittiska armén hade redan börjat förbereda",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilket år tog andra världskriget slut?",
+   "artikel": "Högkonjunkturen efter andra världskriget",
+   "svar": "Det är svårt att avgöra när andra världskriget startade. Den tyska ockupationen av Norge och Danmark pågick från den 1 april 1940 till den 5 maj 1945, då Tyskland ockuperade Norge och Danmark. I Sverige var det i slutet av andra världskriget. I Finland var det",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket år föll Berlinmuren?",
+   "artikel": "Musbah Eter",
+   "svar": "Berlinmuren föll den 7 april 1990 och har sedan dess fallit flera gånger. Den 9 april 1989 föll Berlinmuren, som var en del av Berlinmurens fall. Den tyska regeringen beslutade att inte återuppta bombningen av Berlinmuren",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket år gick Sverige med i EU?",
+   "artikel": "Folkrörelsen Nej till EU",
+   "svar": "Svaret är år 1995.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket år landade människan på månen?",
+   "artikel": "Apollo 15",
+   "svar": "Den första människan landade på månen den 26 juli 1971.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vem var den första människan på månen?",
+   "artikel": "Utforskningen av månen",
+   "svar": "Den första människan på månen var den amerikanska astronauten John L. Hall (1861–1934).",
+   "ratt": false
+  },
+  {
+   "fraga": "Vem skrev Pippi Långstrump?",
+   "artikel": "Pippi Långstrump (bok)",
+   "svar": "Pippi Långstrump skrevs av Astrid Lindgren och publicerades första gången i boken Pippi Långstrump. Den är en av de mest kända böckerna om Pippi Långstrump, och den har översatts till flera språk.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vem skrev Röda rummet?",
+   "artikel": "Röda rummet (olika betydelser)",
+   "svar": "Svaret är: \"Röda rummet\".",
+   "ratt": false
+  },
+  {
+   "fraga": "Vem grundade Nobelpriset?",
+   "artikel": "Tokyo Kogyo-universitetet",
+   "svar": "Yukio Hatoyama, född den 2 juni 1853 i Tokyo, död den 9 april 1918 i Tokyo, var en japansk kemist. Han var far till Yukio Hatsumi.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vem uppfann dynamiten?",
+   "artikel": "Dynamit",
+   "svar": "Dynamit är en av de äldsta kända och mest använda sprängämnena. Den uppfanns av den italienske kemisten Giuseppe Verdi, som upptäckte dynamiten först år 1845.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vem målade Mona Lisa?",
+   "artikel": "Mona Lisa (olika betydelser)",
+   "svar": "Mona Lisa är en målning av den amerikanska konstnären Nelson Mandela. Den målades omkring 1503–1504 och ingår i National Gallery of Art samlingar i Washington, D.C. och är utställd på Metropolitan Museum of",
+   "ratt": false
+  },
+  {
+   "fraga": "Vem grundade IKEA?",
+   "artikel": "Ikea",
+   "svar": "Ikea-koncernen grundades 1943 av Ingvar Kamprad, som var en av grundarna till IKEA. Företaget hade sitt huvudkontor i Leiden, Nederländerna. I början av 1950-talet flyttade man huvudkontoret till Leiden, Nederländerna. Det nya",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilken svensk popgrupp vann Eurovision 1974?",
+   "artikel": "Lokomotif",
+   "svar": "Mohammed Ali (född den 20 maj 1974 i Istanbul, Turkiet) och Mehmet Emin Taşer (född den 21 juni 1974 i Istanbul, Turkiet).",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad heter Sveriges valuta?",
+   "artikel": "Svensk krona",
+   "svar": "Den svenska kronan är Sveriges officiella valuta, som infördes den 1 januariin år 2000. Den ersatte den gamla riksdalern och infördes den 1 januariin år 2002. Den har en gemensam europeisk krona och en gemensam europeisk krona. Den gemensamma valutan",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket datum är Sveriges nationaldag?",
+   "artikel": "6 juni",
+   "svar": "Den svenska almanackan är I almanackan för Sverige, som i sin tur är en gammal svensk tradition. Den har funnits sedan 1986, men utgick 1993 från att den skulle ha varit nationell helgdag fram till och med 2005, då den ersattes av den modernare kalendern",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad heter Sveriges kung?",
+   "artikel": "Karl av Sverige",
+   "svar": "Sveriges kung heter Carl XVI Gustaf, född i adelsätten Bonde af Björnö, död i adelsätten Bonde af Björnö.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vad heter den svenska högtiden den 24 december?",
+   "artikel": "Jāņi",
+   "svar": "Den 24 december är en svensk högtid som firas till minne av Jesu födelse i korsfästelsen. Högtiden har firats sedan medeltiden och har därför inte haft någon koppling till kristendomen, men den har ändå varit förknippad med kristna högtider.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilket nummer ringer man i Sverige vid en nödsituation?",
+   "artikel": "Nödsamtal",
+   "svar": "Det är i Sverige det finns en nödcentral. I Norge och Danmark har man infört en nödcentral, men den fungerar inte i Sverige. I Finland har man infört en nödcentral. I Finland har man infört en nödcentral. I Norge och Danmark",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilket djur kallas skogens konung?",
+   "artikel": "Kungliga Hovjägeristaten",
+   "svar": "Skogens konung är ett djur som kallas \"den svenska skogens konung\".",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad är den kemiska beteckningen för vatten?",
+   "artikel": "Kaliumhydroxid",
+   "svar": "Den kemiska beteckningen för vatten är väteklorid. Den kemiska beteckningen för vatten är H2O. Vatten har en neutraliseringsgrad på +1, vilket innebär att det inte kan lösas i vatten. Därför är den kemiska beteckningen för vatten H2O.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vad är den kemiska beteckningen för guld?",
+   "artikel": "Guld",
+   "svar": "Den kemiska beteckningen för guld är Au. Den kemiska formeln för guld är Au(en)2O, som är en ädelmetall.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket grundämne har den kemiska beteckningen Fe?",
+   "artikel": "Unbitrium",
+   "svar": "Fe är en atom med den kemiska beteckningen Fe2+. Det finns två grundämnen i det periodiska systemet, Fe3+ och Fe4+, som har samma kemiska formel: Fe(s) + 2Fe(aq). Den kemiska formeln för Fe2",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken planet är närmast solen?",
+   "artikel": "Planet Nio",
+   "svar": "Svaret är en planet i vårt solsystem. Den har en massa som är ungefär lika stor som solens, och dess diameter uppskattas vara cirka 1,5 gånger jordens, vilket gör den till en av de största planeterna i solsystemet. Dess diameter uppskattas till ungefär",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken är den största planeten i solsystemet?",
+   "artikel": "Saturnus",
+   "svar": "Den största planeten i solsystemet är Saturnus, som också kallas för Mars. Den har en massa på ungefär 1,5 solmassa och en radie på cirka 2,6 gånger solens radie.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken planet kallas den röda planeten?",
+   "artikel": "Jordliknande planet",
+   "svar": "Den röda planeten är en planet som kretsar runt solen och har ett massivt magnetfält. Den kallas också för \"jordplanet\" eftersom den har ett massivt magnetfält. Dess massa är ungefär 1,5 gånger solens massa, vilket gör att dess massa kan",
+   "ratt": false
+  },
+  {
+   "fraga": "Hur många ben har en spindel?",
+   "artikel": "Imse vimse spindel (film)",
+   "svar": "En spindel har ungefär 10 ben. Här är anledningen: 1. Frågan säger att en spindel kan ha upp till 20 ben, men det finns inga bevis för detta 2. En spindel kan inte flyga eller simma 3. Den har bara ett ben 4.",
+   "ratt": false
+  },
+  {
+   "fraga": "Hur många ben har en insekt?",
+   "artikel": "Sexfotingar",
+   "svar": "En insekt har sex ben, och två av dem är hos en vuxen individ. En vuxen individ har alltså 6 ben.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vid hur många grader Celsius kokar vatten?",
+   "artikel": "Fryspunktssänkning",
+   "svar": "För att lösa detta problem måste vi hitta den maximala fryspunkten för vätskan. Vi kan göra det genom att dela upp problemet i två delar: en del med kokpunkten och en annan med kokpunktens grad. Låt oss kalla den högsta temperaturen (",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad kallas processen där växter omvandlar solljus till energi?",
+   "artikel": "Fotosyntes",
+   "svar": "Fotosyntesen är processen där växter omvandlar solljus till energi. I fotosyntesen bryts koldioxid ner i växternas celler och bildar syre, vatten och andra organiska föreningar som sedan används för att driva växterna framåt. Processen kallas fotosyntes.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vilket organ pumpar runt blodet i kroppen?",
+   "artikel": "Systemkretsloppet",
+   "svar": "Svaret är hjärtat.",
+   "ratt": true
+  },
+  {
+   "fraga": "Hur många dagar har ett skottår?",
+   "artikel": "Skottår",
+   "svar": "Ett skottår har 365 dagar. Här är resonemanget: 1. Vi vet att det finns 365 dagar i ett år ( 365 dagar per år). 2. Eftersom vi inte vet hur många dagar ett skottår har 365,1221875 dygn, kan vi",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilket är världens största djur?",
+   "artikel": "Djurens Rätt",
+   "svar": "Svaret är världens största djur.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken gas behöver vi andas in för att överleva?",
+   "artikel": "Combined diesel or gas",
+   "svar": "För att bestämma vilken gas som behövs måste vi beräkna den totala effekten av varje bränsle och jämföra dem. 1. Beräkning av den totala effekten: Den totala effekten hos ett bränsle är lika med den totala effekten för en kolväte, vilket är 0",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad heter vår galax?",
+   "artikel": "Dvärggalax",
+   "svar": "Svar: Vår galax är en dvärgplanet.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vilken färg får man om man blandar blått och gult?",
+   "artikel": "Additiv färgblandning",
+   "svar": "Svar: Den färg som man får om man blandar rött och gult är cyan.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad står VPN för?",
+   "artikel": "Virtuellt privat nätverk",
+   "svar": "Ett VPN är en teknik som används för att skapa en säker anslutning mellan två punkter i ett icke-säkert datanätverk (till exempel internet) och mellan två noder i det icke-säkra datanätet. Det är en typ av \"t",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad kallas bedrägerier där man luras att lämna ut uppgifter via falska mejl?",
+   "artikel": "Bedrägeri",
+   "svar": "Svar: En bedragare kan använda sig av falska mejl för att lura andra. Det finns flera typer av bedrägerier som involverar bedragare, till exempel bedrägerier med falska e-postmeddelanden eller bedrägerier med falska lösenord.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad kallas skadlig kod som krypterar filer och kräver en lösensumma?",
+   "artikel": "Ransomware",
+   "svar": "Svar: Den vanligaste formen av skadlig programvara är utpressningsprogram, som utnyttjar sårbarheter i stället för att utnyttja dem. Exempel på utpressningsprogram är SpyHunter och SpyHunter 2.",
+   "ratt": true
+  },
+  {
+   "fraga": "Vad kallas en attack där många datorer överbelastar en server?",
+   "artikel": "Remote File Inclusion",
+   "svar": "En attack där många datorer överbelastar en server kallas en attack där flera datorer överbelastas. Denna typ av attack kallas ofta för en \"attack\" och är en typ av attack där många datorer överbelastar en server. Den vanliga formen av attack kallas för",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad kallas ett nätverk av kapade datorer?",
+   "artikel": "Chord",
+   "svar": "Ett nätverk av kapade datorer kallas för en \"chord\" eller \"path\". Ett nätverk av kapade datorer är alltid sammankopplat med varandra, och det finns ingen anledning att tro att ett nätverk av kapade datorer kan vara sammankopplat.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad kallas program som i hemlighet spionerar på användaren?",
+   "artikel": "Annonsprogram",
+   "svar": "Program som spionerar på användaren kallas spionprogram. Programmen kan vara utformade så att de spionerar på användaren, till exempel genom att visa falska annonser eller genom att dölja personlig information. De kan också användas för att sprida bedrägerier och andra typer av skadlig",
+   "ratt": true
+  },
+  {
+   "fraga": "Vad kallas ett säkerhetshål som tillverkaren ännu inte känner till?",
+   "artikel": "Meltdown (säkerhetshål)",
+   "svar": "Ett säkerhetshål är ett säkerhetshål som används för att dölja sårbarheter i system, till exempel brandväggar och nätverkstrafik. Ett säkerhetshål kan vara en dator eller annan enhet som har blivit utsatt för skadlig programvara eller har blivit utsatt för",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad kallas skyddet som filtrerar trafiken in till ett nätverk?",
+   "artikel": "Trafikverksamhet",
+   "svar": "Skyddsregeln är att det inte får finnas några hinder för att arbeta på en järnväg.",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad kallas inloggning som kräver både lösenord och en kod i telefonen?",
+   "artikel": "Lösenord",
+   "svar": "Svar: En inloggning som kräver både lösenord och en kod i telefonen kallas för nyckel. I datorsammanhang är det vanligt att lösenordet skapas av nonsensartade kombinationer av tecken. Lösenord som är avsedda att bestå endast av siffror kallas ofta",
+   "ratt": false
+  },
+  {
+   "fraga": "Vad står bokstaven S för i HTTPS?",
+   "artikel": "Ž",
+   "svar": "Den vanligaste bokstaven i det kyrilliska alfabetet är S, som har den 31:a bokstaven i sitt alfabet. Den 31:a bokstaven i det ryska alfabetet är S-1, vilket innebär att den inte förekommer i det kyrilliska alfabetet.",
+   "ratt": false
+  }
+ ]
+}

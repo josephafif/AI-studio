@@ -25,7 +25,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from tokenizers import Tokenizer
 
-torch.set_num_threads(4)
+torch.set_num_threads(int(__import__("os").environ.get("PILOT_THREADS", 4)))
 D, LAYERS, HEADS, CTX, BATCH = 256, 6, 4, 256, 16
 LR, WARMUP = 2e-3, 100
 

@@ -146,6 +146,7 @@ class _ChatScreenState extends State<ChatScreen> {
           setState(() {
             if (reply.text.trim().isEmpty) reply.text = '…';
             if (reply.drafts.isNotEmpty) reply.thoughtSeconds = e.seconds;
+            reply.uncertain = e.uncertain;
             reply.meta = '${_model.name} · ${effort.label.toLowerCase()} · ${e.tokens} tok · ${e.tokensPerSecond.toStringAsFixed(1)} tok/s';
             _busy = false;
           });
@@ -594,6 +595,7 @@ class _Answer extends StatelessWidget {
               accent: accent,
             ),
           if (body != null) GestureDetector(onLongPress: () => _copy(context, message.text), child: body),
+          if (!live && message.uncertain && !message.error) const _UncertainChip(),
           if (!live && message.text.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 2),
@@ -608,6 +610,33 @@ class _Answer extends StatelessWidget {
                   ),
               ]),
             ),
+        ]),
+      ),
+    );
+  }
+}
+
+/// Lennart är osäker på svaret (låg egen säkerhet) – en diskret varning.
+class _UncertainChip extends StatelessWidget {
+  const _UncertainChip();
+  @override
+  Widget build(BuildContext context) {
+    final c = context.c;
+    const amber = Color(0xFFE0A030);
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: amber.withValues(alpha: c.dark ? 0.12 : 0.14),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: amber.withValues(alpha: 0.35)),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: [
+          Icon(Icons.help_outline_rounded, size: 15, color: c.dark ? amber : const Color(0xFF9A6400)),
+          const SizedBox(width: 6),
+          Text('Osäker – dubbelkolla gärna',
+              style: TextStyle(color: c.dark ? amber : const Color(0xFF9A6400), fontSize: 12.5, fontWeight: FontWeight.w600)),
         ]),
       ),
     );
