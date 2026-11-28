@@ -130,9 +130,10 @@ class LennartEngine {
     await _ensure();
     final reply = _events.stream.firstWhere((m) => m['type'] == 'loaded' || m['type'] == 'loadError');
     final threads = (Platform.numberOfProcessors - 1).clamp(1, 8);
+    loadedId = null; // den förra modellen släpps i isolaten innan den nya läses in
     _cmd!.send({'cmd': 'load', 'model': modelPath, 'tok': tokenizerPath, 'threads': threads});
     final m = await reply;
-    if (m['type'] == 'loadError') throw StateError(m['message'] as String);
+    if (m['type'] == 'loadError') throw StateError((m['message'] as String).replaceFirst('Bad state: ', ''));
     loadedId = id;
     context = m['context'] as int;
   }
@@ -213,6 +214,10 @@ void _main(SendPort toUi) {
     } else if (m['cmd'] == 'generate') {
       try {
         final stop = Pointer<Int32>.fromAddress(m['stop'] as int);
+        if (model == null || tok == null) {
+          toUi.send({'type': 'genError', 'message': 'Ingen modell är inläst. Välj en modell som fungerar, eller uppdatera appen om modellen är nyare än den.'});
+          return;
+        }
         generera(model!, tok!, m, toUi.send, () => stop.value != 0);
       } catch (e) {
         toUi.send({'type': 'genError', 'message': '$e'});
